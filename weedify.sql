@@ -188,7 +188,7 @@ INSERT INTO Users (username, password, email, user_level_id) VALUES ('karri', 'p
 
 INSERT INTO ProfilePicture (user_id, filename, media_type, filesize) VALUES (1, 'profile.jpg', 'image/jpeg', 12345), (2, 'profile.jpg', 'image/jpeg', 12345);
 
-INSERT INTO RecipePosts (user_id, title, instructions, diet_type, cooking_time) VALUES (1, 'Testiresepti', 'Testireseptin ohjeet', 'Vegaani', 30), (2, 'Testiresepti2', 'Testireseptin ohjeet', 'Kasvis', 45);
+INSERT INTO RecipePosts (user_id, media_id, title, instructions, diet_type, cooking_time) VALUES (1, 1, 'Testiresepti', 'Testireseptin ohjeet', 'Vegaani', 30), (2, 2, 'Testiresepti2', 'Testireseptin ohjeet', 'Kasvis', 45);
 
 INSERT INTO RecipeMedia (recipe_id, filename, media_type, filesize) VALUES (1, 'recipe.jpg', 'image/jpeg', 12345), (2, 'recipe.jpg', 'image/jpeg', 12345);
 
