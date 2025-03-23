@@ -30,7 +30,7 @@ const authenticate = async (req: Request, res: Response, next: NextFunction) => 
   }
 
   // decode the user_id from the token
-  const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as TokenContent; // TokenContent is a type from the DBTypes module
+  const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as TokenContent;
   console.log(decoded);
 
   if (!decoded) {
