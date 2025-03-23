@@ -182,9 +182,9 @@ CREATE INDEX idx_ingredient_name ON Ingredients(ingredient_name);
 CREATE INDEX idx_tag_name ON Tags(tag_name);
 
 -- Insert mock data
-INSERT INTO UserLevels (level_name) VALUES ('User'), ('Admin');
+INSERT INTO UserLevels (level_name) VALUES ('Admin'), ('User');
 
-INSERT INTO Users (username, password, email, user_level_id) VALUES ('karri', 'password', 'karri@testi.com', 1), ('testi', 'password', 'testi@testi.com', 1);
+INSERT INTO Users (username, password, email, user_level_id) VALUES ('karri', 'password', 'karri@testi.com', 2), ('testi', 'password', 'testi@testi.com', 2);
 
 INSERT INTO ProfilePicture (user_id, filename, media_type, filesize) VALUES (1, 'profile.jpg', 'image/jpeg', 12345), (2, 'profile.jpg', 'image/jpeg', 12345);
 

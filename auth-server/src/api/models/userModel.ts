@@ -60,7 +60,7 @@ const getUserByEmail = async (email: string): Promise<UserWithLevel> => {
 const createUser = async (
   user: Pick<User, 'username' | 'email' | 'password'>,
 ): Promise<UserWithNoPassword> => {
-  const sql = `INSERT INTO Users (username, email, password_hash, user_level_id) VALUES (?, ?, ?, ?)`;
+  const sql = `INSERT INTO Users (username, email, password, user_level_id) VALUES (?, ?, ?, ?)`;
   const stmt = promisePool.format(sql, [
     user.username,
     user.email,

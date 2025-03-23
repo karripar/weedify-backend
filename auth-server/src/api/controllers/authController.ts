@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { NextFunction, Request, Response } from 'express';
 import CustomError from '../../classes/CustomError';
 import { LoginResponse } from 'hybrid-types/MessageTypes';
-import getUserByEmail from '../models/userModel';
+import {getUserByEmail} from '../models/userModel';
 import { UserWithLevel, TokenContent } from 'hybrid-types/DBTypes';
 
 
