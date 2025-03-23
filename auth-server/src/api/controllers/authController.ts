@@ -8,7 +8,7 @@ import { UserWithLevel, TokenContent } from 'hybrid-types/DBTypes';
 
 
 const Login = async (
-  req: Request<unknown, unknown, { email: string, password: string }>,
+  req: Request<object, object, { email: string, password: string }>,
   res: Response<LoginResponse>,
   next: NextFunction,
 ) => {
@@ -16,7 +16,7 @@ const Login = async (
     const {email, password} = req.body;
     const user = await getUserByEmail(email);
 
-    if (!user) {
+    if (!user || !user.password) {
       next(new CustomError('Invalid credentials', 400));
       return;
     }

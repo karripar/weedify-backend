@@ -3,8 +3,6 @@ import CustomError from "./classes/CustomError";
 import { NextFunction, Request, Response } from "express";
 import jwt from 'jsonwebtoken';
 import { TokenContent } from "hybrid-types/DBTypes";
-import { validationResult } from "express-validator";
-import {getUserById} from './api/models/userModel';
 
 // Middleware to handle 404 errors
 const notFound = (req: Request, res: Response, next: NextFunction) => {
@@ -21,16 +19,6 @@ const errorHandler = (error: CustomError, req: Request, res: Response, next: Nex
   });
 }
 
-// Middleware to check for validation errors
-const validationErrors = (req: Request, res: Response, next: NextFunction) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const messages: string = errors.array().map((error) => error.msg).join(', ');
-    next(new CustomError(messages, 400));
-    return;
-  }
-  next();
-}
 
 // Middleware to authenticate the user
 const authenticate = async (req: Request, res: Response, next: NextFunction) => {
@@ -45,13 +33,13 @@ const authenticate = async (req: Request, res: Response, next: NextFunction) => 
   const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as TokenContent; // TokenContent is a type from the DBTypes module
   console.log(decoded);
 
-  const user = await getUserById(decoded.user_id);
-  if (!user) {
-    next(new CustomError('Unauthorized, user not found', 401));
+  if (!decoded) {
+    next(new CustomError('Unauthorized, invalid token', 401));
     return;
   }
 
-  res.locals.user = user;
+
+  res.locals.user = decoded;
   next();
   } catch (error) {
     next(new CustomError((error as Error).message, 401));
@@ -59,4 +47,4 @@ const authenticate = async (req: Request, res: Response, next: NextFunction) => 
 }
 
 
-export {notFound, errorHandler, validationErrors, authenticate};
+export {notFound, errorHandler, authenticate};

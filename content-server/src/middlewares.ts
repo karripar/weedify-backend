@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import CustomError from "./classes/CustomError";
+import CustomError from "./classes/customError";
 import { NextFunction, Request, Response } from "express";
 import jwt from 'jsonwebtoken';
 import { TokenContent } from "hybrid-types/DBTypes";
 import { validationResult } from "express-validator";
-import {getUserById} from './api/models/userModel';
 
 // Middleware to handle 404 errors
 const notFound = (req: Request, res: Response, next: NextFunction) => {
@@ -45,13 +44,13 @@ const authenticate = async (req: Request, res: Response, next: NextFunction) => 
   const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as TokenContent; // TokenContent is a type from the DBTypes module
   console.log(decoded);
 
-  const user = await getUserById(decoded.user_id);
-  if (!user) {
+  if (!decoded || !decoded.user_id) {
     next(new CustomError('Unauthorized, user not found', 401));
     return;
   }
 
-  res.locals.user = user;
+  res.locals.user = decoded;
+  res.locals.token = token;
   next();
   } catch (error) {
     next(new CustomError((error as Error).message, 401));
