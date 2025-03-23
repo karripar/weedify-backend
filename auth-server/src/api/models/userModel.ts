@@ -13,30 +13,40 @@ import {customLog, fetchData} from '../../lib/functions';
 
 const profilePicDir = process.env.PROFILE_UPLOAD_URL;
 
-const getUserById = async (
-  user_id: number,
-): Promise<UserWithProfilePicture> => {
+const getUsers = async (): Promise<UserWithNoPassword[]> => {
   const [rows] = await promisePool.execute<
-    RowDataPacket[] & UserWithProfilePicture[]
+    RowDataPacket[] & UserWithNoPassword[]
   >(
-    `SELECT Users.user_id, Users.username, Users.email, Users.bio, UserLevels.level_name, ProfilePicture.filename, Users.bio FROM Users
+    `SELECT Users.user_id, Users.username, Users.email, Users.created_at, UserLevels.level_name, ProfilePicture.filename
+     FROM Users
+     JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
+     LEFT JOIN ProfilePicture ON Users.user_id = ProfilePicture.user_id`,
+  );
+  return rows;
+};
+
+const getUserById = async (user_id: number): Promise<UserWithProfilePicture> => {
+  const [rows] = await promisePool.execute<UserWithProfilePicture[] & RowDataPacket[]>(
+    `SELECT
+    Users.user_id, Users.username, Users.bio, Users.email, Users.created_at,
+    UserLevels.level_name, ProfilePicture.filename
+    FROM Users
     JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
     LEFT JOIN ProfilePicture ON Users.user_id = ProfilePicture.user_id
-    WHERE Users.user_id = ?`,
+    WHERE Users.user_id = ?;`,
     [user_id],
   );
-  if (rows.length === 0) {
-    throw new CustomError('User not found', 404);
-  }
-  return rows[0];
+
+  return rows[0]; // Handle case where user is not found
 };
+
 
 const getUserByEmail = async (email: string): Promise<UserWithLevel> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & UserWithLevel[]>(
-    `SELECT Users.user_id, Users.username, Users.bio, Users.email, Users.created_at, UserLevels.level_name, ProfilePictures.filename
+    `SELECT Users.user_id, Users.username, Users.bio, Users.email, Users.created_at, UserLevels.level_name, ProfilePicture.filename
      FROM Users
      JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
-     LEFT JOIN ProfilePictures ON Users.user_id = ProfilePictures.user_id
+     LEFT JOIN ProfilePicture ON Users.user_id = ProfilePicture.user_id
      WHERE Users.email = ?`,
     [email],
   );
@@ -49,14 +59,13 @@ const getUserByEmail = async (email: string): Promise<UserWithLevel> => {
 
 const createUser = async (
   user: Pick<User, 'username' | 'email' | 'password'>,
-  user_level_id: 2, // Default to User level
 ): Promise<UserWithNoPassword> => {
   const sql = `INSERT INTO Users (username, email, password_hash, user_level_id) VALUES (?, ?, ?, ?)`;
   const stmt = promisePool.format(sql, [
     user.username,
     user.email,
     user.password,
-    user_level_id,
+    2,
   ]);
   const [result] = await promisePool.execute<ResultSetHeader>(stmt);
 
@@ -73,10 +82,10 @@ const getUserByUsername = async (
   const [rows] = await promisePool.execute<
     RowDataPacket[] & UserWithNoPassword[]
   >(
-    `SELECT Users.user_id, Users.username, Users.bio, Users.email, Users.created_at, UserLevels.level_name, ProfilePictures.filename
+    `SELECT Users.user_id, Users.username, Users.bio, Users.email, Users.created_at, UserLevels.level_name, ProfilePicture.filename
      FROM Users
      JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
-     LEFT JOIN ProfilePictures ON Users.user_id = ProfilePictures.user_id
+     LEFT JOIN ProfilePicture ON Users.user_id = ProfilePicture.user_id
      WHERE Users.username = ?`,
     [username],
   );
@@ -162,7 +171,7 @@ const deleteUser = async (
     await connection.execute('DELETE FROM RecipePosts WHERE user_id = ?', [
       user_id,
     ]);
-    await connection.execute('DELETE FROM ProfilePictures WHERE user_id = ?', [
+    await connection.execute('DELETE FROM ProfilePicture WHERE user_id = ?', [
       user_id,
     ]);
     await connection.execute('DELETE FROM Likes WHERE user_id = ?', [user_id]);
@@ -196,8 +205,7 @@ const deleteUser = async (
       throw new CustomError('User not deleted', 500);
     }
 
-    return {message: 'User deleted successfully', 'user': {user_id}};
-
+    return {message: 'User deleted successfully', user: {user_id}};
   } catch (error) {
     console.error((error as Error).message);
     throw new CustomError('Error deleting user', 500);
@@ -205,7 +213,6 @@ const deleteUser = async (
     connection.release();
   }
 };
-
 
 const checkProfilePicExists = async (
   user_id: number,
@@ -217,7 +224,7 @@ const checkProfilePicExists = async (
       pp.user_id,
       pp.filename
       CONCAT(v.base_url, pp.filename) AS filename
-    FROM ProfilePictures pp
+    FROM ProfilePicture pp
     CROSS JOIN (SELECT ? AS base_url) AS v
     WHERE pp.user_id = ?
     `,
@@ -231,5 +238,12 @@ const checkProfilePicExists = async (
   return rows[0];
 };
 
-
-export {getUserById, getUserByEmail, createUser, getUserByUsername, deleteUser, checkProfilePicExists};
+export {
+  getUsers,
+  getUserById,
+  getUserByEmail,
+  createUser,
+  getUserByUsername,
+  deleteUser,
+  checkProfilePicExists,
+};

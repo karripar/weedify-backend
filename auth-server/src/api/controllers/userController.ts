@@ -1,0 +1,231 @@
+import {NextFunction, Request, Response} from 'express';
+import CustomError from '../../classes/CustomError';
+import bcrypt from 'bcryptjs';
+import {UserDeleteResponse, UserResponse} from 'hybrid-types/MessageTypes';
+import {
+  getUserById,
+  getUserByEmail,
+  createUser,
+  getUserByUsername,
+  deleteUser,
+  checkProfilePicExists,
+  getUsers
+} from '../models/userModel';
+import {
+  ProfilePicture,
+  User,
+  TokenContent,
+  UserWithNoPassword,
+} from 'hybrid-types/DBTypes';
+
+
+const salt = bcrypt.genSaltSync(12);
+
+const usersGet = async (
+  req: Request,
+  res: Response<UserWithNoPassword[]>,
+  next: NextFunction,
+) => {
+  try {
+    const users = await getUsers();
+    res.json(users);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const userByUsernameGet = async (
+  req: Request<{username: string}>,
+  res: Response<UserWithNoPassword>,
+  next: NextFunction,
+) => {
+  try {
+    const user = await getUserByUsername(req.params.username);
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+}
+
+
+const userByIdGet = async (
+  req: Request<{id: string}>,
+  res: Response<UserWithNoPassword>,
+  next: NextFunction,
+) => {
+  try {
+    const user = await getUserById(Number(req.params.id));
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+const profilePictureGet = async (
+  req: Request<{user_id: string}>,
+  res: Response<ProfilePicture | null>,
+  next: NextFunction,
+) => {
+  try {
+    const profilePic = await checkProfilePicExists(Number(req.params.user_id));
+    res.json(profilePic);
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+const userPost = async (
+  req: Request<unknown, unknown, User>,
+  res: Response<UserResponse>,
+  next: NextFunction,
+) => {
+  try {
+    const user = req.body;
+
+    if (!user.password || !user.email || !user.username) {
+      next(new CustomError('Missing required fields', 400));
+      return;
+    }
+
+    user.password = await bcrypt.hash(user.password, salt);
+
+    const newUser = await createUser(user);
+    console.log('newUser:', newUser);
+
+    if (!newUser) {
+      next(new CustomError('User not created', 500));
+      return;
+    }
+
+    const response = {
+      message: 'User created',
+      user: newUser,
+    };
+
+    res.json(response);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const checkEmailExists = async (
+  req: Request<{email: string}>,
+  res: Response<{exists: boolean}>,
+  next: NextFunction,
+) => {
+  try {
+    const user = await getUserByEmail(req.params.email);
+    res.json({exists: user ? true : false});
+  } catch (err) {
+    next(err);
+  }
+};
+
+const checkUsernameExists = async (
+  req: Request<{username: string}>,
+  res: Response<{exists: boolean}>,
+  next: NextFunction,
+) => {
+  try {
+    const user = await getUserByUsername(req.params.username);
+    res.json({exists: user ? true : false});
+  } catch (err) {
+    next(err);
+  }
+};
+
+const deleteUserAsAdmin = async (
+  req: Request<{user_id: string}>,
+  res: Response<UserDeleteResponse, {user: TokenContent; token: string}>,
+  next: NextFunction,
+) => {
+  try {
+    if (res.locals.user.level_name !== 'Admin') {
+      next(new CustomError('Unauthorized', 401));
+      return;
+    }
+
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      next(new CustomError('Unauthorized', 401));
+      return;
+    }
+
+    const response = await deleteUser(Number(req.params.user_id), token);
+
+    if (!response) {
+      next(new CustomError('User not deleted', 500));
+      return;
+    }
+
+    res.json(response);
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+const deleteUserAsUser = async (
+  req: Request,
+  res: Response<UserDeleteResponse, {user: TokenContent; token: string}>,
+  next: NextFunction,
+) => {
+  try {
+    const userFromToken = res.locals.user;
+
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      next(new CustomError('Unauthorized', 401));
+      return;
+    }
+
+    const response = await deleteUser(userFromToken.user_id, token);
+
+    if (!response) {
+      next(new CustomError('User not deleted', 500));
+      return;
+    }
+
+    res.json(response);
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+const checkToken = async (
+  req: Request,
+  res: Response<UserResponse, {user: TokenContent}>,
+  next: NextFunction,
+) => {
+  try {
+    const userFromToken = res.locals.user;
+
+    const user = await getUserById(userFromToken.user_id);
+    console.log('user:', user);
+
+    if (!user) {
+      next(new CustomError('User not found', 404));
+      return;
+    }
+
+    res.json({message: 'Token is valid', user});
+  } catch (err) {
+    next(err);
+  }
+};
+
+export {
+  userByUsernameGet,
+  userByIdGet,
+  userPost,
+  checkEmailExists,
+  checkUsernameExists,
+  deleteUserAsAdmin,
+  checkToken,
+  deleteUserAsUser,
+  profilePictureGet,
+  usersGet
+};
