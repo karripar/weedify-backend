@@ -9,7 +9,10 @@ import {
   getUserByUsername,
   deleteUser,
   checkProfilePicExists,
-  getUsers
+  getUsers,
+  postProfilePic,
+  putProfilePic,
+  getProfilePicById,
 } from '../models/userModel';
 import {
   ProfilePicture,
@@ -74,6 +77,66 @@ const profilePictureGet = async (
     next(err);
   }
 };
+
+
+const profilePicPost = async (
+  req: Request<unknown, unknown, Omit<ProfilePicture, 'profile_picture_id' | 'created_at'>>,
+  res: Response<{message: string, profile_picture_id: number}, {user: TokenContent}>,
+  next: NextFunction,
+) => {
+  try {
+    req.body.user_id = res.locals.user.user_id;
+    const media = req.body;
+    if (!media.filename || !media.filesize) {
+      next(new CustomError('Missing required fields', 400));
+      return;
+    }
+    const response = await postProfilePic(req.body);
+
+    res.json({
+      message: 'Profile picture uploaded',
+      profile_picture_id: response.profile_picture_id,
+    })
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+const profilePicturePut = async (
+  req: Request<{user_id: string}, unknown, ProfilePicture>,
+  res: Response<ProfilePicture | null, {user: TokenContent; token: string}>,
+  next: NextFunction,
+) => {
+  try {
+    const profilePic = req.body;
+    const user_id = Number(res.locals.user.user_id);
+
+    if (!profilePic.filename || !profilePic.filesize) {
+      next(new CustomError('Missing required fields', 400));
+      return;
+    }
+
+    const result = await putProfilePic(profilePic, user_id)
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+const profilePicByIdGet = async (
+  req: Request<{profile_picture_id: string}>,
+  res: Response<ProfilePicture>,
+  next: NextFunction,
+) => {
+  try {
+    const profilePic = await getProfilePicById(Number(req.params.profile_picture_id));
+    res.json(profilePic);
+  } catch (err) {
+    next(err);
+  }
+}
 
 
 const userPost = async (
@@ -217,6 +280,9 @@ const checkToken = async (
   }
 };
 
+
+
+
 export {
   userByUsernameGet,
   userByIdGet,
@@ -227,5 +293,8 @@ export {
   checkToken,
   deleteUserAsUser,
   profilePictureGet,
-  usersGet
+  usersGet,
+  profilePicPost,
+  profilePicturePut,
+  profilePicByIdGet,
 };

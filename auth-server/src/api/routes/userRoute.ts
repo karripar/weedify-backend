@@ -1,6 +1,7 @@
 import express from 'express';
-import { body, param } from 'express-validator';
-import {userByUsernameGet,
+import {body, param} from 'express-validator';
+import {
+  userByUsernameGet,
   userByIdGet,
   usersGet,
   userPost,
@@ -9,11 +10,14 @@ import {userByUsernameGet,
   deleteUserAsAdmin,
   checkToken,
   deleteUserAsUser,
-  profilePictureGet} from '../controllers/userController';
-import { authenticate, validationErrors } from '../../middlewares';
+  profilePictureGet,
+  profilePicByIdGet,
+  profilePicPost,
+  profilePicturePut,
+} from '../controllers/userController';
+import {authenticate, validationErrors} from '../../middlewares';
 
 const router = express.Router();
-
 
 /**
  * @apiDefine UserGroup User API Endpoints
@@ -37,7 +41,6 @@ const router = express.Router();
  *      "error": "Unauthorized"
  *    }
  */
-
 
 router.get(
   /**
@@ -80,7 +83,7 @@ router.get(
    */
   '/',
   usersGet,
-)
+);
 
 router.get(
   /**
@@ -256,6 +259,179 @@ router.get(
   profilePictureGet,
 );
 
+router.get(
+  /**
+   * @api {get} /profilepicture/id/:profile_picture_id Get profile picture by id
+   * @apiName GetProfilePictureById
+   * @apiGroup UserGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Get profile picture by id
+   * @apiPermission none
+   *
+   * @apiParam {Number} profile_picture_id Profile picture id
+   *
+   * @apiSuccess {Object} Profile picture object
+   * @apiSuccess {String} filepath Profile picture filename
+   * @apiSuccess {String} user_id User id
+   * @apiSuccess {String} created_at Date the profile picture was created
+   * @apiSuccess {String} profile_picture_id Profile picture id
+   * @apiSuccess {String} filesize Profile picture filesize
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *   HTTP/1.1 200 OK
+   *  {
+   *   "filename": "profile.jpg",
+   *   "user_id": 1,
+   *   "created_at": "2021-01-01T00:00:00.000Z",
+   *   "profile_picture_id": 1,
+   *   "filesize": "1000"
+   * }
+   *
+   * @apiError (Error 404) ProfilePictureNotFound The profile picture was not found
+   * @apiErrorExample {json} ProfilePictureNotFound
+   *   HTTP/1.1 404 Not Found
+   * {
+   * "error": "Profile picture not found"
+   * }
+   *
+   * @apiError (Error 422) ValidationError Validation error
+   * @apiErrorExample {json} ValidationError
+   *  HTTP/1.1 422 Unprocessable Entity
+   * {
+   * "error": "Validation error"
+   * }
+   *
+   * @apiError (Error 500) InternalServerError Internal server error
+   * @apiErrorExample {json} InternalServerError
+   * HTTP/1.1 500 Internal Server Error
+   * {
+   * "error": "Internal server error"
+   * }
+   *
+   */
+  '/profilepicture/id/:picture_id',
+  param('picture_id').isNumeric(),
+  validationErrors,
+  profilePicByIdGet,
+);
+
+
+router.post(
+  /**
+   * @api {post} /profilepicture Post profile picture
+   * @apiName PostProfilePicture
+   * @apiGroup UserGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Post profile picture
+   * @apiPermission token
+   *
+   * @apiBody {String} filename Profile picture filename
+   * @apiBody {String} filesize Profile picture filesize
+   *
+   * @apiSuccess {Object} Profile picture object
+   * @apiSuccess {String} filepath Profile picture filename
+   * @apiSuccess {String} user_id User id
+   * @apiSuccess {String} created_at Date the profile picture was created
+   * @apiSuccess {String} profile_picture_id Profile picture id
+   * @apiSuccess {String} filesize Profile picture filesize
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *   HTTP/1.1 200 OK
+   *  {
+   *   "filename": "profile.jpg",
+   *   "user_id": 1,
+   *   "created_at": "2021-01-01T00:00:00.000Z",
+   *   "profile_picture_id": 1,
+   *   "filesize": "1000"
+   * }
+   *
+   * @apiError (Error 401) Unauthorized The user is not authorized to access this endpoint
+   * @apiErrorExample {json} Unauthorized
+   *  HTTP/1.1 401 Unauthorized
+   * {
+   * "error": "Unauthorized"
+   * }
+   * @apiError (Error 422) ValidationError Validation error
+   * @apiErrorExample {json} ValidationError
+   *  HTTP/1.1 422 Unprocessable Entity
+   * {
+   * "error": "Validation error"
+   * }
+   * @apiError (Error 500) InternalServerError Internal server error
+   * @apiErrorExample {json} InternalServerError
+   * HTTP/1.1 500 Internal Server Error
+   * {
+   * "error": "Internal server error"
+   * }
+   *
+   */
+  '/profilepicture',
+  authenticate,
+  body('filename').isString(),
+  body('filesize').isString(),
+  validationErrors,
+  profilePicPost,
+);
+
+
+router.put(
+  /**
+   * @api {put} /profilepicture Update profile picture
+   * @apiName UpdateProfilePicture
+   * @apiGroup UserGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Update profile picture
+   * @apiPermission token
+   *
+   * @apiBody {String} filename Profile picture filename
+   * @apiBody {String} filesize Profile picture filesize
+   *
+   * @apiSuccess {Object} Profile picture object
+   * @apiSuccess {String} filepath Profile picture filename
+   * @apiSuccess {String} user_id User id
+   * @apiSuccess {String} created_at Date the profile picture was created
+   * @apiSuccess {String} profile_picture_id Profile picture id
+   * @apiSuccess {String} filesize Profile picture filesize
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *   HTTP/1.1 200 OK
+   *  {
+   *   "filename": "profile.jpg",
+   *   "user_id": 1,
+   *   "created_at": "2021-01-01T00:00:00.000Z",
+   *   "profile_picture_id": 1,
+   *   "filesize": "1000"
+   * }
+   *
+   * @apiError (Error 401) Unauthorized The user is not authorized to access this endpoint
+   * @apiErrorExample {json} Unauthorized
+   *  HTTP/1.1 401 Unauthorized
+   * {
+   * "error": "Unauthorized"
+   * }
+   * @apiError (Error 422) ValidationError Validation error
+   * @apiErrorExample {json} ValidationError
+   *  HTTP/1.1 422 Unprocessable Entity
+   * {
+   * "error": "Validation error"
+   * }
+   * @apiError (Error 500) InternalServerError Internal server error
+   * @apiErrorExample {json} InternalServerError
+   * HTTP/1.1 500 Internal Server Error
+   * {
+   * "error": "Internal server error"
+   * }
+   *
+   */
+  '/profilepicture',
+  authenticate,
+  body('filename').isString(),
+  body('filesize').isString(),
+  validationErrors,
+  profilePicturePut,
+);
+
+
 router.post(
   /**
    * @api {post} / Create user
@@ -313,17 +489,18 @@ router.post(
   body('username')
     .isString()
     .trim()
-    .isLength({ min: 3, max: 20 })
+    .isLength({min: 3, max: 20})
     .withMessage('Username must be between 3 and 20 characters')
     .escape(),
-  body('email').isEmail()
+  body('email')
+    .isEmail()
     .trim()
     .normalizeEmail()
     .isEmail()
     .withMessage('Invalid email'),
   body('password')
     .isString()
-    .isLength({ min: 8 })
+    .isLength({min: 8})
     .withMessage('Password must be at least 8 characters'),
   validationErrors,
   userPost,
@@ -535,6 +712,6 @@ router.get(
   '/token',
   authenticate,
   checkToken,
-)
+);
 
 export default router;
