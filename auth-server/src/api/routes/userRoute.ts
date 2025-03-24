@@ -44,7 +44,7 @@ const router = express.Router();
 
 router.get(
   /**
-   * @api {get} / Get all users
+   * @api {get} /users/ Get all users
    * @apiName GetUsers
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -87,7 +87,7 @@ router.get(
 
 router.get(
   /**
-   * @api {get} /:username Get user by username
+   * @api {get} /users/:username Get user by username
    * @apiName GetUserByUsername
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -146,7 +146,7 @@ router.get(
 
 router.get(
   /**
-   * @api {get} /id/:id Get user by id
+   * @api {get} /users/id/:id Get user by id
    * @apiName GetUserById
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -205,7 +205,7 @@ router.get(
 
 router.get(
   /**
-   * @api {get} /profilepicture/:user_id Get user profile picture
+   * @api {get} /users/profilepicture/:user_id Get user profile picture
    * @apiName GetUserProfilePicture
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -261,7 +261,7 @@ router.get(
 
 router.get(
   /**
-   * @api {get} /profilepicture/id/:profile_picture_id Get profile picture by id
+   * @api {get} /users/profilepicture/id/:profile_picture_id Get profile picture by id
    * @apiName GetProfilePictureById
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -318,7 +318,7 @@ router.get(
 
 router.post(
   /**
-   * @api {post} /profilepicture Post profile picture
+   * @api {post} /users/profilepicture Post profile picture
    * @apiName PostProfilePicture
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -376,7 +376,7 @@ router.post(
 
 router.put(
   /**
-   * @api {put} /profilepicture Update profile picture
+   * @api {put} /users/profilepicture Update profile picture
    * @apiName UpdateProfilePicture
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -434,7 +434,7 @@ router.put(
 
 router.post(
   /**
-   * @api {post} / Create user
+   * @api {post} /users/ Create user
    * @apiName CreateUser
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -508,7 +508,7 @@ router.post(
 
 router.get(
   /**
-   * @api {get} /email/:email Check if email exists
+   * @api {get} /users/email/:email Check if email exists
    * @apiName CheckEmailExists
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -547,7 +547,7 @@ router.get(
 
 router.get(
   /**
-   * @api {get} /username/:username Check if username exists
+   * @api {get} /users/username/:username Check if username exists
    * @apiName CheckUsernameExists
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -586,7 +586,7 @@ router.get(
 
 router.delete(
   /**
-   * @api {delete} /id/:id Delete user as admin
+   * @api {delete} /users/id/:id Delete user as admin
    * @apiName DeleteUserAsAdmin
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -634,7 +634,7 @@ router.delete(
 
 router.delete(
   /**
-   * @api {delete} / Delete user as user
+   * @api {delete} /users/ Delete user as user
    * @apiName DeleteUserAsUser
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -672,7 +672,7 @@ router.delete(
 
 router.get(
   /**
-   * @api {get} /token Check token and return user
+   * @api {get} /users/token Check token and return user
    * @apiName CheckToken
    * @apiGroup UserGroup
    * @apiVersion 1.0.0

@@ -12,11 +12,11 @@
     "apidoc": "apidoc -i src/api/routes/ -o apidocs/"
   },
   "apidoc": {
-    "name": "MyLens API",
+    "name": "Weedify Auth/Users API",
     "version": "1.0.0",
-    "description": "REST API backend for MyLens users and authorization endpoints",
-    "title": "MyLens API",
-    "url": "https://10.120.32.64/auth/api/v1",
+    "description": "REST API backend for Weedify users and authorization endpoints",
+    "title": "Weedify Auth/Users API",
+    "url": "http://localhost:3001/api/v1",
     "template": {
       "withCompare": true,
       "withGenerator": true

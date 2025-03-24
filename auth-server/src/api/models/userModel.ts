@@ -161,7 +161,7 @@ const deleteUser = async (
     if (existingProfilePic?.filename) {
       try {
         const response = await fetchData<MessageResponse>(
-          `${process.env.UPLOAD_SERVER}/profilepicture/delete`,
+          `${process.env.UPLOAD_SERVER}/profile/${existingProfilePic.filename}`,
           options,
         );
         console.log('response', response);

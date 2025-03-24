@@ -25,7 +25,7 @@ const router = express.Router();
 
 router.post(
   /**
-   * @api {post} /login Login
+   * @api {post} /auth/login Login
    * @apiName Login
    * @apiGroup AuthGroup
    * @apiVersion  1.0.0

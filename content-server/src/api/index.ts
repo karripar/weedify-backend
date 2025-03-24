@@ -13,7 +13,7 @@ router.get("/", (req: Request, res: Response<MessageResponse>) => {
 }
 );
 
-/*  routers not created yet
+/*  not created yet, see auth-server for example structure and apidoc examples
 
 router.use('/recipes', recipeRouter);
 router.use('/likes', likeRouter);
