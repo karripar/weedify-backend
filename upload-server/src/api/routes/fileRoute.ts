@@ -247,7 +247,7 @@ router.delete(
    * @apiErrorExample {json} Unauthorized:
    * {
    *  "message": "Unauthorized"
-   *
+   * }
    * @apiError (404) {String} File not found File not found
    * @apiErrorExample {json} File not found:
    * {
