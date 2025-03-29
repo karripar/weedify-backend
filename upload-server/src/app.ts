@@ -26,6 +26,9 @@ app.use(helmet(
   }
 ));
 
+app.use('/uploads', express.static('uploads'));
+app.use('/uploads/profile', express.static('uploads/profile'));
+
 app.use('/api/v1', api);
 
 app.use(notFound);

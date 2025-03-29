@@ -1,6 +1,6 @@
 import express, {NextFunction, Request, Response} from 'express';
 import multer from 'multer';
-import { authenticate } from '../../middlewares';
+import { authenticate, getThumbnails } from '../../middlewares';
 import CustomError from '../../classes/CustomError';
 import { TokenContent } from 'hybrid-types/DBTypes';
 import randomstring from 'randomstring';
@@ -92,13 +92,7 @@ router.post(
    *
    * @apiUse token
    *
-   * @apiBody {File} file File to upload
-   * @apiBodyExample {json} Body-Example:
-   * {
-   *  "filename": "file.jpg",
-   *  "filesize": 1024,
-   *  "media_type": "image/jpeg"
-   * }
+   * @apiBody {File} file File to upload (image or video)
    *
    * @apiSuccess (200) {object} data File data
    * @apiSuccess (200) {string} message Success message
@@ -139,6 +133,7 @@ router.post(
   '/upload',
   authenticate,
   doUpload,
+  getThumbnails,
   uploadFile
 );
 
@@ -154,12 +149,7 @@ router.post(
    *
    * @apiUse token
    *
-   * @apiBody {File} file File to upload
-   * @apiBodyExample {json} Body-Example:
-   * {
-   *  "filename": "file.jpg",
-   *  "filesize": 1024
-   * }
+   * @apiBody {File} file File to upload (profile picture, only images or gifs)
    *
    * @apiSuccess (200) {String} message Success message
    * @apiSuccess (200) {Number} profile_picture_id Profile picture ID

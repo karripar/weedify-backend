@@ -99,4 +99,18 @@ const getThumbnails = async (
   }
 };
 
-export {notFound, errorHandler, authenticate, getThumbnails};
+// user from res.locals to body
+const userToBody = (
+  req: Request,
+  res: Response<unknown, {user: TokenContent}>,
+  next: NextFunction
+) => {
+  if (!req.body.user) {
+    delete req.body.user;
+  }
+
+  req.body.user = res.locals.user;
+  next();
+};
+
+export {notFound, errorHandler, authenticate, getThumbnails, userToBody};
