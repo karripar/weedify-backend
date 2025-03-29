@@ -80,7 +80,7 @@ recipeRouter
      * @apiBody {string} title Title of the recipe
      * @apiBody {string} instructions Instructions for the recipe
      * @apiBody {string} diet_type Diet type of the recipe
-     * @apiBody {string} cooking_time Cooking time of the recipe
+     * @apiBody {number} cooking_time Cooking time of the recipe (in minutes)
      * @apiBody {string} media_type Media type of the recipe file
      * @apiBody {string} filename Filename of the recipe
      * @apiBody {number} filesize Filesize of the recipe
@@ -135,8 +135,9 @@ recipeRouter
       .escape(),
     body('cooking_time')
       .notEmpty()
-      .isString()
-      .isLength({min: 3, max: 50})
+      .isNumeric()
+      .isInt({min: 1, max: 1440})
+      .toInt()
       .trim()
       .escape(),
     body('media_type')
@@ -255,7 +256,7 @@ recipeRouter
      *   "error": "Unauthorized"
      * }
      * }
-     * 
+     *
      * @apiError (Error 404) {String} NotFound Recipe not found
      * @apiErrorExample {json} NotFound
      * HTTP/1.1 404 Not Found
