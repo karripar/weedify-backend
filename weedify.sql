@@ -40,24 +40,15 @@ CREATE TABLE ProfilePicture (
 CREATE TABLE RecipePosts (
     recipe_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
-    media_id INT DEFAULT NULL,
     title VARCHAR(255) NOT NULL,
     instructions TEXT NOT NULL,
     diet_type VARCHAR(50),
     cooking_time INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
-);
-
--- Create table RecipeMedia
-CREATE TABLE RecipeMedia (
-    media_id INT PRIMARY KEY AUTO_INCREMENT,
-    recipe_id INT NOT NULL,
     filename VARCHAR(255) NOT NULL,
     media_type VARCHAR(50) NOT NULL,
     filesize INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (recipe_id) REFERENCES RecipePosts(recipe_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
 -- Create table Ingredients
