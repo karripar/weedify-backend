@@ -304,4 +304,4 @@ favoriteRouter
     favoriteRemove,
   );
 
-export {favoriteRouter};
+export default favoriteRouter;

@@ -164,9 +164,7 @@ CREATE INDEX idx_recipe_diet_type ON RecipePosts(diet_type);
 CREATE INDEX idx_recipe_cooking_time ON RecipePosts(cooking_time);
 CREATE INDEX idx_recipe_created_at ON RecipePosts(created_at);
 
-CREATE INDEX idx_recipe_media_filename ON RecipeMedia(filename);
-CREATE INDEX idx_recipe_media_media_type ON RecipeMedia(media_type);
-CREATE INDEX idx_recipe_media_filesize ON RecipeMedia(filesize);
+
 
 CREATE INDEX idx_ingredient_name ON Ingredients(ingredient_name);
 
@@ -179,9 +177,7 @@ INSERT INTO Users (username, password, email, user_level_id) VALUES ('karri', 'p
 
 INSERT INTO ProfilePicture (user_id, filename, media_type, filesize) VALUES (1, 'profile.jpg', 'image/jpeg', 12345), (2, 'profile.jpg', 'image/jpeg', 12345);
 
-INSERT INTO RecipePosts (user_id, media_id, title, instructions, diet_type, cooking_time) VALUES (1, 1, 'Testiresepti', 'Testireseptin ohjeet', 'Vegaani', 30), (2, 2, 'Testiresepti2', 'Testireseptin ohjeet', 'Kasvis', 45);
-
-INSERT INTO RecipeMedia (recipe_id, filename, media_type, filesize) VALUES (1, 'recipe.jpg', 'image/jpeg', 12345), (2, 'recipe.jpg', 'image/jpeg', 12345);
+INSERT INTO RecipePosts (user_id, title, instructions, diet_type, cooking_time, filename, media_type, filesize) VALUES (1, 'Kasvisruoka', 'Ohjeet kasvisruokaan', 'Kasvis', 30, 'recipe.jpg', 'image/jpeg', 12345), (2, 'Liha-annos', 'Ohjeet liha-annokseen', 'Liha', 45, 'recipe.jpg', 'image/jpeg', 12345);
 
 INSERT INTO Ingredients (ingredient_name) VALUES ('Peruna'), ('Porkkana');
 
