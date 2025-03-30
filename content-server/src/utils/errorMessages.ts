@@ -13,6 +13,13 @@ export const ERROR_MESSAGES = {
     NO_USERNAME: 'No username provided',
     NO_TAG: 'No tag provided',
   },
+  NOTIFICATION: {
+    NOT_FOUND: 'No notifications found',
+    NOT_FOUND_USER: 'No notifications found for user',
+    NOT_CREATED: 'Notification not created',
+    NOT_DELETED: 'Notification not deleted',
+    NOT_UPDATED: 'Notification not updated',
+  },
   LIKE: {
     NOT_FOUND: 'No likes found',
     NOT_FOUND_RECIPE: 'No likes found for media',
