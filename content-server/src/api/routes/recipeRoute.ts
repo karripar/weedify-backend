@@ -103,7 +103,7 @@ recipeRouter
      * @apiBody {number} filesize Filesize of the recipe from the upload response
      * @apiBody {object[]} ingredients List of ingredients
      * @apiBody {string} ingredients.name Name of the ingredient
-     * @apiBody {number} ingredients.amount Amount of the ingredient
+     * @apiBody {number} ingredients.amount Amount of the ingredient in decimal format or integer
      * @apiBody {string} ingredients.unit Unit of the ingredient
      *
      * @apiExample {json} Request-Example:
