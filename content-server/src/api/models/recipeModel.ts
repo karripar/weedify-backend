@@ -1,3 +1,4 @@
+
 import {ERROR_MESSAGES} from '../../utils/errorMessages';
 import {ResultSetHeader, RowDataPacket} from 'mysql2';
 import {Recipe, UserLevel} from 'hybrid-types/DBTypes';
@@ -11,7 +12,7 @@ const BASE_QUERY = `
   SELECT
     rp.recipe_id,
     rp.user_id,
-    rp.filename,
+    CONCAT(v.base_url, rp.filename) AS filename,
     rp.filesize,
     rp.media_type,
     rp.title,
@@ -19,26 +20,39 @@ const BASE_QUERY = `
     rp.diet_type,
     rp.cooking_time,
     rp.created_at,
-    CONCAT(v.base_url, rp.filename) AS filename,
     CASE
-      WHEN rp.media_type LIKE '%image%'
-      THEN CONCAT(v.base_url, rp.filename, '-thumb.png')
-      ELSE CONCAT(v.base_url, rp.filename, '-animation.gif')
+        WHEN rp.media_type LIKE '%image%'
+        THEN CONCAT(v.base_url, rp.filename, '-thumb.png')
+        ELSE CONCAT(v.base_url, rp.filename, '-animation.gif')
     END AS thumbnail,
     CASE
-      WHEN rp.media_type NOT LIKE '%image%'
-      THEN JSON_ARRAY(
-          CONCAT(v.base_url, rp.filename, '-thumb-1.png'),
-          CONCAT(v.base_url, rp.filename, '-thumb-2.png'),
-          CONCAT(v.base_url, rp.filename, '-thumb-3.png'),
-          CONCAT(v.base_url, rp.filename, '-thumb-4.png'),
-          CONCAT(v.base_url, rp.filename, '-thumb-5.png')
+        WHEN rp.media_type NOT LIKE '%image%'
+        THEN JSON_ARRAY(
+            CONCAT(v.base_url, rp.filename, '-thumb-1.png'),
+            CONCAT(v.base_url, rp.filename, '-thumb-2.png'),
+            CONCAT(v.base_url, rp.filename, '-thumb-3.png'),
+            CONCAT(v.base_url, rp.filename, '-thumb-4.png'),
+            CONCAT(v.base_url, rp.filename, '-thumb-5.png')
         )
-      ELSE NULL
-    END AS screenshots
-  FROM RecipePosts rp
-  CROSS JOIN (SELECT ? AS base_url) AS v
+        ELSE NULL
+    END AS screenshots,
+    (
+        SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'ingredient_id', i.ingredient_id,
+                'name', i.ingredient_name,
+                'amount', ri.amount,
+                'unit', ri.unit
+            )
+        )
+        FROM RecipeIngredients ri
+        LEFT JOIN Ingredients i ON ri.ingredient_id = i.ingredient_id
+        WHERE ri.recipe_id = rp.recipe_id
+    ) AS ingredients
+FROM RecipePosts rp
+CROSS JOIN (SELECT ? AS base_url) AS v
 `;
+
 
 // Request a list of recipes and files related to the recipe
 const fetchAllRecipes = async (
@@ -53,12 +67,15 @@ const fetchAllRecipes = async (
   const stmt = await promisePool.format(sql, params);
 
   const [rows] = await promisePool.execute<RowDataPacket[] & Recipe[]>(stmt);
+  rows.forEach((row) => {
+    row.ingredients = JSON.parse(row.ingredients || '[]'); // NOTICE THIS, OTHERWISE INGREDIENT WILL BE IN UGLY JSON
+  });
   return rows;
 }
 
 
 const fetchRecipeById = async (recipe_id: number): Promise<Recipe> => {
-  const sql = `${BASE_QUERY} WHERE rp.recipe_id = ?`;
+  const sql = `${BASE_QUERY} WHERE rp.recipe_id = ? GROUP BY rp.recipe_id`;
   const params = [uploadPath, recipe_id];
   const stmt = await promisePool.format(sql, params);
 
@@ -66,30 +83,84 @@ const fetchRecipeById = async (recipe_id: number): Promise<Recipe> => {
   if (rows.length === 0) {
     throw new CustomError(ERROR_MESSAGES.RECIPE.NOT_FOUND, 404);
   }
+
+  rows.forEach((row) => {
+    row.ingredients = JSON.parse(row.ingredients || '[]'); // NOTICE THIS, OTHERWISE INGREDIENT WILL BE IN UGLY JSON
+  });
   return rows[0];
 }
 
 
-// Post a new recipe
+// Post a new recipe with ingredients
 const postRecipe = async (
   recipe: Omit<Recipe, 'recipe_id' | 'created_at' | 'thumbnail'>,
+  ingredients: {name: string; amount: number, unit: string}[],
 ): Promise<Recipe> => {
   const {user_id, filename, filesize, media_type, title, instructions, diet_type, cooking_time} = recipe;
-  const sql = `
-    INSERT INTO RecipePosts (user_id, filename, filesize, media_type, title, instructions, diet_type, cooking_time
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  const params = [user_id, filename, filesize, media_type, title, instructions, diet_type, cooking_time];
-  const stmt = await promisePool.format(sql, params);
+  const connection = await promisePool.getConnection();
+  try {
+    await connection.beginTransaction();
 
-  console.log('stmt', stmt);
-  const [result] = await promisePool.execute<ResultSetHeader>(stmt);
-  if (!result.affectedRows) {
-    throw new CustomError(ERROR_MESSAGES.RECIPE.NOT_CREATED, 500);
+    // Insert the recipe
+    const sql = `
+      INSERT INTO RecipePosts (user_id, filename, filesize, media_type, title, instructions, diet_type, cooking_time)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    const params = [user_id, filename, filesize, media_type, title, instructions, diet_type, cooking_time];
+    const stmt = await connection.format(sql, params);
+    const [result] = await connection.execute<ResultSetHeader>(stmt);
+    if (!result.affectedRows) {
+      throw new CustomError(ERROR_MESSAGES.RECIPE.NOT_CREATED, 500);
+    }
+    const recipeId = result.insertId;
+
+    // Insert the ingredients
+    for (const ingredient of ingredients) {
+      const [ingredientRows] = await connection.execute<RowDataPacket[] & Recipe[]>(
+        'SELECT ingredient_id FROM Ingredients WHERE ingredient_name = ?',
+        [ingredient.name],
+      );
+
+      let ingredientId: number;
+
+      // Check if ingredient already exists
+      if (ingredientRows.length > 0) {
+        ingredientId = ingredientRows[0].ingredient_id;
+
+      } else {
+        // Insert new ingredient
+        const insertIngredientSql = 'INSERT INTO Ingredients (ingredient_name) VALUES (?)';
+        const params = [ingredient.name];
+        const insertIngredientStmt = await connection.format(insertIngredientSql, params);
+        const [insertIngredientResult] = await connection.execute<ResultSetHeader>(insertIngredientStmt);
+        if (!insertIngredientResult.affectedRows) {
+          throw new CustomError(ERROR_MESSAGES.RECIPE.NOT_CREATED, 500);
+        }
+        ingredientId = insertIngredientResult.insertId;
+      }
+
+      // Insert into RecipeIngredients
+      const insertRecipeIngredientSql = `
+        INSERT INTO RecipeIngredients (recipe_id, ingredient_id, amount, unit)
+        VALUES (?, ?, ?, ?)`;
+      const insertRecipeIngredientParams = [recipeId, ingredientId, ingredient.amount, ingredient.unit];
+      const insertRecipeIngredientStmt = await promisePool.format(insertRecipeIngredientSql, insertRecipeIngredientParams);
+      const [insertRecipeIngredientResult] = await connection.execute<ResultSetHeader>(insertRecipeIngredientStmt);
+      if (!insertRecipeIngredientResult.affectedRows) {
+        throw new CustomError(ERROR_MESSAGES.RECIPE.NOT_CREATED, 500);
+      }
   }
-  return await fetchRecipeById(result.insertId);
-}
 
+  await connection.commit();
+  return await fetchRecipeById(recipeId);
+} catch (error) {
+    await connection.rollback();
+    console.error('Error in postRecipeWithIngredients:', error);
+    throw new CustomError(ERROR_MESSAGES.RECIPE.NOT_CREATED, 500);
+  } finally {
+    connection.release();
+  }
+}
 
 const deleteRecipe = async (
   recipe_id: number,

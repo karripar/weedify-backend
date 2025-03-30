@@ -53,7 +53,24 @@ recipeRouter
      *  {
      *    "recipe_id": 1,
      *    "user_id": 1,
-     *    "createdAt": "2021-07-01T00:00:00.000Z"
+     *    "filename": "recipe1.jpg",
+     *    "filesize": 12345,
+     *    "media_type": "image/jpeg",
+     *    "title": "Recipe Title",
+     *    "instructions": "Recipe instructions",
+     *    "diet_type": "Diet type",
+     *    "cooking_time": "Cooking time",
+     *    "thumbnail": "Thumbnail URL",
+     *    "screenshots": ["Screenshot URL 1", "Screenshot URL 2"],
+     *    "createdAt": "2021-07-01T00:00:00.000Z",
+     *    "ingredients": [
+     *      {
+     *        "ingredient_id": 1,
+     *        "name": "Ingredient Name",
+     *        "amount": 1,
+     *        "unit": "g"
+     *      }
+     *    ]
      *  }
      * ]
      *
@@ -81,9 +98,37 @@ recipeRouter
      * @apiBody {string} instructions Instructions for the recipe
      * @apiBody {string} diet_type Diet type of the recipe
      * @apiBody {number} cooking_time Cooking time of the recipe (in minutes)
-     * @apiBody {string} media_type Media type of the recipe file
-     * @apiBody {string} filename Filename of the recipe
-     * @apiBody {number} filesize Filesize of the recipe
+     * @apiBody {string} media_type Media type of the recipe file from the upload response
+     * @apiBody {string} filename Filename of the recipe from the upload response
+     * @apiBody {number} filesize Filesize of the recipe from the upload response
+     * @apiBody {object[]} ingredients List of ingredients
+     * @apiBody {string} ingredients.name Name of the ingredient
+     * @apiBody {number} ingredients.amount Amount of the ingredient
+     * @apiBody {string} ingredients.unit Unit of the ingredient
+     *
+     * @apiExample {json} Request-Example:
+     * {
+     *  "title": "Recipe Title",
+     *  "instructions": "Recipe instructions",
+     *  "diet_type": "Diet type",
+     *  "cooking_time": 30,
+     *  "media_type": "image/jpeg",
+     *  "filename": "recipe.jpg",
+     *  "filesize": 12345,
+     *  "ingredients": [
+     *  {
+     *   "name": "Ingredient Name",
+     *   "amount": 1,
+     *   "unit": "g"
+     *  },
+     *  {
+     *   "name": "Another Ingredient",
+     *   "amount": 2,
+     *   "unit": "ml"
+     *  }
+     * ]
+     * }
+     *
      *
      * @apiSuccess {string} message Success message
      * @apiSuccess {number} Recipe_id ID of the created recipe

@@ -1,6 +1,6 @@
 
 -- paths for sql-files
--- Karri: c:/users/karri/webdev/weedify/weedify-backend/weedify.sql
+-- Karri: source c:/users/karri/webdev/weedify/weedify-backend/weedify.sql;
 
 DROP DATABASE IF EXISTS weedify;
 CREATE DATABASE weedify;
@@ -179,9 +179,9 @@ INSERT INTO ProfilePicture (user_id, filename, media_type, filesize) VALUES (1, 
 
 INSERT INTO RecipePosts (user_id, title, instructions, diet_type, cooking_time, filename, media_type, filesize) VALUES (1, 'Kasvisruoka', 'Ohjeet kasvisruokaan', 'Kasvis', 30, 'recipe.jpg', 'image/jpeg', 12345), (2, 'Liha-annos', 'Ohjeet liha-annokseen', 'Liha', 45, 'recipe.jpg', 'image/jpeg', 12345);
 
-INSERT INTO Ingredients (ingredient_name) VALUES ('Peruna'), ('Porkkana');
+INSERT INTO Ingredients (ingredient_name) VALUES ('Peruna'), ('Porkkana'), ('Sipuli'), ('Kaalit'), ('Pasta'), ('Riisi'), ('Kala'), ('Liha'), ('Maito'), ('Juusto'), ('Kasvikset'), ('Hedelmät');
 
-INSERT INTO RecipeIngredients (recipe_id, ingredient_id, amount, unit) VALUES (1, 1, 2, 'kpl'), (1, 2, 3, 'kpl'), (2, 1, 3, 'kpl'), (2, 2, 4, 'kpl');
+INSERT INTO RecipeIngredients (recipe_id, ingredient_id, amount, unit) VALUES (1, 1, 2, 'kpl'), (1, 2, 3, 'kpl'), (2, 1, 3, 'kpl'), (2, 2, 4, 'kpl'), (2, 3, 1, 'kpl'), (2, 4, 5, 'kpl'), (2, 5, 2, 'kpl'), (2, 6, 1, 'kpl'), (2, 7, 1, 'kpl'), (2, 8, 1, 'kpl'), (2, 9, 1, 'kpl'), (2, 10, 1, 'kpl'), (2, 11, 1, 'kpl');
 
 INSERT INTO Tags (tag_name) VALUES ('Kasvis'), ('Vegaani');
 

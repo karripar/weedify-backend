@@ -44,16 +44,20 @@ const RecipeGet = async (
 };
 
 
+// Post a new recipe
 const RecipePost = async (
-  req: Request<{}, {}, Omit<Recipe, 'recipe_id' | 'created_at'>>,
+  req: Request<{}, {}, Omit<Recipe, 'recipe_id' | 'created_at' | 'thumbnail'> & { ingredients: { name: string; amount: number; unit: string; }[] }>, // Correct type for ingredients
   res: Response<{ message: string; Recipe_id: number }, { user: TokenContent }>,
   next: NextFunction
 ) => {
   try {
-    // add user_id to Recipe object from token
+    // Add user_id to Recipe object from token
     req.body.user_id = res.locals.user.user_id;
 
-    const response = await postRecipe(req.body); 
+    // Post the recipe and pass ingredients as well
+    const response = await postRecipe(req.body, req.body.ingredients);
+
+    // Send the response with recipe_id
     res.json({
       message: 'Recipe created',
       Recipe_id: response.recipe_id,
@@ -62,6 +66,8 @@ const RecipePost = async (
     next(error);
   }
 };
+
+
 
 
 const RecipeDelete = async (
