@@ -221,9 +221,6 @@ INSERT INTO Ingredients (ingredient_name) VALUES ('Peruna'), ('Porkkana'), ('Sip
 
 INSERT INTO RecipeIngredients (recipe_id, ingredient_id, amount, unit) VALUES (1, 1, 2, 'kpl'), (1, 2, 3, 'kpl'), (2, 1, 3, 'kpl'), (2, 2, 4, 'kpl'), (2, 3, 1, 'kpl'), (2, 4, 5, 'kpl'), (2, 5, 2, 'kpl'), (2, 6, 1, 'kpl'), (2, 7, 1, 'kpl'), (2, 8, 1, 'kpl'), (2, 9, 1, 'kpl'), (2, 10, 1, 'kpl'), (2, 11, 1, 'kpl');
 
-INSERT INTO Tags (tag_name) VALUES ('Kasvis'), ('Vegaani');
-
-INSERT INTO RecipeTags (recipe_id, tag_id) VALUES (1, 1), (1, 2), (2, 1);
 
 INSERT INTO Comments (user_id, recipe_id, comment) VALUES (1, 1, 'Testikommentti'), (2, 1, 'Testikommentti2');
 
@@ -241,6 +238,14 @@ INSERT INTO Notifications (user_id, notification_text, notification_type_id) VAL
 
 INSERT INTO Ratings (user_id, recipe_id, rating) VALUES (1, 1, 5), (2, 1, 4);
 
+INSERT INTO DifficultyLevels (level_name) VALUES ('Easy'), ('Medium'), ('Hard');
 
+INSERT INTO DietTypes (diet_type_name) VALUES ('Kasvis')
+
+INSERT INTO Allergens (allergen_name) VALUES ('Nuts'), ('Dairy'), ('Gluten'), ('Soy'), ('Eggs'), ('Fish'), ('Shellfish'), ('Wheat'), ('Peanuts'), ('Sesame'), ('Mustard'), ('Celery'), ('Lupin'), ('Molluscs');
+
+INSERT INTO RecipeDietTypes (recipe_id, diet_type_id) VALUES (1, 1), (2, 2);
+
+INSERT INTO RecipeAllergens (recipe_id, allergen_id) VALUES (1, 1), (2, 2);
 
 
