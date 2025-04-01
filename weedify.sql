@@ -1,6 +1,6 @@
 
 -- paths for sql-files
--- Karri: c:/users/karri/webdev/weedify/weedify-backend/weedify.sql
+-- Karri: source c:/users/karri/webdev/weedify/weedify-backend/weedify.sql
 
 DROP DATABASE IF EXISTS weedify;
 CREATE DATABASE weedify;

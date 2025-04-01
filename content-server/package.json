@@ -13,7 +13,6 @@
     "apidoc": "apidoc -i src/api/routes/ -o apidocs/",
     "jsdoc": "jsdoc -c jsdoc.json"
   },
-
   "apidoc": {
     "name": "Weedify Content API",
     "version": "1.0.0",
