@@ -36,20 +36,29 @@ CREATE TABLE ProfilePicture (
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
+-- Difficulty levels table
+CREATE TABLE DifficultyLevels (
+    difficulty_level_id INT PRIMARY KEY AUTO_INCREMENT,
+    level_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+
 -- Create table RecipePosts
 CREATE TABLE RecipePosts (
     recipe_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     instructions TEXT NOT NULL,
-    diet_type VARCHAR(50),
     cooking_time INT NOT NULL,
     filename VARCHAR(255) NOT NULL,
     media_type VARCHAR(50) NOT NULL,
     filesize INT NOT NULL,
+    difficulty_level_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (difficulty_level_id) REFERENCES DifficultyLevels(difficulty_level_id)
 );
+
 
 -- Create table Ingredients
 CREATE TABLE Ingredients (
@@ -68,9 +77,38 @@ CREATE TABLE RecipeIngredients (
     FOREIGN KEY (ingredient_id) REFERENCES Ingredients(ingredient_id) ON DELETE CASCADE
 );
 
--- Create table 
+CREATE TABLE DietTypes (
+    diet_type_id INT PRIMARY KEY AUTO_INCREMENT,
+    diet_type_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Create table RecipeDietTypes
+CREATE TABLE RecipeDietTypes (
+    recipe_diet_id INT PRIMARY KEY AUTO_INCREMENT,
+    recipe_id INT NOT NULL,
+    diet_type_id INT NOT NULL,
+    FOREIGN KEY (recipe_id) REFERENCES RecipePosts(recipe_id) ON DELETE CASCADE,
+    FOREIGN KEY (diet_type_id) REFERENCES DietTypes(diet_type_id) ON DELETE CASCADE
+)
+
+-- Allergens table
+CREATE TABLE Allergens (
+    allergen_id INT PRIMARY KEY AUTO_INCREMENT,
+    allergen_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Create table RecipeAllergens
+CREATE TABLE RecipeAllergens (
+    recipe_allergen_id INT PRIMARY KEY AUTO_INCREMENT,
+    recipe_id INT NOT NULL,
+    allergen_id INT NOT NULL,
+    FOREIGN KEY (recipe_id) REFERENCES RecipePosts(recipe_id) ON DELETE CASCADE,
+    FOREIGN KEY (allergen_id) REFERENCES Allergens(allergen_id) ON DELETE CASCADE
+);
+
 
 -- Create table Tags
+/*
 CREATE TABLE Tags (
     tag_id INT PRIMARY KEY AUTO_INCREMENT,
     tag_name VARCHAR(50) NOT NULL UNIQUE
@@ -84,7 +122,7 @@ CREATE TABLE RecipeTags (
     FOREIGN KEY (recipe_id) REFERENCES RecipePosts(recipe_id) ON DELETE CASCADE,
     FOREIGN KEY (tag_id) REFERENCES Tags(tag_id) ON DELETE CASCADE
 );
-
+*/
 -- Create table Comments
 CREATE TABLE Comments (
     comment_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -198,6 +236,8 @@ INSERT INTO Favorites (user_id, recipe_id) VALUES (1, 1), (2, 1);
 INSERT INTO NotificationTypes (type_name) VALUES ('Like'), ('Comment'), ('Follow');
 
 INSERT INTO Notifications (user_id, notification_text, notification_type_id) VALUES (1, 'Testi-ilmoitus', 1), (2, 'Testi-ilmoitus2', 2);
+
+INSERT INTO Notifications (user_id, notification_text, notification_type_id) VALUES (3, 'Testi-ilmoitus', 1), (3, 'Testi-ilmoitus2', 3);
 
 INSERT INTO Ratings (user_id, recipe_id, rating) VALUES (1, 1, 5), (2, 1, 4);
 
