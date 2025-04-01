@@ -36,20 +36,28 @@ CREATE TABLE ProfilePicture (
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
+-- Difficulty levels table
+CREATE TABLE DifficultyLevels (
+    difficulty_level_id INT PRIMARY KEY AUTO_INCREMENT,
+    level_name VARCHAR(50) NOT NULL UNIQUE
+);
+
 -- Create table RecipePosts
 CREATE TABLE RecipePosts (
     recipe_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     instructions TEXT NOT NULL,
-    diet_type VARCHAR(50),
     cooking_time INT NOT NULL,
     filename VARCHAR(255) NOT NULL,
     media_type VARCHAR(50) NOT NULL,
     filesize INT NOT NULL,
+    difficulty_level_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (difficulty_level_id) REFERENCES DifficultyLevels(difficulty_level_id)
 );
+
 
 -- Create table Ingredients
 CREATE TABLE Ingredients (
@@ -68,9 +76,38 @@ CREATE TABLE RecipeIngredients (
     FOREIGN KEY (ingredient_id) REFERENCES Ingredients(ingredient_id) ON DELETE CASCADE
 );
 
--- Create table 
+CREATE TABLE DietTypes (
+    diet_type_id INT PRIMARY KEY AUTO_INCREMENT,
+    diet_type_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Create table RecipeDietTypes
+CREATE TABLE RecipeDietTypes (
+    recipe_diet_id INT PRIMARY KEY AUTO_INCREMENT,
+    recipe_id INT NOT NULL,
+    diet_type_id INT NOT NULL,
+    FOREIGN KEY (recipe_id) REFERENCES RecipePosts(recipe_id) ON DELETE CASCADE,
+    FOREIGN KEY (diet_type_id) REFERENCES DietTypes(diet_type_id) ON DELETE CASCADE
+);
+
+-- Allergens table
+CREATE TABLE Allergens (
+    allergen_id INT PRIMARY KEY AUTO_INCREMENT,
+    allergen_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Create table RecipeAllergens
+CREATE TABLE RecipeAllergens (
+    recipe_allergen_id INT PRIMARY KEY AUTO_INCREMENT,
+    recipe_id INT NOT NULL,
+    allergen_id INT NOT NULL,
+    FOREIGN KEY (recipe_id) REFERENCES RecipePosts(recipe_id) ON DELETE CASCADE,
+    FOREIGN KEY (allergen_id) REFERENCES Allergens(allergen_id) ON DELETE CASCADE
+);
+
 
 -- Create table Tags
+/*
 CREATE TABLE Tags (
     tag_id INT PRIMARY KEY AUTO_INCREMENT,
     tag_name VARCHAR(50) NOT NULL UNIQUE
@@ -84,7 +121,7 @@ CREATE TABLE RecipeTags (
     FOREIGN KEY (recipe_id) REFERENCES RecipePosts(recipe_id) ON DELETE CASCADE,
     FOREIGN KEY (tag_id) REFERENCES Tags(tag_id) ON DELETE CASCADE
 );
-
+*/
 -- Create table Comments
 CREATE TABLE Comments (
     comment_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -160,32 +197,29 @@ CREATE TABLE Ratings (
 
 -- Indexes
 CREATE INDEX idx_recipe_title ON RecipePosts(title);
-CREATE INDEX idx_recipe_diet_type ON RecipePosts(diet_type);
 CREATE INDEX idx_recipe_cooking_time ON RecipePosts(cooking_time);
 CREATE INDEX idx_recipe_created_at ON RecipePosts(created_at);
-
-
-
 CREATE INDEX idx_ingredient_name ON Ingredients(ingredient_name);
 
-CREATE INDEX idx_tag_name ON Tags(tag_name);
-
 -- Insert mock data
+INSERT INTO DifficultyLevels (level_name) VALUES ('Easy'), ('Medium'), ('Hard');
+
 INSERT INTO UserLevels (level_name) VALUES ('Admin'), ('User');
+
+INSERT INTO DietTypes (diet_type_name) VALUES ('Vegetarian'), ('Vegan'), ('Gluten-Free'), ('Dairy-Free'), ('Nut-Free'), ('Halal'), ('Kosher'), ('Paleo'), ('Keto'), ('Low-Carb'), ('Mediterranean');
+
+INSERT INTO Allergens (allergen_name) VALUES ('Nuts'), ('Dairy'), ('Gluten'), ('Soy'), ('Eggs'), ('Fish'), ('Shellfish'), ('Wheat'), ('Peanuts'), ('Sesame'), ('Mustard'), ('Celery'), ('Lupin'), ('Molluscs');
 
 INSERT INTO Users (username, password, email, user_level_id) VALUES ('karri', 'password', 'karri@testi.com', 2), ('testi', 'password', 'testi@testi.com', 2);
 
 INSERT INTO ProfilePicture (user_id, filename, media_type, filesize) VALUES (1, 'profile.jpg', 'image/jpeg', 12345), (2, 'profile.jpg', 'image/jpeg', 12345);
 
-INSERT INTO RecipePosts (user_id, title, instructions, diet_type, cooking_time, filename, media_type, filesize) VALUES (1, 'Kasvisruoka', 'Ohjeet kasvisruokaan', 'Kasvis', 30, 'recipe.jpg', 'image/jpeg', 12345), (2, 'Liha-annos', 'Ohjeet liha-annokseen', 'Liha', 45, 'recipe.jpg', 'image/jpeg', 12345);
+INSERT INTO RecipePosts (user_id, title, instructions, difficulty_level_id, cooking_time, filename, media_type, filesize) VALUES (1, 'Kasvisruoka', 'Ohjeet kasvisruokaan', 1, 30, 'recipe.jpg', 'image/jpeg', 12345), (2, 'Liha-annos', 'Ohjeet liha-annokseen', 2, 45, 'recipe.jpg', 'image/jpeg', 12345);
 
 INSERT INTO Ingredients (ingredient_name) VALUES ('Peruna'), ('Porkkana'), ('Sipuli'), ('Kaalit'), ('Pasta'), ('Riisi'), ('Kala'), ('Liha'), ('Maito'), ('Juusto'), ('Kasvikset'), ('Hedelmät');
 
 INSERT INTO RecipeIngredients (recipe_id, ingredient_id, amount, unit) VALUES (1, 1, 2, 'kpl'), (1, 2, 3, 'kpl'), (2, 1, 3, 'kpl'), (2, 2, 4, 'kpl'), (2, 3, 1, 'kpl'), (2, 4, 5, 'kpl'), (2, 5, 2, 'kpl'), (2, 6, 1, 'kpl'), (2, 7, 1, 'kpl'), (2, 8, 1, 'kpl'), (2, 9, 1, 'kpl'), (2, 10, 1, 'kpl'), (2, 11, 1, 'kpl');
 
-INSERT INTO Tags (tag_name) VALUES ('Kasvis'), ('Vegaani');
-
-INSERT INTO RecipeTags (recipe_id, tag_id) VALUES (1, 1), (1, 2), (2, 1);
 
 INSERT INTO Comments (user_id, recipe_id, comment) VALUES (1, 1, 'Testikommentti'), (2, 1, 'Testikommentti2');
 
@@ -199,8 +233,13 @@ INSERT INTO NotificationTypes (type_name) VALUES ('Like'), ('Comment'), ('Follow
 
 INSERT INTO Notifications (user_id, notification_text, notification_type_id) VALUES (1, 'Testi-ilmoitus', 1), (2, 'Testi-ilmoitus2', 2);
 
+INSERT INTO Notifications (user_id, notification_text, notification_type_id) VALUES (1, 'Testi-ilmoitus', 1), (2, 'Testi-ilmoitus2', 2);
+
 INSERT INTO Ratings (user_id, recipe_id, rating) VALUES (1, 1, 5), (2, 1, 4);
 
 
+INSERT INTO RecipeDietTypes (recipe_id, diet_type_id) VALUES (1, 1), (2, 2);
+
+INSERT INTO RecipeAllergens (recipe_id, allergen_id) VALUES (1, 1), (2, 2);
 
 

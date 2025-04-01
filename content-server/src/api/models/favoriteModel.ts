@@ -16,7 +16,6 @@ const BASE_RECIPE_QUERY = `
     rp.media_type,
     rp.title,
     rp.instructions,
-    rp.diet_type,
     rp.cooking_time,
     rp.created_at,
     CONCAT(v.base_url, rp.filename) AS filename,

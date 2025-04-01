@@ -17,7 +17,6 @@ const BASE_QUERY = `
     rp.media_type,
     rp.title,
     rp.instructions,
-    rp.diet_type,
     rp.cooking_time,
     rp.created_at,
     CASE
@@ -48,10 +47,33 @@ const BASE_QUERY = `
         FROM RecipeIngredients ri
         LEFT JOIN Ingredients i ON ri.ingredient_id = i.ingredient_id
         WHERE ri.recipe_id = rp.recipe_id
-    ) AS ingredients
+    ) AS ingredients,
+    (
+        SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'allergen_id', a.allergen_id,
+                'name', a.allergen_name
+            )
+        )
+        FROM RecipeAllergens ra
+        LEFT JOIN Allergens a ON ra.allergen_id = a.allergen_id
+        WHERE ra.recipe_id = rp.recipe_id
+    ) AS allergens,
+    (
+        SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'diet_type_id', dt.diet_type_id,
+                'name', dt.diet_type_name
+            )
+        )
+        FROM RecipeDietTypes rdt
+        LEFT JOIN DietTypes dt ON rdt.diet_type_id = dt.diet_type_id
+        WHERE rdt.recipe_id = rp.recipe_id
+    ) AS diet_types
 FROM RecipePosts rp
 CROSS JOIN (SELECT ? AS base_url) AS v
 `;
+
 
 
 // Request a list of recipes and files related to the recipe
@@ -69,6 +91,8 @@ const fetchAllRecipes = async (
   const [rows] = await promisePool.execute<RowDataPacket[] & Recipe[]>(stmt);
   rows.forEach((row) => {
     row.ingredients = JSON.parse(row.ingredients || '[]'); // NOTICE THIS, OTHERWISE INGREDIENT WILL BE IN UGLY JSON
+    row.allergens = JSON.parse(row.allergens || '[]');
+    row.diet_types = JSON.parse(row.diet_types || '[]');
   });
   return rows;
 }
@@ -86,6 +110,8 @@ const fetchRecipeById = async (recipe_id: number): Promise<Recipe> => {
 
   rows.forEach((row) => {
     row.ingredients = JSON.parse(row.ingredients || '[]'); // NOTICE THIS, OTHERWISE INGREDIENT WILL BE IN UGLY JSON
+    row.allergens = JSON.parse(row.allergens || '[]');
+    row.diet_types = JSON.parse(row.diet_types || '[]');
   });
   return rows[0];
 }
