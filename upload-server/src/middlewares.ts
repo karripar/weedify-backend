@@ -3,6 +3,10 @@ import CustomError from './classes/CustomError';
 import {NextFunction, Request, Response} from 'express';
 import jwt from 'jsonwebtoken';
 import {TokenContent} from 'hybrid-types/DBTypes';
+import sharp from 'sharp';
+import path from 'path';
+import makeVideoThumbail from './utils/videoThumb';
+
 
 // Middleware to handle 404 errors
 const notFound = (req: Request, res: Response, next: NextFunction) => {
@@ -56,4 +60,57 @@ const authenticate = async (
   }
 };
 
-export {notFound, errorHandler, authenticate};
+
+// thumbnail generation for images
+const getThumbnails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.file) {
+      next(new CustomError('No file uploaded', 400));
+      return;
+    }
+
+    console.log('path: ', req.file.path);
+
+    if (!req.file.mimetype.includes('video')) {
+      sharp.cache(false);
+      await sharp(req.file.path)
+        .resize(320, 320)
+        .png()
+        .toFile(req.file.path + '-thumb.png')
+        .catch((err) => {
+          console.error('Error generating thumbnail:', err);
+          next(new CustomError('Error generating thumbnail', 500));
+        });
+        console.log('Thumbnail generated successfully');
+      next();
+      return;
+
+    }
+    // if the file is a video, generate thumbnails and gif
+    await makeVideoThumbail(req.file.path)
+    next();
+  } catch (error) {
+    console.error('Error generating thumbnail:', error);
+    next(new CustomError('Error generating thumbnail', 500));
+  }
+};
+
+// user from res.locals to body
+const userToBody = (
+  req: Request,
+  res: Response<unknown, {user: TokenContent}>,
+  next: NextFunction
+) => {
+  if (!req.body.user) {
+    delete req.body.user;
+  }
+
+  req.body.user = res.locals.user;
+  next();
+};
+
+export {notFound, errorHandler, authenticate, getThumbnails, userToBody};

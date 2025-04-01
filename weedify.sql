@@ -1,6 +1,6 @@
 
 -- paths for sql-files
--- Karri: source c:/users/karri/webdev/weedify/weedify-backend/weedify.sql
+-- Karri: source c:/users/karri/webdev/weedify/weedify-backend/weedify.sql;
 
 DROP DATABASE IF EXISTS weedify;
 CREATE DATABASE weedify;
@@ -40,24 +40,15 @@ CREATE TABLE ProfilePicture (
 CREATE TABLE RecipePosts (
     recipe_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
-    media_id INT DEFAULT NULL,
     title VARCHAR(255) NOT NULL,
     instructions TEXT NOT NULL,
     diet_type VARCHAR(50),
     cooking_time INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
-);
-
--- Create table RecipeMedia
-CREATE TABLE RecipeMedia (
-    media_id INT PRIMARY KEY AUTO_INCREMENT,
-    recipe_id INT NOT NULL,
     filename VARCHAR(255) NOT NULL,
     media_type VARCHAR(50) NOT NULL,
     filesize INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (recipe_id) REFERENCES RecipePosts(recipe_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
 -- Create table Ingredients
@@ -173,9 +164,7 @@ CREATE INDEX idx_recipe_diet_type ON RecipePosts(diet_type);
 CREATE INDEX idx_recipe_cooking_time ON RecipePosts(cooking_time);
 CREATE INDEX idx_recipe_created_at ON RecipePosts(created_at);
 
-CREATE INDEX idx_recipe_media_filename ON RecipeMedia(filename);
-CREATE INDEX idx_recipe_media_media_type ON RecipeMedia(media_type);
-CREATE INDEX idx_recipe_media_filesize ON RecipeMedia(filesize);
+
 
 CREATE INDEX idx_ingredient_name ON Ingredients(ingredient_name);
 
@@ -188,13 +177,11 @@ INSERT INTO Users (username, password, email, user_level_id) VALUES ('karri', 'p
 
 INSERT INTO ProfilePicture (user_id, filename, media_type, filesize) VALUES (1, 'profile.jpg', 'image/jpeg', 12345), (2, 'profile.jpg', 'image/jpeg', 12345);
 
-INSERT INTO RecipePosts (user_id, media_id, title, instructions, diet_type, cooking_time) VALUES (1, 1, 'Testiresepti', 'Testireseptin ohjeet', 'Vegaani', 30), (2, 2, 'Testiresepti2', 'Testireseptin ohjeet', 'Kasvis', 45);
+INSERT INTO RecipePosts (user_id, title, instructions, diet_type, cooking_time, filename, media_type, filesize) VALUES (1, 'Kasvisruoka', 'Ohjeet kasvisruokaan', 'Kasvis', 30, 'recipe.jpg', 'image/jpeg', 12345), (2, 'Liha-annos', 'Ohjeet liha-annokseen', 'Liha', 45, 'recipe.jpg', 'image/jpeg', 12345);
 
-INSERT INTO RecipeMedia (recipe_id, filename, media_type, filesize) VALUES (1, 'recipe.jpg', 'image/jpeg', 12345), (2, 'recipe.jpg', 'image/jpeg', 12345);
+INSERT INTO Ingredients (ingredient_name) VALUES ('Peruna'), ('Porkkana'), ('Sipuli'), ('Kaalit'), ('Pasta'), ('Riisi'), ('Kala'), ('Liha'), ('Maito'), ('Juusto'), ('Kasvikset'), ('Hedelmät');
 
-INSERT INTO Ingredients (ingredient_name) VALUES ('Peruna'), ('Porkkana');
-
-INSERT INTO RecipeIngredients (recipe_id, ingredient_id, amount, unit) VALUES (1, 1, 2, 'kpl'), (1, 2, 3, 'kpl'), (2, 1, 3, 'kpl'), (2, 2, 4, 'kpl');
+INSERT INTO RecipeIngredients (recipe_id, ingredient_id, amount, unit) VALUES (1, 1, 2, 'kpl'), (1, 2, 3, 'kpl'), (2, 1, 3, 'kpl'), (2, 2, 4, 'kpl'), (2, 3, 1, 'kpl'), (2, 4, 5, 'kpl'), (2, 5, 2, 'kpl'), (2, 6, 1, 'kpl'), (2, 7, 1, 'kpl'), (2, 8, 1, 'kpl'), (2, 9, 1, 'kpl'), (2, 10, 1, 'kpl'), (2, 11, 1, 'kpl');
 
 INSERT INTO Tags (tag_name) VALUES ('Kasvis'), ('Vegaani');
 

@@ -1,8 +1,8 @@
 export const ERROR_MESSAGES = {
-  MEDIA: {
-    NOT_FOUND: 'No media found',
-    NOT_FOUND_USER: 'No media found for user',
-    NOT_FOUND_LIKED: 'No liked media found',
+  RECIPE: {
+    NOT_FOUND: 'No recipe/recipes found',
+    NOT_FOUND_USER: 'No recipe/recipes found for user',
+    NOT_FOUND_LIKED: 'No liked recipe/recipes found',
     NOT_CREATED: 'Failed to create media',
     NOT_UPDATED: 'Media not updated',
     NOT_DELETED: 'Media not deleted',
@@ -13,17 +13,24 @@ export const ERROR_MESSAGES = {
     NO_USERNAME: 'No username provided',
     NO_TAG: 'No tag provided',
   },
+  NOTIFICATION: {
+    NOT_FOUND: 'No notifications found',
+    NOT_FOUND_USER: 'No notifications found for user',
+    NOT_CREATED: 'Notification not created',
+    NOT_DELETED: 'Notification not deleted',
+    NOT_UPDATED: 'Notification not updated',
+  },
   LIKE: {
     NOT_FOUND: 'No likes found',
-    NOT_FOUND_MEDIA: 'No likes found for media',
+    NOT_FOUND_RECIPE: 'No likes found for media',
     NOT_FOUND_USER: 'No likes found for user',
     NOT_CREATED: 'Like not created',
     NOT_DELETED: 'Like not deleted',
-    ALREADY_EXISTS: 'User has already liked this media item',
+    ALREADY_EXISTS: 'User has already liked this recipe/recipes item',
   },
   TAG: {
     NOT_FOUND: 'No tags found',
-    NOT_FOUND_MEDIA: 'No tags found for media',
+    NOT_FOUND_RECIPE: 'No tags found for media',
     NOT_CREATED: 'Tag not created',
     NOT_DELETED: 'Tag not deleted',
     NOT_AUTHORIZED: 'Not authorized to modify tags',
@@ -31,16 +38,16 @@ export const ERROR_MESSAGES = {
   },
   RATING: {
     NOT_FOUND: 'No ratings found',
-    NOT_FOUND_MEDIA: 'No ratings found for media',
+    NOT_FOUND_RECIPE: 'No ratings found for media',
     NOT_FOUND_USER: 'No ratings found for user',
     NOT_CREATED: 'Rating not created',
     NOT_DELETED: 'Rating not deleted',
     NOT_UPDATED: 'Rating not updated',
-    ALREADY_EXISTS: 'User has already rated this media item',
+    ALREADY_EXISTS: 'User has already rated this recipe/recipes item',
   },
   COMMENT: {
     NOT_FOUND: 'No comments found',
-    NOT_FOUND_MEDIA: 'No comments found for media',
+    NOT_FOUND_RECIPE: 'No comments found for media',
     NOT_FOUND_USER: 'No comments found for user',
     NOT_CREATED: 'Comment not created',
     NOT_DELETED: 'Comment not deleted',
@@ -71,6 +78,6 @@ export const ERROR_MESSAGES = {
     NOT_CREATED: 'Favorite not created',
     NOT_DELETED: 'Favorite not deleted',
     UNAUTHORIZED: 'User is not authorized to remove this favorite',
-    ALREADY_EXISTS: 'User has already favorited this media item',
+    ALREADY_EXISTS: 'User has already favorited this recipe/recipes item',
   },
 } as const;
