@@ -42,7 +42,6 @@ CREATE TABLE DifficultyLevels (
     level_name VARCHAR(50) NOT NULL UNIQUE
 );
 
-
 -- Create table RecipePosts
 CREATE TABLE RecipePosts (
     recipe_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -89,7 +88,7 @@ CREATE TABLE RecipeDietTypes (
     diet_type_id INT NOT NULL,
     FOREIGN KEY (recipe_id) REFERENCES RecipePosts(recipe_id) ON DELETE CASCADE,
     FOREIGN KEY (diet_type_id) REFERENCES DietTypes(diet_type_id) ON DELETE CASCADE
-)
+);
 
 -- Allergens table
 CREATE TABLE Allergens (
@@ -198,24 +197,24 @@ CREATE TABLE Ratings (
 
 -- Indexes
 CREATE INDEX idx_recipe_title ON RecipePosts(title);
-CREATE INDEX idx_recipe_diet_type ON RecipePosts(diet_type);
 CREATE INDEX idx_recipe_cooking_time ON RecipePosts(cooking_time);
 CREATE INDEX idx_recipe_created_at ON RecipePosts(created_at);
-
-
-
 CREATE INDEX idx_ingredient_name ON Ingredients(ingredient_name);
 
-CREATE INDEX idx_tag_name ON Tags(tag_name);
-
 -- Insert mock data
+INSERT INTO DifficultyLevels (level_name) VALUES ('Easy'), ('Medium'), ('Hard');
+
 INSERT INTO UserLevels (level_name) VALUES ('Admin'), ('User');
+
+INSERT INTO DietTypes (diet_type_name) VALUES ('Vegetarian'), ('Vegan'), ('Gluten-Free'), ('Dairy-Free'), ('Nut-Free'), ('Halal'), ('Kosher'), ('Paleo'), ('Keto'), ('Low-Carb'), ('Mediterranean');
+
+INSERT INTO Allergens (allergen_name) VALUES ('Nuts'), ('Dairy'), ('Gluten'), ('Soy'), ('Eggs'), ('Fish'), ('Shellfish'), ('Wheat'), ('Peanuts'), ('Sesame'), ('Mustard'), ('Celery'), ('Lupin'), ('Molluscs');
 
 INSERT INTO Users (username, password, email, user_level_id) VALUES ('karri', 'password', 'karri@testi.com', 2), ('testi', 'password', 'testi@testi.com', 2);
 
 INSERT INTO ProfilePicture (user_id, filename, media_type, filesize) VALUES (1, 'profile.jpg', 'image/jpeg', 12345), (2, 'profile.jpg', 'image/jpeg', 12345);
 
-INSERT INTO RecipePosts (user_id, title, instructions, diet_type, cooking_time, filename, media_type, filesize) VALUES (1, 'Kasvisruoka', 'Ohjeet kasvisruokaan', 'Kasvis', 30, 'recipe.jpg', 'image/jpeg', 12345), (2, 'Liha-annos', 'Ohjeet liha-annokseen', 'Liha', 45, 'recipe.jpg', 'image/jpeg', 12345);
+INSERT INTO RecipePosts (user_id, title, instructions, difficulty_level_id, cooking_time, filename, media_type, filesize) VALUES (1, 'Kasvisruoka', 'Ohjeet kasvisruokaan', 1, 30, 'recipe.jpg', 'image/jpeg', 12345), (2, 'Liha-annos', 'Ohjeet liha-annokseen', 2, 45, 'recipe.jpg', 'image/jpeg', 12345);
 
 INSERT INTO Ingredients (ingredient_name) VALUES ('Peruna'), ('Porkkana'), ('Sipuli'), ('Kaalit'), ('Pasta'), ('Riisi'), ('Kala'), ('Liha'), ('Maito'), ('Juusto'), ('Kasvikset'), ('Hedelmät');
 
@@ -234,15 +233,10 @@ INSERT INTO NotificationTypes (type_name) VALUES ('Like'), ('Comment'), ('Follow
 
 INSERT INTO Notifications (user_id, notification_text, notification_type_id) VALUES (1, 'Testi-ilmoitus', 1), (2, 'Testi-ilmoitus2', 2);
 
-INSERT INTO Notifications (user_id, notification_text, notification_type_id) VALUES (3, 'Testi-ilmoitus', 1), (3, 'Testi-ilmoitus2', 3);
+INSERT INTO Notifications (user_id, notification_text, notification_type_id) VALUES (1, 'Testi-ilmoitus', 1), (2, 'Testi-ilmoitus2', 2);
 
 INSERT INTO Ratings (user_id, recipe_id, rating) VALUES (1, 1, 5), (2, 1, 4);
 
-INSERT INTO DifficultyLevels (level_name) VALUES ('Easy'), ('Medium'), ('Hard');
-
-INSERT INTO DietTypes (diet_type_name) VALUES ('Kasvis')
-
-INSERT INTO Allergens (allergen_name) VALUES ('Nuts'), ('Dairy'), ('Gluten'), ('Soy'), ('Eggs'), ('Fish'), ('Shellfish'), ('Wheat'), ('Peanuts'), ('Sesame'), ('Mustard'), ('Celery'), ('Lupin'), ('Molluscs');
 
 INSERT INTO RecipeDietTypes (recipe_id, diet_type_id) VALUES (1, 1), (2, 2);
 
