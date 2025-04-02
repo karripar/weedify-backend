@@ -48,11 +48,11 @@ const RecipePost = async (
     {},
     Omit<RecipeWithDietaryIds, 'recipe_id' | 'created_at' | 'thumbnail'> & {
       ingredients: {
-        ingredient_name: string;
-        ingredient_amount: string;
-        ingredient_unit: string;
+        name: string;
+        amount: string | number;
+        unit: string;
       }[];
-      dietary_info: {diet_type_id: number}[]; // Ensure dietary_info is an array of numbers
+      dietary_info: number[] | string[]; // Allow string[] in case it comes as strings
     }
   >,
   res: Response<{ message: string; Recipe_id: number }, { user: TokenContent }>,
@@ -62,16 +62,23 @@ const RecipePost = async (
     // Add user_id to Recipe object from token
     req.body.user_id = res.locals.user.user_id;
 
-    // Post the recipe and pass ingredients as well
-    const response = await postRecipe(
-      req.body,          // Recipe body (without excluded fields)
-      req.body.ingredients.map(ingredient => ({
-        name: ingredient.ingredient_name,
-        amount: Number(ingredient.ingredient_amount),
-        unit: ingredient.ingredient_unit,
-      })), // Ingredients array
-      req.body.dietary_info // Convert dietary_info to string
-    );
+    // dietary_info is a valid array of numbers
+    const dietaryInfo = Array.isArray(req.body.dietary_info)
+      ? req.body.dietary_info.map(Number).filter(num => !isNaN(num)) // Convert and filter NaN values
+      : [];
+
+    const ingredients = req.body.ingredients.map(ingredient => ({
+      name: ingredient.name,
+      amount: Number(ingredient.amount) || 0, // Default to 0 if invalid
+      unit: ingredient.unit,
+    }));
+
+    // Debugging logs
+    console.log('Processed dietary_info:', dietaryInfo);
+    console.log('Processed ingredients:', ingredients);
+
+    // Post the recipe
+    const response = await postRecipe(req.body, ingredients, dietaryInfo);
 
     // Send the response with recipe_id
     res.json({
@@ -82,6 +89,7 @@ const RecipePost = async (
     next(error);
   }
 };
+
 
 
 const RecipeDelete = async (
