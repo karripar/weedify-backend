@@ -6,6 +6,7 @@ import commentRouter from "./routes/commentRoute";
 import followRouter from "./routes/followRoute";
 import favoriteRouter from "./routes/favoriteRouter";
 import notificationRouter from "./routes/notificationRoute";
+import dietaryRouter from "./routes/dietaryRoute";
 /*
 import routes here from other files
  */
@@ -31,6 +32,7 @@ router.use('/comments', commentRouter);
 router.use('/follows', followRouter);
 router.use('/notifications', notificationRouter);
 router.use('/favorites', favoriteRouter);
+router.use('/dietary', dietaryRouter);
 
 
 export default router;

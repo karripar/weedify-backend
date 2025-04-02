@@ -129,9 +129,9 @@ recipeRouter
      *  }
      * ],
      * "dietary_info": [
-     *  {
-     *  "diet_type_id": 1
-     * }
+     *  1,
+     *  2
+     * ]
      * }
      *
      *
@@ -254,7 +254,7 @@ recipeRouter
         }
         return true;
       }),
-    body('dietary_info.*.diet_type_id')
+    body('dietary_info.*')
       .notEmpty()
       .isNumeric()
       .isInt({min: 1})
