@@ -4,8 +4,8 @@ import {
   UserWithLevel,
   User,
   UserWithNoPassword,
-  UserWithProfilePicture,
   ProfilePicture,
+  UserWithDietaryInfo
 } from 'hybrid-types/DBTypes';
 import {UserDeleteResponse, MessageResponse} from 'hybrid-types/MessageTypes';
 import CustomError from '../../classes/CustomError';
@@ -27,22 +27,47 @@ const getUsers = async (): Promise<UserWithNoPassword[]> => {
 
 const getUserById = async (
   user_id: number,
-): Promise<UserWithProfilePicture> => {
+): Promise<UserWithDietaryInfo> => {
   const [rows] = await promisePool.execute<
-    UserWithProfilePicture[] & RowDataPacket[]
+    UserWithDietaryInfo[] & RowDataPacket[]
   >(
     `SELECT
-    Users.user_id, Users.username, Users.bio, Users.email, Users.created_at,
-    UserLevels.level_name, ProfilePicture.filename
+      Users.user_id,
+      Users.username,
+      Users.bio,
+      Users.email,
+      Users.created_at,
+      UserLevels.level_name,
+      ProfilePicture.filename,
+      (
+        SELECT JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'dietary_restriction_id', dr.dietary_restriction_id,
+            'name', dr.restriction_name
+          )
+        )
+        FROM UserDietaryRestrictions udr
+        LEFT JOIN DietaryRestrictions dr ON udr.dietary_restriction_id = dr.dietary_restriction_id
+        WHERE udr.user_id = Users.user_id
+      ) AS dietary_restrictions
     FROM Users
     JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
     LEFT JOIN ProfilePicture ON Users.user_id = ProfilePicture.user_id
     WHERE Users.user_id = ?;`,
-    [user_id],
+    [user_id]
   );
+
+  // dietary info is only for the user
+  rows.forEach((row) => {
+    if (row.dietary_restrictions) {
+       row.dietary_restrictions = JSON.parse(row.dietary_restrictions || '[]');
+    }
+  });
 
   return rows[0]; // Handle case where user is not found
 };
+
+
 
 const getUserByEmail = async (email: string): Promise<UserWithLevel> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & UserWithLevel[]>(
@@ -333,6 +358,73 @@ const putProfilePic = async (
 };
 
 
+const updateUserDetails = async (
+  user_id: number,
+  userDetails: Partial<Pick<User, 'username' | 'email' | 'bio'>>,
+  dietaryRestrictions: number[], // Array of dietary restriction IDs
+): Promise<UserWithDietaryInfo> => {
+  const connection = await promisePool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    // Update user details (username, email, bio)
+    const updateFields = [];
+    const updateValues = [];
+
+    if (userDetails.username) {
+      updateFields.push('username = ?');
+      updateValues.push(userDetails.username);
+    }
+    if (userDetails.email) {
+      updateFields.push('email = ?');
+      updateValues.push(userDetails.email);
+    }
+    if (userDetails.bio) {
+      updateFields.push('bio = ?');
+      updateValues.push(userDetails.bio);
+    }
+
+    if (updateFields.length > 0) {
+      updateValues.push(user_id);
+      await connection.execute(
+        `UPDATE Users SET ${updateFields.join(', ')} WHERE user_id = ?`,
+        updateValues
+      );
+    }
+
+    // Remove existing dietary restrictions
+    await connection.execute(
+      `DELETE FROM UserDietaryRestrictions WHERE user_id = ?`,
+      [user_id]
+    );
+
+    // Insert new dietary restrictions
+    if (dietaryRestrictions.length > 0) {
+      const values = dietaryRestrictions.map((restrictionId) => [
+        user_id,
+        restrictionId,
+      ]);
+      await connection.query(
+        `INSERT INTO UserDietaryRestrictions (user_id, dietary_restriction_id) VALUES ?`,
+        [values]
+      );
+    }
+
+    await connection.commit();
+
+    return await getUserById(user_id);
+  } catch (error) {
+    await connection.rollback();
+    console.error(error);
+    throw new CustomError('Failed to update user details', 500);
+  } finally {
+    connection.release();
+  }
+};
+
+
+
 export {
   getUsers,
   getUserById,
@@ -344,4 +436,5 @@ export {
   postProfilePic,
   getProfilePicById,
   putProfilePic,
+  updateUserDetails,
 };

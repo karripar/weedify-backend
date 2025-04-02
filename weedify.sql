@@ -20,9 +20,22 @@ CREATE TABLE Users (
     email VARCHAR(50) NOT NULL UNIQUE,
     bio TEXT,
     user_level_id INT,
-    dietary_restrictions TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_level_id) REFERENCES UserLevels(user_level_id)
+);
+
+CREATE TABLE DietaryRestrictions (
+    dietary_restriction_id INT PRIMARY KEY AUTO_INCREMENT,
+    restriction_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+
+CREATE TABLE UserDietaryRestrictions (
+    user_id INT,
+    dietary_restriction_id INT,
+    PRIMARY KEY (user_id, dietary_restriction_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (dietary_restriction_id) REFERENCES DietaryRestrictions(dietary_restriction_id) ON DELETE CASCADE
 );
 
 -- Create ProfilePictures table
@@ -90,38 +103,6 @@ CREATE TABLE RecipeDietTypes (
     FOREIGN KEY (diet_type_id) REFERENCES DietTypes(diet_type_id) ON DELETE CASCADE
 );
 
--- Allergens table
-CREATE TABLE Allergens (
-    allergen_id INT PRIMARY KEY AUTO_INCREMENT,
-    allergen_name VARCHAR(50) NOT NULL UNIQUE
-);
-
--- Create table RecipeAllergens
-CREATE TABLE RecipeAllergens (
-    recipe_allergen_id INT PRIMARY KEY AUTO_INCREMENT,
-    recipe_id INT NOT NULL,
-    allergen_id INT NOT NULL,
-    FOREIGN KEY (recipe_id) REFERENCES RecipePosts(recipe_id) ON DELETE CASCADE,
-    FOREIGN KEY (allergen_id) REFERENCES Allergens(allergen_id) ON DELETE CASCADE
-);
-
-
--- Create table Tags
-/*
-CREATE TABLE Tags (
-    tag_id INT PRIMARY KEY AUTO_INCREMENT,
-    tag_name VARCHAR(50) NOT NULL UNIQUE
-);
-
--- Create table RecipeTags
-CREATE TABLE RecipeTags (
-    recipe_tag_id INT PRIMARY KEY AUTO_INCREMENT,
-    recipe_id INT NOT NULL,
-    tag_id INT NOT NULL,
-    FOREIGN KEY (recipe_id) REFERENCES RecipePosts(recipe_id) ON DELETE CASCADE,
-    FOREIGN KEY (tag_id) REFERENCES Tags(tag_id) ON DELETE CASCADE
-);
-*/
 -- Create table Comments
 CREATE TABLE Comments (
     comment_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -208,7 +189,6 @@ INSERT INTO UserLevels (level_name) VALUES ('Admin'), ('User');
 
 INSERT INTO DietTypes (diet_type_name) VALUES ('Vegetarian'), ('Vegan'), ('Gluten-Free'), ('Dairy-Free'), ('Nut-Free'), ('Halal'), ('Kosher'), ('Paleo'), ('Keto'), ('Low-Carb'), ('Mediterranean');
 
-INSERT INTO Allergens (allergen_name) VALUES ('Nuts'), ('Dairy'), ('Gluten'), ('Soy'), ('Eggs'), ('Fish'), ('Shellfish'), ('Wheat'), ('Peanuts'), ('Sesame'), ('Mustard'), ('Celery'), ('Lupin'), ('Molluscs');
 
 INSERT INTO Users (username, password, email, user_level_id) VALUES ('karri', 'password', 'karri@testi.com', 2), ('testi', 'password', 'testi@testi.com', 2);
 
@@ -240,6 +220,10 @@ INSERT INTO Ratings (user_id, recipe_id, rating) VALUES (1, 1, 5), (2, 1, 4);
 
 INSERT INTO RecipeDietTypes (recipe_id, diet_type_id) VALUES (1, 1), (2, 2);
 
-INSERT INTO RecipeAllergens (recipe_id, allergen_id) VALUES (1, 1), (2, 2);
+INSERT INTO DietaryRestrictions (restriction_name) VALUES ('Vegetarian'), ('Vegan'), ('Gluten-Free'), ('Dairy-Free'), ('Nut-Free'), ('Halal'), ('Kosher'), ('Paleo'), ('Keto'), ('Low-Carb'), ('Mediterranean');
+
+INSERT INTO UserDietaryRestrictions (user_id, dietary_restriction_id) VALUES (1, 1), (2, 2);
+
+
 
 
