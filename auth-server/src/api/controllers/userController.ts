@@ -20,7 +20,7 @@ import {
   User,
   TokenContent,
   UserWithNoPassword,
-  UserWithDietaryInfo
+
 } from 'hybrid-types/DBTypes';
 
 
@@ -282,29 +282,32 @@ const checkToken = async (
   }
 };
 
+interface UserWithDietaryInfo {
+  user_id: number;
+  username: string;
+  email: string;
+  bio?: string;
+  dietary_info?: number[] | string | null; // can be a string, array, null, or undefined
+}
+
 
 // generic function to update user details with one call and optional body items
 const updateUser = async (
-  req: Request<{ user_id: string }, unknown, User>,
+  req: Request<{ user_id: string }, unknown, UserWithDietaryInfo>,
   res: Response<UserWithDietaryInfo>,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const userModifications = req.body;
 
-    // Ensure dietary_info exists and is a valid array of numbers
-    const diets = userModifications.dietary_info
+    // check if the array is of valid numbers
+    const diets = Array.isArray(userModifications.dietary_info)
       ? userModifications.dietary_info
-          .split(',')
-          .map((diet: string) => {
-            const dietId = Number(diet);
-            return isNaN(dietId) ? null : dietId;
-          })
-          .filter((dietId) => dietId !== null) // Remove invalid IDs
+      : userModifications.dietary_info
+      ? userModifications.dietary_info.split(',').map(Number)
       : [];
 
     const user_id = res.locals.user.user_id;
-
     const user = await updateUserDetails(user_id, userModifications, diets);
 
     if (!user) {
@@ -314,9 +317,10 @@ const updateUser = async (
 
     res.json(user);
   } catch (err) {
-    next(err); // Pass errors to the error handling middleware
+    next(err);
   }
 };
+
 
 
 export {
