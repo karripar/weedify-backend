@@ -401,13 +401,12 @@ const updateUserDetails = async (
 
     // Insert new dietary restrictions
     if (dietaryRestrictions.length > 0) {
-      const values = dietaryRestrictions.map((restrictionId) => [
-        user_id,
-        restrictionId,
-      ]);
-      await connection.query(
-        `INSERT INTO UserDietaryRestrictions (user_id, dietary_restriction_id) VALUES ?`,
-        [values]
+      const placeholders = dietaryRestrictions.map(() => '(?, ?)').join(', ');
+      const values = dietaryRestrictions.flatMap(restrictionId => [user_id, restrictionId]);
+
+      await connection.execute(
+        `INSERT INTO UserDietaryRestrictions (user_id, dietary_restriction_id) VALUES ${placeholders}`,
+        values
       );
     }
 
