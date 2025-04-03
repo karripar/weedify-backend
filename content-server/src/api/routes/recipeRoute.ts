@@ -115,6 +115,7 @@ recipeRouter
      *  "media_type": "image/jpeg",
      *  "filename": "recipe.jpg",
      *  "filesize": 12345,
+     *  "difficulty_level_id": 1,
      *  "ingredients": [
      *  {
      *   "name": "Ingredient Name",
@@ -126,6 +127,10 @@ recipeRouter
      *   "amount": 2,
      *   "unit": "ml"
      *  }
+     * ],
+     * "dietary_info": [
+     *  1,
+     *  2
      * ]
      * }
      *
@@ -198,6 +203,58 @@ recipeRouter
       .trim()
       .escape(),
     body('filesize')
+      .notEmpty()
+      .isNumeric()
+      .isInt({min: 1})
+      .toInt()
+      .trim()
+      .escape(),
+    body('difficulty_level_id')
+      .optional()
+      .isNumeric()
+      .isInt({min: 1})
+      .toInt()
+      .trim()
+      .escape(),
+    body('ingredients')
+      .isArray()
+      .notEmpty()
+      .custom((value) => {
+        if (value.length === 0) {
+          throw new Error('Ingredients array cannot be empty');
+        }
+        return true;
+      }),
+    body('ingredients.*.name')
+      .notEmpty()
+      .isString()
+      .isLength({min: 3, max: 50})
+      .trim()
+      .escape(),
+    body('ingredients.*.amount')
+      .notEmpty()
+      .isNumeric()
+      .isInt({min: 1})
+      .toInt()
+      .trim()
+      .escape(),
+    body('ingredients.*.unit')
+      .notEmpty()
+      .isString()
+      .isLength({min: 1, max: 20})
+      .trim()
+      .escape(),
+    body('dietary_info')
+      .optional()
+      .isArray()
+      .notEmpty()
+      .custom((value) => {
+        if (value.length === 0) {
+          throw new Error('Dietary info array cannot be empty');
+        }
+        return true;
+      }),
+    body('dietary_info.*')
       .notEmpty()
       .isNumeric()
       .isInt({min: 1})
