@@ -138,7 +138,7 @@ router.get(
    *  }
    *
    */
-  '/username/:username',
+  '/:username',
   param('username').isString(),
   validationErrors,
   userByUsernameGet,

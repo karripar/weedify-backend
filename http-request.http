@@ -1,0 +1,10 @@
+### create a new user
+
+POST http://localhost:3001/api/v1/users
+Content-Type: application/json
+
+{
+    "username": "eltsu",
+    "email": "elliriskala@metropolia.fi",
+    "password": "popokissa123"
+}

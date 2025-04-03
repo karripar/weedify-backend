@@ -76,3 +76,4 @@ typings/
 dist
 uploads
 public
+.history
