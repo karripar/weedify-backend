@@ -9,10 +9,9 @@ import {
   fetchRecipesByTagname,
 } from '../models/recipeModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
-import {Recipe, TokenContent} from 'hybrid-types/DBTypes';
+import {Recipe, TokenContent, RecipeWithDietaryIds} from 'hybrid-types/DBTypes';
 import CustomError from '../../classes/customError';
 import {ERROR_MESSAGES} from '../../utils/errorMessages';
-
 
 const RecipeListGet = async (
   req: Request<{}, {}, {page: string; limit: string}>,
@@ -28,7 +27,6 @@ const RecipeListGet = async (
   }
 };
 
-
 const RecipeGet = async (
   req: Request<{id: string}>,
   res: Response<Recipe>,
@@ -43,10 +41,20 @@ const RecipeGet = async (
   }
 };
 
-
 // Post a new recipe
 const RecipePost = async (
-  req: Request<{}, {}, Omit<Recipe, 'recipe_id' | 'created_at' | 'thumbnail'> & { ingredients: { name: string; amount: number; unit: string; }[] }>, // Correct type for ingredients
+  req: Request<
+    {},
+    {},
+    Omit<RecipeWithDietaryIds, 'recipe_id' | 'created_at' | 'thumbnail'> & {
+      ingredients: {
+        name: string;
+        amount: string | number;
+        unit: string;
+      }[];
+      dietary_info: number[] | string[]; // Allow string[] in case it comes as strings
+    }
+  >,
   res: Response<{ message: string; Recipe_id: number }, { user: TokenContent }>,
   next: NextFunction
 ) => {
@@ -54,8 +62,23 @@ const RecipePost = async (
     // Add user_id to Recipe object from token
     req.body.user_id = res.locals.user.user_id;
 
-    // Post the recipe and pass ingredients as well
-    const response = await postRecipe(req.body, req.body.ingredients);
+    // dietary_info is a valid array of numbers
+    const dietaryInfo = Array.isArray(req.body.dietary_info)
+      ? req.body.dietary_info.map(Number).filter(num => !isNaN(num)) // Convert and filter NaN values
+      : [];
+
+    const ingredients = req.body.ingredients.map(ingredient => ({
+      name: ingredient.name,
+      amount: Number(ingredient.amount) || 0, // Default to 0 if invalid
+      unit: ingredient.unit,
+    }));
+
+    // Debugging logs
+    console.log('Processed dietary_info:', dietaryInfo);
+    console.log('Processed ingredients:', ingredients);
+
+    // Post the recipe
+    const response = await postRecipe(req.body, ingredients, dietaryInfo);
 
     // Send the response with recipe_id
     res.json({
@@ -66,7 +89,6 @@ const RecipePost = async (
     next(error);
   }
 };
-
 
 
 
@@ -88,8 +110,6 @@ const RecipeDelete = async (
     next(error);
   }
 };
-
-
 
 const RecipesByTokenGet = async (
   req: Request<{user_id: string}>,
@@ -113,7 +133,6 @@ const RecipesByTokenGet = async (
   }
 };
 
-
 const RecipesByUsernameGet = async (
   req: Request<{username: string}>,
   res: Response<Recipe[]>,
@@ -132,7 +151,6 @@ const RecipesByUsernameGet = async (
   }
 };
 
-
 const RecipesByTagnameGet = async (
   req: Request<{tagname: string}>,
   res: Response<Recipe[]>,
@@ -146,12 +164,10 @@ const RecipesByTagnameGet = async (
 
     const Recipe = await fetchRecipesByTagname(tagname);
     res.json(Recipe);
-  }
-  catch (error) {
+  } catch (error) {
     next(error);
   }
 };
-
 
 const RecipesByUserGet = async (
   req: Request<{user_id: string}>,
@@ -165,21 +181,12 @@ const RecipesByUserGet = async (
       throw new CustomError(ERROR_MESSAGES.RECIPE.NO_ID, 400);
     }
 
-
     const Recipe = await fetchRecipesByUserId(user_id);
     res.json(Recipe);
   } catch (error) {
     next(error);
   }
 };
-
-
-
-
-
-
-
-
 
 export {
   RecipeListGet,

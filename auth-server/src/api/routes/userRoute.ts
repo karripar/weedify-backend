@@ -14,6 +14,7 @@ import {
   profilePicByIdGet,
   profilePicPost,
   profilePicturePut,
+  updateUser,
 } from '../controllers/userController';
 import {authenticate, validationErrors} from '../../middlewares';
 
@@ -146,7 +147,7 @@ router.get(
 
 router.get(
   /**
-   * @api {get} /users/id/:id Get user by id
+   * @api {get} /users/:id Get user by id
    * @apiName GetUserById
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -172,7 +173,12 @@ router.get(
    *        "email": "test@user.com",
    *        "created_at": "2021-01-01T00:00:00.000Z",
    *        "level_name": "User",
-   *        "filename": "profile.jpg"
+   *        "filename": "profile.jpg",
+   *        "filename": "profile.jpg",
+   *        "dietary": {
+   *          "id": 1,
+   *          "name": "Vegetarian",
+   *         }
    *      }
    *    }
    *
@@ -712,6 +718,154 @@ router.get(
   '/token',
   authenticate,
   checkToken,
+);
+
+// body items are optional
+router.put(
+  /**
+   * @api {put} /users/ Update user
+   * @apiName UpdateUser
+   * @apiGroup UserGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Update user
+   * @apiPermission token
+   *
+   * @apiBody {String} [username] Username of the user
+   * @apiBody {String} [email] Email of the user
+   * @apiBody {String} [bio] Bio of the user
+   * @apiBody {String} [dietary] Dietary of the user
+   *
+   * @apiBodyExample {json} Request-Example:
+   * {
+   *   "username": "new_username",
+   *   "email": "test@email.com",
+   *   "bio": "New bio",
+   *   "dietary": [
+   *     1,
+   *     2
+   * ]
+   * }
+   * @apiSuccess {Object} user User object
+   * @apiSuccess {Number} user.id User id
+   * @apiSuccess {String} user.username Username of the user
+   * @apiSuccess {String} user.email Email of the user
+   * @apiSuccess {String} user.created_at Date the user was created
+   * @apiSuccess {String} user.level_name User level name
+   * @apiSuccess {String} user.filename Profile picture filename
+   * @apiSuccess {String} user.bio Bio of the user
+   * @apiSuccess {String} user.dietary Dietary of the user
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *  HTTP/1.1 200 OK
+   * {
+   *  "user": {
+   *   "id": 1,
+   *  "username": "new_username",
+   *  "email": "email@gmail.com",
+   *  "created_at": "2021-01-01T00:00:00.000Z",
+   *  "level_name": "User",
+   *  "filename": "profile.jpg",
+   *  "bio": "New bio",
+   *  "dietary": [
+   *    {
+   *      "id": 1,
+   *      "name": "Vegetarian"
+   *    },
+   *    {
+   *      "id": 2,
+   *      "name": "Vegan"
+   *    }
+   *  ]
+   * }
+   * }
+   * @apiError (Error 401) Unauthorized The user is not authorized to access this endpoint
+   * @apiErrorExample {json} Unauthorized
+   *  HTTP/1.1 401 Unauthorized
+   * {
+   * "error": "Unauthorized"
+   * }
+   *
+   * @apiError (Error 422) ValidationError Validation error
+   * @apiErrorExample {json} ValidationError
+   *  HTTP/1.1 422 Unprocessable Entity
+   * {
+   * "error": "Validation error"
+   * }
+   * @apiError (Error 500) InternalServerError Internal server error
+   * @apiErrorExample {json} InternalServerError
+   * HTTP/1.1 500 Internal Server Error
+   * {
+   * "error": "Internal server error"
+   * }
+   *
+   * @apiError (Error 409) Conflict The user already exists
+   * @apiErrorExample {json} Conflict
+   * HTTP/1.1 409 Conflict
+   * {
+   * "error": "User already exists"
+   * }
+   *
+   * @apiError (Error 404) UserNotFound The user was not found
+   * @apiErrorExample {json} UserNotFound
+   * HTTP/1.1 404 Not Found
+   * {
+   * "error": "User not found"
+   * }
+   *
+   * @apiError (Error 403) Forbidden The user is not authorized to access this endpoint
+   * @apiErrorExample {json} Forbidden
+   * HTTP/1.1 403 Forbidden
+   * {
+   * "error": "Forbidden"
+   * }
+   *
+   * @apiError (Error 400) BadRequest The request was malformed
+   * @apiErrorExample {json} BadRequest
+   * HTTP/1.1 400 Bad Request
+   * {
+   * "error": "Bad request"
+   * }
+   *
+   */
+  '/user/update',
+  authenticate,
+  body('username')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({min: 3, max: 20})
+    .withMessage('Username must be between 3 and 20 characters')
+    .escape(),
+  body('email')
+    .optional()
+    .isEmail()
+    .trim()
+    .normalizeEmail()
+    .isEmail()
+    .withMessage('Invalid email'),
+  body('bio')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({min: 0, max: 200})
+    .withMessage('Bio must be between 0 and 200 characters')
+    .escape(),
+  body('dietary_info')
+    .optional()
+    .isArray()
+    .withMessage('Dietary must be an array')
+    .custom((value) => {
+      if (value.length > 5) {
+        throw new Error('Dietary must be less than 5 items');
+      }
+      return true;
+    }),
+  body('dietary_info.*')
+    .optional()
+    .isNumeric()
+    .withMessage('Dietary must be an array of numbers'),
+  validationErrors,
+  updateUser,
 );
 
 export default router;

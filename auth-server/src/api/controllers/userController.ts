@@ -13,12 +13,14 @@ import {
   postProfilePic,
   putProfilePic,
   getProfilePicById,
+  updateUserDetails
 } from '../models/userModel';
 import {
   ProfilePicture,
   User,
   TokenContent,
   UserWithNoPassword,
+  UserWithDietaryInfo
 } from 'hybrid-types/DBTypes';
 
 
@@ -53,7 +55,7 @@ const userByUsernameGet = async (
 
 const userByIdGet = async (
   req: Request<{id: string}>,
-  res: Response<UserWithNoPassword>,
+  res: Response<UserWithDietaryInfo>,
   next: NextFunction,
 ) => {
   try {
@@ -281,7 +283,26 @@ const checkToken = async (
 };
 
 
+const updateUser = async (
+  req: Request<{user_id: string}, unknown, User>,
+  res: Response<UserWithDietaryInfo>,
+  next: NextFunction,
+) => {
+  try {
+    const userModifications = req.body;
+    const diets = userModifications.dietary_info ? userModifications.dietary_info.split(',').map(Number) : [];
+    const user_id = res.locals.user.user_id;
+    const user = await updateUserDetails(user_id, userModifications, diets);
 
+    if (!user) {
+      next(new CustomError('User not found', 404));
+      return;
+    }
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+};
 
 export {
   userByUsernameGet,
@@ -297,4 +318,5 @@ export {
   profilePicPost,
   profilePicturePut,
   profilePicByIdGet,
+  updateUser
 };

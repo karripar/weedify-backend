@@ -13,6 +13,17 @@ export const ERROR_MESSAGES = {
     NO_USERNAME: 'No username provided',
     NO_TAG: 'No tag provided',
   },
+  DIETARY: {
+    NOT_FOUND: 'No dietary types found',
+    NOT_FOUND_RECIPE: 'No dietary types found for media',
+    NOT_FOUND_USER: 'No dietary types found for user',
+    NOT_CREATED: 'Dietary type not created',
+    NOT_DELETED: 'Dietary type not deleted',
+    NOT_UPDATED: 'Dietary type not updated',
+    ALREADY_EXISTS: 'User has already rated this recipe/recipes item',
+    NOT_AUTHORIZED: 'User is not authorized to modify dietary types',
+    FILES_NOT_FOUND: 'No files found with this dietary type'
+  },
   NOTIFICATION: {
     NOT_FOUND: 'No notifications found',
     NOT_FOUND_USER: 'No notifications found for user',
