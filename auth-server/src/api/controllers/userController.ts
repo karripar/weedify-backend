@@ -283,26 +283,41 @@ const checkToken = async (
 };
 
 
+// generic function to update user details with one call and optional body items
 const updateUser = async (
-  req: Request<{user_id: string}, unknown, User>,
+  req: Request<{ user_id: string }, unknown, User>,
   res: Response<UserWithDietaryInfo>,
   next: NextFunction,
 ) => {
   try {
     const userModifications = req.body;
-    const diets = userModifications.dietary_info ? userModifications.dietary_info.split(',').map(Number) : [];
+
+    // Ensure dietary_info exists and is a valid array of numbers
+    const diets = userModifications.dietary_info
+      ? userModifications.dietary_info
+          .split(',')
+          .map((diet: string) => {
+            const dietId = Number(diet);
+            return isNaN(dietId) ? null : dietId;
+          })
+          .filter((dietId) => dietId !== null) // Remove invalid IDs
+      : [];
+
     const user_id = res.locals.user.user_id;
+
     const user = await updateUserDetails(user_id, userModifications, diets);
 
     if (!user) {
       next(new CustomError('User not found', 404));
       return;
     }
+
     res.json(user);
   } catch (err) {
-    next(err);
+    next(err); // Pass errors to the error handling middleware
   }
 };
+
 
 export {
   userByUsernameGet,
