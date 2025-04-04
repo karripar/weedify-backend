@@ -20,7 +20,7 @@ import {
   User,
   TokenContent,
   UserWithNoPassword,
-  UserWithDietaryInfo
+
 } from 'hybrid-types/DBTypes';
 
 
@@ -282,15 +282,31 @@ const checkToken = async (
   }
 };
 
+interface UserWithDietaryInfo {
+  user_id: number;
+  username: string;
+  email: string;
+  bio?: string;
+  dietary_info?: number[] | string | null; // can be a string, array, null, or undefined
+}
 
+
+// generic function to update user details with one call and optional body items
 const updateUser = async (
-  req: Request<{user_id: string}, unknown, User>,
+  req: Request<{ user_id: string }, unknown, UserWithDietaryInfo>,
   res: Response<UserWithDietaryInfo>,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const userModifications = req.body;
-    const diets = userModifications.dietary_info ? userModifications.dietary_info.split(',').map(Number) : [];
+
+    // check if the array is of valid numbers
+    const diets = Array.isArray(userModifications.dietary_info)
+      ? userModifications.dietary_info
+      : userModifications.dietary_info
+      ? userModifications.dietary_info.split(',').map(Number)
+      : [];
+
     const user_id = res.locals.user.user_id;
     const user = await updateUserDetails(user_id, userModifications, diets);
 
@@ -298,11 +314,14 @@ const updateUser = async (
       next(new CustomError('User not found', 404));
       return;
     }
+
     res.json(user);
   } catch (err) {
     next(err);
   }
 };
+
+
 
 export {
   userByUsernameGet,
