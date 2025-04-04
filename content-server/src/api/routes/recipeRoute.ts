@@ -177,12 +177,6 @@ recipeRouter
       .isLength({min: 20, max: 2000})
       .trim()
       .escape(),
-    body('diet_type')
-      .notEmpty()
-      .isString()
-      .isLength({min: 3, max: 50})
-      .trim()
-      .escape(),
     body('cooking_time')
       .notEmpty()
       .isNumeric()

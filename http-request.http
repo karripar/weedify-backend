@@ -1,10 +1,58 @@
 ### create a new user
 
-POST http://localhost:3001/api/v1/users
+POST http://192.168.1.112:3001/api/v1/users
 Content-Type: application/json
 
 {
-    "username": "eltsu",
-    "email": "elliriskala@metropolia.fi",
+    "username": "eltsuliini",
+    "email": "riskala@metropolia.fi",
     "password": "popokissa123"
 }
+
+### login 
+
+POST http://192.168.1.112:3001/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "riskala@metropolia.fi",
+    "password": "popokissa123"
+}
+
+### get all diettypes 
+
+GET http://localhost:3002/api/v1/dietary
+
+### get all recipes 
+GET http://localhost:3002/api/v1/recipes
+
+
+
+### create new recipe
+
+POST http://192.168.1.112:3002/api/v1/recipes
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJsZXZlbF9uYW1lIjoiVXNlciIsImlhdCI6MTc0MzY4MzI2MiwiZXhwIjoxNzQzNjk0MDYyfQ.__kF1aEyH0iA3o_M5ZNcWwh3qOQeKSScdd3FIK8iY-c
+Content-Type: application/json
+
+{
+    "title": "ruoka",
+    "instructions": "Recipe instructions lollooloooooo piti olla 20 merkkiiiiiiii looooool",
+    "cooking_time": 30,
+    "media_type": "image/jpeg",
+    "filename": "myrecipe.jpg",
+    "filesize": 12345,
+    "difficulty_level_id": 1,
+    "ingredients": [
+    {
+    "name": "Ingredient Name",
+    "amount": 1,
+    "unit": "g"
+    },
+    {
+    "name": "Another Ingredient",
+    "amount": 2,
+    "unit": "ml"
+    }
+    ],
+    "dietary_info": [1, 2]
+    }

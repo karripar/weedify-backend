@@ -2,8 +2,10 @@
 -- paths for sql-files
 -- Karri: source c:/users/karri/webdev/weedify/weedify-backend/weedify.sql;
 
+-- elli: source C:/Users/ellir/monialustaprojekti/weedify-backend/weedify.sql;
+
 DROP DATABASE IF EXISTS weedify;
-CREATE DATABASE weedify;
+CREATE DATABASE weedify CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE weedify;
 
 -- Create UserLevels table
