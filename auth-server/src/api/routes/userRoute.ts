@@ -147,7 +147,7 @@ router.get(
 
 router.get(
   /**
-   * @api {get} /users/:id Get user by id
+   * @api {get} /users/byuserid/:id Get user by id
    * @apiName GetUserById
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -203,7 +203,7 @@ router.get(
    *  }
    *
    */
-  '/user/:id',
+  '/user/byuserid/:id',
   param('id').isNumeric(),
   validationErrors,
   userByIdGet,
