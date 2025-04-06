@@ -1,7 +1,8 @@
 import express from 'express';
-import Login from '../controllers/authController';
+import {Login} from '../controllers/authController';
 import { body } from 'express-validator';
 import { validationErrors } from '../../middlewares';
+import { requestPasswordReset, resetPassword } from '../controllers/authController';
 const router = express.Router();
 
 /**
@@ -92,5 +93,83 @@ router.post(
   validationErrors,
   Login,
 );
+
+router.post(
+  /**
+   * @api {post} /auth/request-password-reset Request password reset
+   * @apiName RequestPasswordReset
+   * @apiGroup AuthGroup
+   * @apiVersion  1.0.0
+   * @apiDescription Request password reset
+   * @apiPermission none
+   *
+   * @apiBody {String} email User's email
+   *
+   * @apiSuccess (200) {String} message Success message
+   *
+   * @apiSuccessExample {json} Success-Response:
+   * {
+   *  "message": "Password reset email sent"
+   * }
+   *
+   * @apiError (400) {String} Invalid email Invalid email
+   *
+   * @apiErrorExample {json} Invalid email:
+   * {
+   *  "message": "Invalid email"
+   * }
+   */
+  '/request-reset',
+  body('email')
+    .isString()
+    .isEmail()
+    .escape()
+    .isLength({ min: 5, max: 255 })
+    .withMessage('Invalid email'),
+  validationErrors,
+  requestPasswordReset,
+);
+
+router.post(
+  /**
+   * @api {post} /auth/reset-password/:token Reset password
+   * @apiName ResetPassword
+   * @apiGroup AuthGroup
+   * @apiVersion  1.0.0
+   * @apiDescription Reset password
+   * @apiPermission none
+   *
+   * @apiParam {String} token Password reset token
+   *
+   * @apiBody {String} password New password
+   *
+   * @apiSuccess (200) {String} message Success message
+   *
+   * @apiSuccessExample {json} Success-Response:
+   * {
+   *  "message": "Password updated successfully"
+   * }
+   *
+   * @apiError (400) {String} Invalid token Invalid token
+   *
+   * @apiErrorExample {json} Invalid token:
+   * {
+   *  "message": "Invalid token"
+   * }
+   */
+  '/reset-password',
+  body('password')
+    .isString()
+    .isLength({ min: 8, max: 255 })
+    .withMessage('Invalid password'),
+  body('token')
+    .isString()
+    .isLength({ min: 1, max: 255 })
+    .withMessage('Invalid token'),
+  validationErrors,
+  resetPassword,
+);
+
+
 
 export default router;

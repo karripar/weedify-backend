@@ -5,7 +5,8 @@ import {
   User,
   UserWithNoPassword,
   ProfilePicture,
-  UserWithDietaryInfo
+  UserWithDietaryInfo,
+  UserCheck
 } from 'hybrid-types/DBTypes';
 import {UserDeleteResponse, MessageResponse} from 'hybrid-types/MessageTypes';
 import CustomError from '../../classes/CustomError';
@@ -423,6 +424,18 @@ const updateUserDetails = async (
 };
 
 
+const getUserExistsByEmail = async (
+  email: string,
+): Promise<Partial<UserCheck>> => {
+  const [rows] = await promisePool.execute<
+    RowDataPacket[] & Partial<User>[]>(
+      'SELECT user_id, email FROM Users WHERE email = ?',
+    [email],
+    );
+
+    return rows[0];
+};
+
 
 export {
   getUsers,
@@ -436,4 +449,5 @@ export {
   getProfilePicById,
   putProfilePic,
   updateUserDetails,
+  getUserExistsByEmail,
 };

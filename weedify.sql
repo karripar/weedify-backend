@@ -24,12 +24,23 @@ CREATE TABLE Users (
     FOREIGN KEY (user_level_id) REFERENCES UserLevels(user_level_id)
 );
 
+
+-- Create table ResetTokens
+CREATE TABLE ResetTokens (
+    token_id INT PRIMARY KEY UNIQUE AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
+-- Create table DietaryRestrictions
 CREATE TABLE DietaryRestrictions (
     dietary_restriction_id INT PRIMARY KEY AUTO_INCREMENT,
     restriction_name VARCHAR(50) NOT NULL UNIQUE
 );
 
-
+-- Create table UserDietaryRestrictions
 CREATE TABLE UserDietaryRestrictions (
     user_id INT,
     dietary_restriction_id INT,
