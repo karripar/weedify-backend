@@ -2,10 +2,12 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { NextFunction, Request, Response } from 'express';
 import CustomError from '../../classes/CustomError';
-import { LoginResponse } from 'hybrid-types/MessageTypes';
+import { LoginResponse, MessageResponse } from 'hybrid-types/MessageTypes';
 import {getUserByEmail} from '../models/userModel';
 import { UserWithLevel, TokenContent } from 'hybrid-types/DBTypes';
-
+import { createResetToken, verifyResetToken, updatePassword } from '../models/authModel';
+import { getUserExistsByEmail } from '../models/userModel';
+import { sendResetEmail } from '../../utils/emailer';
 
 const Login = async (
   req: Request<object, object, { email: string, password: string }>,
@@ -61,4 +63,61 @@ const Login = async (
   }
 }
 
-export default Login;
+const requestPasswordReset = async (
+  req: Request<{email: string}>,
+  res: Response<MessageResponse>,
+  next: NextFunction,
+) => {
+  try {
+    const {email} = req.body;
+    const user = await getUserExistsByEmail(email);
+    if (!user) {
+      next(new CustomError('User not found', 404));
+      return;
+    }
+
+    if (!user.user_id) {
+      next(new CustomError('User ID is missing', 400));
+      return;
+    }
+    const token = await createResetToken(user.user_id);
+
+    await sendResetEmail(email, token);
+
+    res.json({
+      message: 'Password reset email sent',
+    });
+  } catch (error) {
+    next(new CustomError((error as Error).message, 500));
+  }
+}
+
+const resetPassword = async (
+  req: Request<{token: string}, {password: string}>,
+  res: Response<MessageResponse>,
+  next: NextFunction,
+) => {
+  try {
+    const {token, password} = req.body; // token and new password from request body
+
+    const tokenData = await verifyResetToken(token);
+    if (!tokenData) {
+      next(new CustomError('Invalid or expired token', 400));
+      return;
+    }
+
+    await updatePassword(tokenData.user_id, password);
+
+    res.json({
+      message: 'Password updated successfully',
+    });
+  } catch (error) {
+    next(new CustomError((error as Error).message, 500));
+  }
+}
+
+export {
+  Login,
+  requestPasswordReset,
+  resetPassword,
+}
