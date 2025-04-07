@@ -184,6 +184,7 @@ CREATE TABLE Ratings (
     user_id INT NOT NULL,
     recipe_id INT NOT NULL,
     rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    review TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (recipe_id) REFERENCES RecipePosts(recipe_id) ON DELETE CASCADE
@@ -228,7 +229,7 @@ INSERT INTO Notifications (user_id, notification_text, notification_type_id) VAL
 
 INSERT INTO Notifications (user_id, notification_text, notification_type_id) VALUES (1, 'Testi-ilmoitus', 1), (2, 'Testi-ilmoitus2', 2);
 
-INSERT INTO Ratings (user_id, recipe_id, rating) VALUES (1, 1, 5), (2, 1, 4);
+INSERT INTO Ratings (user_id, recipe_id, rating, review) VALUES (1, 1, 5, 'Erinomainen resepti!'), (2, 1, 4, 'Hyvä resepti, mutta kaipaisi lisää suolaa.'), (1, 2, 3, 'Ihan ok resepti.'), (2, 2, 2, 'Ei ollut makuuni.');
 
 
 INSERT INTO RecipeDietTypes (recipe_id, diet_type_id) VALUES (1, 1), (2, 2);
