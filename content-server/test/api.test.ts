@@ -9,6 +9,15 @@ if (!process.env.AUTH_SERVER || !process.env.UPLOAD_SERVER) {
   throw new Error('Missing some of following variables: AUTH_SERVER, UPLOAD_SERVER, CONTENT_SERVER');
 }
 
+/*
+*******************************************************************************************************
+
+Files in testfiles are in gitignore, so you need to add them manually. Add one image and name it "kissa.jpg"
+and one video and name it "ducks.mp4"
+
+*******************************************************************************************************
+*/
+
 const authApi = process.env.AUTH_SERVER;
 const uploadApi = process.env.UPLOAD_SERVER;
 
