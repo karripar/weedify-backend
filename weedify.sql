@@ -23,8 +23,10 @@ CREATE TABLE Users (
     bio TEXT,
     user_level_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    notifications_enabled BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (user_level_id) REFERENCES UserLevels(user_level_id)
 );
+
 
 
 -- Create table ResetTokens

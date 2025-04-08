@@ -97,6 +97,37 @@ const deleteOldNotifications = async (): Promise<MessageResponse> => {
 };
 
 
+const checkNotificationsEnabled = async (
+  user_id: number,
+): Promise<boolean> => {
+  const sql = `
+    SELECT notifications_enabled
+    FROM Users
+    WHERE user_id = ?`;
+  const [rows] = await promisePool.execute<RowDataPacket[]>(sql, [user_id]);
+  if (rows.length === 0) {
+    throw new CustomError(ERROR_MESSAGES.NOTIFICATION.NO_USER_FOUND, 404);
+  }
+  return Boolean(rows[0].notifications_enabled);
+}
+
+const toggleNotificationsEnabled = async (
+  user_id: number,
+): Promise<MessageResponse> => {
+  const sql = `
+    UPDATE Users
+    SET notifications_enabled = NOT notifications_enabled
+    WHERE user_id = ?`;
+  const params = [user_id];
+  const [result] = await promisePool.execute<ResultSetHeader>(sql, params);
+  if (!result.affectedRows) {
+    throw new CustomError(ERROR_MESSAGES.NOTIFICATION.NOT_UPDATED, 500);
+  }
+  return {
+    message: "Notification settings updated successfully",
+  };
+};
+
 
 export {
   fetchNotificationByUserId,
@@ -104,4 +135,6 @@ export {
   markAsRead,
   markAsArchived,
   deleteOldNotifications,
+  checkNotificationsEnabled,
+  toggleNotificationsEnabled,
 }

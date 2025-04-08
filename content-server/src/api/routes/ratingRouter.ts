@@ -115,7 +115,7 @@ ratingRouter
   .route('/')
   .post(
     /**
-     * @api {post} /ratings/recipe/:id Post Rating
+     * @api {post} /ratings Post Rating
      * @apiName PostRating
      * @apiGroup ratingGroup
      * @apiVersion 1.0.0
@@ -220,7 +220,7 @@ ratingRouter
 .route('/check-exists/:id')
   .get(
     /**
-     * @api {get} /ratings/check-exists Check if Rating Exists
+     * @api {get} /ratings/check-exists/:id Check if Rating Exists
      * @apiName CheckRatingExists
      * @apiGroup ratingGroup
      * @apiVersion 1.0.0
@@ -229,7 +229,7 @@ ratingRouter
      *
      * @apiUse token
      *
-     * @apiParam {Number} recipe_id Recipe ID
+     * @apiParam {Number} id Recipe ID
      *
      * @apiSuccess {Boolean} exists True if the rating exists, false otherwise
      * @apiSuccessExample {json} Success-Response:

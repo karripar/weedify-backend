@@ -4,8 +4,8 @@ import { promisePool } from '../../lib/db';
 import { MessageResponse } from 'hybrid-types/MessageTypes';
 import CustomError from '../../classes/customError';
 import { ERROR_MESSAGES } from '../../utils/errorMessages';
-
-
+import { checkNotificationsEnabled, postNotification } from './notificationModel';
+import { getUsernameById } from './utilModel';
 // Request a list of followers by user ID
 const fetchFollowersByUserId = async (user_id: number): Promise<Follow[]> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & Follow[]>(
@@ -63,6 +63,17 @@ const addFollow = async (follower_id: number, followed_id: number): Promise<Foll
   const result = await promisePool.execute<ResultSetHeader>(
     'INSERT INTO Follows (follower_id, followed_id) VALUES (?, ?)', [follower_id, followed_id]
   );
+
+  // Check if notifications are enabled for the followed user
+  const notificationsAllowed = await checkNotificationsEnabled(followed_id);
+  if (notificationsAllowed) {
+    // Send a notification to the followed user
+    const followerUsername = await getUsernameById(follower_id);
+    const notificationText = `${followerUsername.username} started following you`;
+    await postNotification(followed_id, notificationText, 3);
+  } else {
+    console.log('Notifications are disabled for this user');
+  }
 
   if (result[0].affectedRows === 1) {
     return {
