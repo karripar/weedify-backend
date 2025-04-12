@@ -1,4 +1,3 @@
-
 import {ERROR_MESSAGES} from '../../utils/errorMessages';
 import {ResultSetHeader, RowDataPacket} from 'mysql2';
 import {Recipe, RecipeWithDietaryIds, UserLevel} from 'hybrid-types/DBTypes';
@@ -8,6 +7,7 @@ import CustomError from '../../classes/customError';
 import {fetchData} from '../../lib/functions';
 const uploadPath = process.env.UPLOAD_URL;
 
+// Muokkaa BASE_QUERY:ä sisältämään likes_count
 const BASE_QUERY = `
   SELECT
     rp.recipe_id,
@@ -20,6 +20,7 @@ const BASE_QUERY = `
     rp.cooking_time,
     rp.created_at,
     dl.level_name AS difficulty_level,
+    (SELECT COUNT(*) FROM Likes WHERE Likes.recipe_id = rp.recipe_id) AS likes_count,
     CASE
         WHEN rp.media_type LIKE '%image%'
         THEN CONCAT(v.base_url, rp.filename, '-thumb.png')
@@ -65,33 +66,31 @@ LEFT JOIN DifficultyLevels dl ON rp.difficulty_level_id = dl.difficulty_level_id
 CROSS JOIN (SELECT ? AS base_url) AS v
 `;
 
-
-
-
-
-// Request a list of recipes and files related to the recipe
 const fetchAllRecipes = async (
   page: number | undefined = undefined,
   limit: number | undefined = undefined,
 ): Promise<Recipe[]> => {
   const offset = page && limit ? (page - 1) * limit : undefined;
-  const sql = `${BASE_QUERY}
-  ${limit ? 'LIMIT ? OFFSET ?' : ''}`;
-  const params = [uploadPath, limit, offset];
+
+  // Use BASE_QUERY
+  const sql = limit ? `${BASE_QUERY} LIMIT ? OFFSET ?` : BASE_QUERY;
+
+  const params = limit ? [uploadPath, limit, offset] : [uploadPath];
 
   const stmt = await promisePool.format(sql, params);
 
   const [rows] = await promisePool.execute<RowDataPacket[] & Recipe[]>(stmt);
   rows.forEach((row) => {
-    row.ingredients = JSON.parse(row.ingredients || '[]'); // NOTICE THIS, OTHERWISE INGREDIENT WILL BE IN UGLY JSON
+    row.ingredients = JSON.parse(row.ingredients || '[]');
     row.diet_types = JSON.parse(row.diet_types || '[]');
   });
+
   return rows;
-}
-
-
+};
+// Fetch a recipe by its ID
 const fetchRecipeById = async (recipe_id: number): Promise<Recipe> => {
   const sql = `${BASE_QUERY} WHERE rp.recipe_id = ? GROUP BY rp.recipe_id`;
+
   const params = [uploadPath, recipe_id];
   const stmt = await promisePool.format(sql, params);
 
@@ -101,25 +100,34 @@ const fetchRecipeById = async (recipe_id: number): Promise<Recipe> => {
   }
 
   rows.forEach((row) => {
-    row.ingredients = JSON.parse(row.ingredients || '[]'); // NOTICE THIS, OTHERWISE INGREDIENT WILL BE IN UGLY JSON
+    row.ingredients = JSON.parse(row.ingredients || '[]');
     row.diet_types = JSON.parse(row.diet_types || '[]');
   });
-  return rows[0];
-}
 
+  return rows[0];
+};
 
 // Post a new recipe with ingredients
 const postRecipe = async (
   recipe: Omit<RecipeWithDietaryIds, 'recipe_id' | 'created_at' | 'thumbnail'>,
-  ingredients: { name: string; amount: number; unit: string }[],
-  dietary_info: number[], // dietary id's 
+  ingredients: {name: string; amount: number; unit: string}[],
+  dietary_info: number[], // dietary id's
 ): Promise<Recipe> => {
-  const { user_id, filename, filesize, media_type, title, instructions, cooking_time, difficulty_level_id } = recipe;
+  const {
+    user_id,
+    filename,
+    filesize,
+    media_type,
+    title,
+    instructions,
+    cooking_time,
+    difficulty_level_id,
+  } = recipe;
 
   console.log('postRecipe:', recipe); // Debugging
 
   if (!difficulty_level_id) {
-    throw new Error("Missing difficulty_level_id"); // Prevent inserting null
+    throw new Error('Missing difficulty_level_id'); // Prevent inserting null
   }
 
   const connection = await promisePool.getConnection();
@@ -139,7 +147,7 @@ const postRecipe = async (
       title,
       instructions,
       cooking_time,
-      difficulty_level_id
+      difficulty_level_id,
     ];
 
     console.log('SQL Query:', sql);
@@ -153,10 +161,11 @@ const postRecipe = async (
 
     // Insert the ingredients
     for (const ingredient of ingredients) {
-      const [ingredientRows] = await connection.execute<RowDataPacket[] & Recipe[]>(
-        'SELECT ingredient_id FROM Ingredients WHERE ingredient_name = ?',
-        [ingredient.name],
-      );
+      const [ingredientRows] = await connection.execute<
+        RowDataPacket[] & Recipe[]
+      >('SELECT ingredient_id FROM Ingredients WHERE ingredient_name = ?', [
+        ingredient.name,
+      ]);
 
       let ingredientId: number;
 
@@ -164,10 +173,11 @@ const postRecipe = async (
         ingredientId = ingredientRows[0].ingredient_id;
       } else {
         // Insert new ingredient
-        const [insertIngredientResult] = await connection.execute<ResultSetHeader>(
-          'INSERT INTO Ingredients (ingredient_name) VALUES (?)',
-          [ingredient.name]
-        );
+        const [insertIngredientResult] =
+          await connection.execute<ResultSetHeader>(
+            'INSERT INTO Ingredients (ingredient_name) VALUES (?)',
+            [ingredient.name],
+          );
         if (!insertIngredientResult.affectedRows) {
           throw new CustomError(ERROR_MESSAGES.RECIPE.NOT_CREATED, 500);
         }
@@ -175,10 +185,11 @@ const postRecipe = async (
       }
 
       // Insert into RecipeIngredients
-      const [insertRecipeIngredientResult] = await connection.execute<ResultSetHeader>(
-        `INSERT INTO RecipeIngredients (recipe_id, ingredient_id, amount, unit) VALUES (?, ?, ?, ?)`,
-        [recipeId, ingredientId, ingredient.amount, ingredient.unit]
-      );
+      const [insertRecipeIngredientResult] =
+        await connection.execute<ResultSetHeader>(
+          `INSERT INTO RecipeIngredients (recipe_id, ingredient_id, amount, unit) VALUES (?, ?, ?, ?)`,
+          [recipeId, ingredientId, ingredient.amount, ingredient.unit],
+        );
       if (!insertRecipeIngredientResult.affectedRows) {
         throw new CustomError(ERROR_MESSAGES.RECIPE.NOT_CREATED, 500);
       }
@@ -188,7 +199,7 @@ const postRecipe = async (
     for (const diet_id of dietary_info) {
       const [insertDietResult] = await connection.execute<ResultSetHeader>(
         `INSERT INTO RecipeDietTypes (recipe_id, diet_type_id) VALUES (?, ?)`,
-        [recipeId, diet_id]
+        [recipeId, diet_id],
       );
       if (!insertDietResult.affectedRows) {
         throw new CustomError(ERROR_MESSAGES.RECIPE.NOT_CREATED, 500);
@@ -205,7 +216,6 @@ const postRecipe = async (
     connection.release();
   }
 };
-
 
 const deleteRecipe = async (
   recipe_id: number,
@@ -227,7 +237,9 @@ const deleteRecipe = async (
   const connection = await promisePool.getConnection();
   await connection.beginTransaction();
 
-  await connection.execute('DELETE FROM Likes WHERE recipe_id = ?', [recipe_id]);
+  await connection.execute('DELETE FROM Likes WHERE recipe_id = ?', [
+    recipe_id,
+  ]);
   await connection.execute('DELETE FROM Comments WHERE recipe_id = ?;', [
     recipe_id,
   ]);
@@ -275,8 +287,7 @@ const deleteRecipe = async (
   return {
     message: 'Recipe deleted',
   };
-}
-
+};
 
 // Fetch all recipes for a user
 const fetchRecipesByUserId = async (user_id: number): Promise<Recipe[]> => {
@@ -339,4 +350,4 @@ export {
   fetchRecipesByUserId,
   fetchRecipesByUsername,
   fetchRecipesByTagname,
-}
+};

@@ -321,7 +321,6 @@ router.get(
   profilePicByIdGet,
 );
 
-
 router.post(
   /**
    * @api {post} /users/profilepicture Post profile picture
@@ -379,7 +378,6 @@ router.post(
   profilePicPost,
 );
 
-
 router.put(
   /**
    * @api {put} /users/profilepicture Update profile picture
@@ -436,7 +434,6 @@ router.put(
   validationErrors,
   profilePicturePut,
 );
-
 
 router.post(
   /**
