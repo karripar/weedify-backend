@@ -380,9 +380,7 @@ recipeRouter.route('/byuser/:user_id').get(
    * @apiGroup recipeGroup
    * @apiVersion 1.0.0
    * @apiDescription Get all recipes by user ID
-   * @apiPermission token
-   *
-   * @apiUse token
+   * @apiPermission none
    *
    * @apiParam {number} user_id User ID
    *
@@ -428,7 +426,6 @@ recipeRouter.route('/byuser/:user_id').get(
    * }
    * }
    */
-  authenticate,
   param('user_id').notEmpty().isInt({min: 1}).toInt(),
   validationErrors,
   RecipesByUserGet,
