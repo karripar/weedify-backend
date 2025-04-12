@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import dotenv from 'dotenv';
 dotenv.config();
 import {Like, Recipe, UserWithNoPassword, User} from 'hybrid-types/DBTypes';
@@ -22,6 +23,55 @@ import {
   getRecipesByUserId,
   getRecipesByToken,
 } from './controllers/testRecipe';
+import {
+  postLike,
+  deleteLike,
+  getNotFoundLike,
+  postInvalidLike,
+  getLikesByUser,
+  getLikeByRecipeIdAndUserId,
+} from './controllers/testLike';
+import {
+  postComment,
+  getComments,
+  deleteComment,
+  getNotFoundComment,
+  postInvalidComment,
+  deleteInvalidComment,
+} from './controllers/testComment';
+import {
+  getRecipeDietTypes,
+  getAllDietTypes,
+  GetMostPopularDietaryTypes,
+} from './controllers/testDietary';
+import {
+  uploadProfilePictureFile,
+  postProfilePicture,
+  putProfilePicture,
+  getProfilePicture,
+} from './controllers/testProfilepicture';
+
+import {
+  postFavorite,
+  getFavoritesByUserId,
+  deleteFavorite,
+  getNegativeFavoriteStatus,
+} from './controllers/testFavorite';
+import {
+  checkIfNotificationsEnabled,
+  getUserNotifications,
+  MarkNotificationAsArchived,
+  MarkNotificationAsRead,
+  toggleNotificationEnabled,
+} from './controllers/testNotification';
+
+import {
+  postRating,
+  getRatingByUserId,
+  checkIfRatingExists,
+  deleteRating,
+  getRatingsByRecipeId,
+} from './controllers/testRating';
 
 if (!process.env.AUTH_SERVER || !process.env.UPLOAD_SERVER) {
   throw new Error(
