@@ -7,7 +7,7 @@ import CustomError from '../../classes/customError';
 import {fetchData} from '../../lib/functions';
 const uploadPath = process.env.UPLOAD_URL;
 
-// Muokkaa BASE_QUERY:ä sisältämään likes_count
+// Fetch all recipes
 const BASE_QUERY = `
   SELECT
     rp.recipe_id,
@@ -100,7 +100,7 @@ const fetchRecipeById = async (recipe_id: number): Promise<Recipe> => {
   }
 
   rows.forEach((row) => {
-    row.ingredients = JSON.parse(row.ingredients || '[]');
+    row.ingredients = JSON.parse(row.ingredients || '[]'); // NOTICE THIS, OTHERWISE INGREDIENT WILL BE IN UGLY JSON
     row.diet_types = JSON.parse(row.diet_types || '[]');
   });
 
