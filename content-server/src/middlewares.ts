@@ -24,6 +24,7 @@ const errorHandler = (error: CustomError, req: Request, res: Response, next: Nex
 const validationErrors = (req: Request, res: Response, next: NextFunction) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('VALIDATION ERRORS:', errors.array());
     const messages: string = errors.array().map((error) => error.msg).join(', ');
     next(new CustomError(messages, 400));
     return;
@@ -41,7 +42,7 @@ const authenticate = async (req: Request, res: Response, next: NextFunction) => 
   }
 
   // decode the user_id from the token
-  const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as TokenContent; 
+  const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as TokenContent;
   console.log(decoded);
 
   if (!decoded || !decoded.user_id) {

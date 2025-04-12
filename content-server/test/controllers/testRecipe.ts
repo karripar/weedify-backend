@@ -1,6 +1,6 @@
 import {
   RecipeWithDietaryInfo,
-  RecipeWithDietaryIds
+  RecipeWithDietaryIds,
 } from 'hybrid-types/DBTypes';
 import {MessageResponse, UploadResponse} from 'hybrid-types/MessageTypes';
 import request from 'supertest';
@@ -94,15 +94,20 @@ const postRecipe = (
   url: string | Application,
   path: string,
   token: string,
-  recipe: RecipeWithDietaryIds,
+  recipe: Partial<RecipeWithDietaryIds>,
 ): Promise<MessageResponse & {recipe_id: number}> => {
   return new Promise((resolve, reject) => {
+    console.log('token: ', token);
+    console.log('recipe: ', recipe);
+    console.log(url + path);
     request(url)
       .post(path)
       .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
       .send(recipe)
       .expect(200)
       .end((err, res) => {
+        console.log('POST /recipes response:', res?.statusCode, res?.body);
         if (err) {
           reject(err);
         } else {
@@ -133,7 +138,6 @@ const deleteRecipe = (
   });
 };
 
-
 const getNotFoundRecipe = (
   urL: string | Application,
   recipeId: number,
@@ -149,7 +153,7 @@ const getNotFoundRecipe = (
           expect(message.message).not.toBe('');
         }
       });
-    });
+  });
 };
 
 const deleteNotFoundMediaItem = (
@@ -171,7 +175,6 @@ const deleteNotFoundMediaItem = (
   });
 };
 
-
 const postInvalidMediaItem = (
   url: string | Application,
   media_name: string,
@@ -191,7 +194,6 @@ const postInvalidMediaItem = (
       });
   });
 };
-
 
 const getRecipesByUserId = (
   url: string | Application,
@@ -276,8 +278,16 @@ const getRecipesByUsername = (
   });
 };
 
-
-
-
-
-export {uploadFile, getRecipeById, getRecipes, postRecipe, deleteRecipe, getNotFoundRecipe, deleteNotFoundMediaItem, postInvalidMediaItem, getRecipesByUserId, getRecipesByToken, getRecipesByUsername};
+export {
+  uploadFile,
+  getRecipeById,
+  getRecipes,
+  postRecipe,
+  deleteRecipe,
+  getNotFoundRecipe,
+  deleteNotFoundMediaItem,
+  postInvalidMediaItem,
+  getRecipesByUserId,
+  getRecipesByToken,
+  getRecipesByUsername,
+};

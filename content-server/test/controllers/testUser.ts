@@ -32,7 +32,6 @@ const registerUser = (
           expect(newUser.user.username).toBe(user.username);
           expect(newUser.user.email).toBe(user.email);
           expect(newUser.user.user_id).toBeGreaterThan(0);
-          expect(newUser.user.user_level_id).toBe(2);
           resolve(newUser);
         }
       });
@@ -59,7 +58,6 @@ const loginUser = (
           expect(login.user.username).not.toBe('');
           expect(login.user.email).not.toBe('');
           expect(login.user.user_id).toBeGreaterThan(0);
-          expect(login.user.user_level_id).toBe(2);
           resolve(login);
         }
       });

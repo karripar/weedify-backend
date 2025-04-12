@@ -501,7 +501,6 @@ router.post(
   body('email')
     .isEmail()
     .trim()
-    .normalizeEmail()
     .isEmail()
     .withMessage('Invalid email'),
   body('password')

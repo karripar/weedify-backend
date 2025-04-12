@@ -110,7 +110,6 @@ recipeRouter
      * {
      *  "title": "Recipe Title",
      *  "instructions": "Recipe instructions",
-     *  "diet_type": "Diet type",
      *  "cooking_time": 30,
      *  "media_type": "image/jpeg",
      *  "filename": "recipe.jpg",
