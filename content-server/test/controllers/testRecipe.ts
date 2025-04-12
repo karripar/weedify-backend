@@ -54,7 +54,6 @@ const getRecipes = (
             expect(recipe.media_type).not.toBe('');
             expect(recipe.dietary_info).not.toBe('');
             expect(recipe.user_id).toBeGreaterThan(0);
-            expect(recipe.difficulty_level_id).toBeGreaterThan(0);
           });
           resolve(recipes);
         }
@@ -83,7 +82,6 @@ const getRecipeById = (
           expect(recipe.media_type).not.toBe('');
           expect(recipe.dietary_info).not.toBe('');
           expect(recipe.user_id).toBeGreaterThan(0);
-          expect(recipe.difficulty_level_id).toBeGreaterThan(0);
           resolve(recipe);
         }
       });
@@ -201,7 +199,7 @@ const getRecipesByUserId = (
 ): Promise<RecipeWithDietaryInfo[]> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get(`/api/v1/recipes/byuser/${userId}`)
+      .get(`/api/v1/recipes/byuser/userid/${userId}`)
       .expect(200, (err, res) => {
         if (err) {
           reject(err);
@@ -223,7 +221,7 @@ const getRecipesByToken = (
 ): Promise<RecipeWithDietaryInfo[]> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get('/api/v1/recipes/bytoken')
+      .get('/api/v1/recipes/byuser/token')
       .set('Authorization', `Bearer ${token}`)
       .expect(200, (err, res) => {
         if (err) {

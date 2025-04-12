@@ -163,5 +163,31 @@ describe('Content Server API Tests', () => {
     }
   });
 
+  it('should get the recipe by id', async () => {
+    const recipe_id = testRecipeItem.recipe_id;
+    await getRecipeById(
+      app,
+      recipe_id
+    );
+  });
+
+  it('should get all recipes', async () => {
+    await getRecipes(app);
+  });
+
+  it('should get recipes by user id', async () => {
+    await getRecipesByUserId(
+      app,
+      user.user_id
+    );
+  });
+
+  it('should get recipes by token', async () => {
+    await getRecipesByToken(
+      app,
+      token
+    );
+  });
+
 
 });

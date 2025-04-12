@@ -372,7 +372,7 @@ recipeRouter
     validationErrors,
     RecipeDelete,
   );
-recipeRouter.route('/byuser/:user_id').get(
+recipeRouter.route('/byuser/userid/:user_id').get(
   /**
    * @api {get} /recipes/byuser/:user_id Get Recipes by User ID
    * @apiName GetRecipesByUserId
@@ -429,7 +429,7 @@ recipeRouter.route('/byuser/:user_id').get(
   validationErrors,
   RecipesByUserGet,
 );
-recipeRouter.route('/bytoken').get(
+recipeRouter.route('/byuser/token').get(
   /**
    * @api {get} /recipes/bytoken Get Recipes by Token
    * @apiName GetRecipesByToken
