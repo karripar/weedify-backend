@@ -53,7 +53,7 @@ notificationRouter
      *  {
      *    "id": 1,
      *    "user_id": 1,
-     *    "text": "Notification text",
+     *    "notification_text": "Notification text",
      *    "notification_type_id": 1,
      *    "is_read": false,
      *    "is_archived": false,
@@ -73,10 +73,10 @@ notificationRouter
   )
 
 notificationRouter
-  .route('/user/:id')
+  .route('/user/:id/mark-read')
   .put(
     /**
-     * @api {put} /notifications/user/:id Mark Notification as Read
+     * @api {put} /notifications/user/:id/mark-read Mark Notification as Read
      * @apiName MarkNotificationAsRead
      * @apiGroup notificationGroup
      * @apiVersion 1.0.0
@@ -237,10 +237,10 @@ notificationRouter
 )
 
 notificationRouter
-.route('/toggle-enabled')
+.route('/settings/toggle-enabled')
 .put(
   /**
-   * @api {put} /notifications/user/enabled Toggle Notifications Enabled
+   * @api {put} /notifications/toggle-enabled Toggle Notifications Enabled
    * @apiName ToggleNotificationsEnabled
    * @apiGroup notificationGroup
    * @apiVersion 1.0.0
