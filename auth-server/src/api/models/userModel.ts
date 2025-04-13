@@ -6,7 +6,7 @@ import {
   UserWithNoPassword,
   ProfilePicture,
   UserWithDietaryInfo,
-  UserCheck
+  UserCheck,
 } from 'hybrid-types/DBTypes';
 import {UserDeleteResponse, MessageResponse} from 'hybrid-types/MessageTypes';
 import CustomError from '../../classes/CustomError';
@@ -26,9 +26,7 @@ const getUsers = async (): Promise<UserWithNoPassword[]> => {
   return rows;
 };
 
-const getUserById = async (
-  user_id: number,
-): Promise<UserWithDietaryInfo> => {
+const getUserById = async (user_id: number): Promise<UserWithDietaryInfo> => {
   const [rows] = await promisePool.execute<
     UserWithDietaryInfo[] & RowDataPacket[]
   >(
@@ -55,20 +53,18 @@ const getUserById = async (
     JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
     LEFT JOIN ProfilePicture ON Users.user_id = ProfilePicture.user_id
     WHERE Users.user_id = ?;`,
-    [user_id]
+    [user_id],
   );
 
   // dietary info is only for the user
   rows.forEach((row) => {
     if (row.dietary_restrictions) {
-       row.dietary_restrictions = JSON.parse(row.dietary_restrictions || '[]');
+      row.dietary_restrictions = JSON.parse(row.dietary_restrictions || '[]');
     }
   });
 
   return rows[0]; // Handle case where user is not found
 };
-
-
 
 const getUserByEmail = async (email: string): Promise<UserWithLevel> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & UserWithLevel[]>(
@@ -255,7 +251,7 @@ const checkProfilePicExists = async (
     SELECT
       pp.profile_picture_id,
       pp.user_id,
-      pp.filename
+      pp.filename,
       CONCAT(v.base_url, pp.filename) AS filename
     FROM ProfilePicture pp
     CROSS JOIN (SELECT ? AS base_url) AS v
@@ -308,7 +304,7 @@ const putProfilePic = async (
   media: ProfilePicture,
   user_id: number,
 ): Promise<ProfilePicture> => {
-  const {filename, filesize} = media;
+  const {filename, filesize, media_type} = media;
 
   const existingProfilePic = await checkProfilePicExists(user_id);
   console.log('existingProfilePic', existingProfilePic);
@@ -318,12 +314,12 @@ const putProfilePic = async (
 
   if (existingProfilePic) {
     sql = `UPDATE ProfilePicture
-           SET filename = ?, filesize = ?
+           SET filename = ?, media_type = ?, filesize = ?
            WHERE user_id = ?`;
-    stmt = promisePool.format(sql, [filename, filesize, user_id]);
+    stmt = promisePool.format(sql, [filename, media_type, filesize, user_id]);
   } else {
-    sql = `INSERT INTO ProfilePicture (user_id, filename, filesize) VALUES (?, ?, ?)`;
-    stmt = promisePool.format(sql, [user_id, filename, filesize]);
+    sql = `INSERT INTO ProfilePicture (user_id, filename, media_type, filesize) VALUES (?, ?, ?, ?)`;
+    stmt = promisePool.format(sql, [user_id, filename, media_type, filesize]);
   }
 
   const [result] = await promisePool.execute<ResultSetHeader>(stmt);
@@ -358,7 +354,6 @@ const putProfilePic = async (
   return await getProfilePicById(result.insertId);
 };
 
-
 const updateUserDetails = async (
   user_id: number,
   userDetails: Partial<Pick<User, 'username' | 'email' | 'bio'>>,
@@ -390,24 +385,27 @@ const updateUserDetails = async (
       updateValues.push(user_id);
       await connection.execute(
         `UPDATE Users SET ${updateFields.join(', ')} WHERE user_id = ?`,
-        updateValues
+        updateValues,
       );
     }
 
     // Remove existing dietary restrictions
     await connection.execute(
       `DELETE FROM UserDietaryRestrictions WHERE user_id = ?`,
-      [user_id]
+      [user_id],
     );
 
     // Insert new dietary restrictions
     if (dietaryRestrictions.length > 0) {
       const placeholders = dietaryRestrictions.map(() => '(?, ?)').join(', ');
-      const values = dietaryRestrictions.flatMap(restrictionId => [user_id, restrictionId]);
+      const values = dietaryRestrictions.flatMap((restrictionId) => [
+        user_id,
+        restrictionId,
+      ]);
 
       await connection.execute(
         `INSERT INTO UserDietaryRestrictions (user_id, dietary_restriction_id) VALUES ${placeholders}`,
-        values
+        values,
       );
     }
 
@@ -423,19 +421,16 @@ const updateUserDetails = async (
   }
 };
 
-
 const getUserExistsByEmail = async (
   email: string,
 ): Promise<Partial<UserCheck>> => {
-  const [rows] = await promisePool.execute<
-    RowDataPacket[] & Partial<User>[]>(
-      'SELECT user_id, email FROM Users WHERE email = ?',
+  const [rows] = await promisePool.execute<RowDataPacket[] & Partial<User>[]>(
+    'SELECT user_id, email FROM Users WHERE email = ?',
     [email],
-    );
+  );
 
-    return rows[0];
+  return rows[0];
 };
-
 
 export {
   getUsers,

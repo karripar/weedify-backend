@@ -174,7 +174,6 @@ router.get(
    *        "created_at": "2021-01-01T00:00:00.000Z",
    *        "level_name": "User",
    *        "filename": "profile.jpg",
-   *        "filename": "profile.jpg",
    *        "dietary": {
    *          "id": 1,
    *          "name": "Vegetarian",
@@ -432,6 +431,7 @@ router.put(
   '/profilepicture',
   authenticate,
   body('filename').isString(),
+  body('media_type').isString(),
   body('filesize').isString(),
   validationErrors,
   profilePicturePut,
