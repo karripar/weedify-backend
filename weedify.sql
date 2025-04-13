@@ -77,6 +77,7 @@ CREATE TABLE RecipePosts (
     title VARCHAR(255) NOT NULL,
     instructions TEXT NOT NULL,
     cooking_time INT NOT NULL,
+    portions INT NOT NULL,
     filename VARCHAR(255) NOT NULL,
     media_type VARCHAR(50) NOT NULL,
     filesize INT NOT NULL,
@@ -210,7 +211,7 @@ INSERT INTO Users (username, password, email, user_level_id) VALUES ('karri', 'p
 
 INSERT INTO ProfilePicture (user_id, filename, media_type, filesize) VALUES (1, 'profile.jpg', 'image/jpeg', 12345), (2, 'profile.jpg', 'image/jpeg', 12345);
 
-INSERT INTO RecipePosts (user_id, title, instructions, difficulty_level_id, cooking_time, filename, media_type, filesize) VALUES (1, 'Kasvisruoka', 'Ohjeet kasvisruokaan', 1, 30, 'recipe.jpg', 'image/jpeg', 12345), (2, 'Liha-annos', 'Ohjeet liha-annokseen', 2, 45, 'recipe.jpg', 'image/jpeg', 12345);
+INSERT INTO RecipePosts (user_id, title, instructions, difficulty_level_id, cooking_time, filename, media_type, filesize, portions) VALUES (1, 'Kasvisruoka', 'Ohjeet kasvisruokaan', 1, 30, 'recipe.jpg', 'image/jpeg', 12345, 5), (2, 'Liha-annos', 'Ohjeet liha-annokseen', 2, 45, 'recipe.jpg', 'image/jpeg', 12345, 4);
 
 INSERT INTO Ingredients (ingredient_name) VALUES ('Peruna'), ('Porkkana'), ('Sipuli'), ('Kaalit'), ('Pasta'), ('Riisi'), ('Kala'), ('Liha'), ('Maito'), ('Juusto'), ('Kasvikset'), ('Hedelmät');
 

@@ -76,6 +76,7 @@ const profilePictureGet = async (
     const profilePic = await checkProfilePicExists(Number(req.params.user_id));
     res.json(profilePic);
   } catch (err) {
+    console.log('Error in profilePictureGet:', err);
     next(err);
   }
 };
@@ -89,7 +90,7 @@ const profilePicPost = async (
   try {
     req.body.user_id = res.locals.user.user_id;
     const media = req.body;
-    if (!media.filename || !media.filesize) {
+    if (!media.filename || !media.filesize || !media.media_type) {
       next(new CustomError('Missing required fields', 400));
       return;
     }
@@ -114,7 +115,7 @@ const profilePicturePut = async (
     const profilePic = req.body;
     const user_id = Number(res.locals.user.user_id);
 
-    if (!profilePic.filename || !profilePic.filesize) {
+    if (!profilePic.filename || !profilePic.filesize || !profilePic.media_type) {
       next(new CustomError('Missing required fields', 400));
       return;
     }
@@ -122,6 +123,7 @@ const profilePicturePut = async (
     const result = await putProfilePic(profilePic, user_id)
     res.json(result);
   } catch (err) {
+    console.log('Error in profilePicturePut:', err);
     next(err);
   }
 };

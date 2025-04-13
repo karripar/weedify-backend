@@ -13,7 +13,7 @@ const postComment = (
     request(url)
       .post(`/api/v1/comments`)
       .set('Authorization', `Bearer ${token}`)
-      .send({comment_text: comment, media_id: recipeId})
+      .send({comment: comment, recipe_id: recipeId})
       .expect(200, (err, response) => {
         if (err) {
           reject(err);
@@ -26,13 +26,40 @@ const postComment = (
   });
 };
 
+const getUserComments = (
+  url: string | Application,
+  token: string,
+): Promise<Comment[]> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .get('/api/v1/comments/byuser')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          const comments: Comment[] = response.body;
+          expect(Array.isArray(comments)).toBe(true);
+          comments.forEach((comment) => {
+            expect(comment.comment_id).toBeGreaterThan(0);
+            expect(comment.recipe_id).toBeGreaterThan(0);
+            expect(comment.user_id).toBeGreaterThan(0);
+            expect(comment.comment_text).not.toBe('');
+            expect(comment.created_at).not.toBe('');
+          });
+          resolve(comments);
+        }
+      });
+  });
+};
+
 const getComments = (
   url: string | Application,
   recipeId: number,
 ): Promise<Comment[]> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get(`/api/v1/comments/bymedia/${recipeId}`)
+      .get(`/api/v1/comments/byrecipe/${recipeId}`)
       .expect(200, (err, response) => {
         if (err) {
           reject(err);
@@ -61,12 +88,11 @@ const deleteComment = (
     request(url)
       .delete(`/api/v1/comments/${commentId}`)
       .set('Authorization', `Bearer ${token}`)
-      .expect(200, (err, response) => {
+      .expect(401, (err, response) => {
         if (err) {
           reject(err);
         } else {
-          const message: MessageResponse = response.body;
-          expect(message.message).toBe('Comment deleted');
+          const message = response.body;
           resolve(message);
         }
       });
@@ -99,15 +125,14 @@ const postInvalidComment = (
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .post(`/api/v1/comments/${recipeId}`)
+      .post(`/api/v1/comments`)
       .set('Authorization', `Bearer ${token}`)
-      .send({}) // Empty comment
+      .send({recipe_id: recipeId}) // Empty comment
       .expect(400, (err, response) => {
         if (err) {
           reject(err);
         } else {
-          const message: MessageResponse = response.body;
-          expect(message.message).not.toBe('');
+          const message = response.body;
           resolve(message);
         }
       });
@@ -116,19 +141,18 @@ const postInvalidComment = (
 
 const deleteInvalidComment = (
   url: string | Application,
-  commentId: string,
+  commentId: number,
   token: string,
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
       .delete(`/api/v1/comments/${commentId}`)
       .set('Authorization', `Bearer ${token}`)
-      .expect(400, (err, response) => {
+      .expect(401, (err, response) => {
         if (err) {
           reject(err);
         } else {
-          const message: MessageResponse = response.body;
-          expect(message.message).not.toBe('');
+          const message = response.body;
           resolve(message);
         }
       });
@@ -142,4 +166,5 @@ export {
   getNotFoundComment,
   postInvalidComment,
   deleteInvalidComment,
+  getUserComments,
 };

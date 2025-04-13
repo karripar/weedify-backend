@@ -55,7 +55,7 @@ const GetMostPopularDietaryTypes = (
 ): Promise<DietType[]> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get(`/api/v1/dietary/popular/:${10}`)
+      .get(`/api/v1/dietary/popular/${10}`)
       .expect(200, (err, response) => {
         if (err) {
           reject(err);

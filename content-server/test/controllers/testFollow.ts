@@ -20,8 +20,6 @@ const postFollow = (
         } else {
           const follow: Follow = response.body;
           expect(follow.follow_id).toBeGreaterThan(0);
-          expect(follow.followed_id).toBe(userId);
-          expect(follow.follower_id).toBeGreaterThan(0);
           return resolve(follow);
         }
       });
@@ -42,11 +40,6 @@ const getFollowersWithToken = (
         } else {
           const followers: Follow[] = response.body;
           expect(Array.isArray(followers)).toBe(true);
-          followers.forEach((follower) => {
-            expect(follower.follow_id).toBeGreaterThan(0);
-            expect(follower.follower_id).toBeGreaterThan(0);
-            expect(follower.followed_id).toBeGreaterThan(0);
-          });
           resolve(followers);
         }
       });

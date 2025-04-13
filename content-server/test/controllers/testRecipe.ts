@@ -1,6 +1,7 @@
 import {
   RecipeWithDietaryInfo,
   RecipeWithDietaryIds,
+  PartialFullRecipe
 } from 'hybrid-types/DBTypes';
 import {MessageResponse, UploadResponse} from 'hybrid-types/MessageTypes';
 import request from 'supertest';
@@ -34,7 +35,7 @@ const uploadFile = (
 
 const getRecipes = (
   urL: string | Application,
-): Promise<RecipeWithDietaryInfo[]> => {
+): Promise<PartialFullRecipe[]> => {
   return new Promise((resolve, reject) => {
     request(urL)
       .get('/api/v1/recipes')
@@ -42,7 +43,7 @@ const getRecipes = (
         if (err) {
           reject(err);
         } else {
-          const recipes: RecipeWithDietaryInfo[] = res.body;
+          const recipes: PartialFullRecipe[] = res.body;
           expect(recipes.length).toBeGreaterThan(0);
           recipes.forEach((recipe) => {
             expect(recipe.recipe_id).toBeGreaterThan(0);
@@ -52,8 +53,10 @@ const getRecipes = (
             expect(recipe.filename).not.toBe('');
             expect(recipe.filesize).toBeGreaterThan(0);
             expect(recipe.media_type).not.toBe('');
-            expect(recipe.dietary_info).not.toBe('');
+            expect(recipe.diet_types).not.toBe('');
             expect(recipe.user_id).toBeGreaterThan(0);
+            expect(recipe.portions).toBeGreaterThan(0);
+            expect(recipe.difficulty_level).not.toBe('');
           });
           resolve(recipes);
         }
@@ -147,8 +150,9 @@ const getNotFoundRecipe = (
         if (err) {
           reject(err);
         } else {
-          const message: MessageResponse = res.body;
-          expect(message.message).not.toBe('');
+          // no message, just a 404
+          const message = res.body;
+          resolve(message);
         }
       });
   });
@@ -173,14 +177,17 @@ const deleteNotFoundMediaItem = (
   });
 };
 
-const postInvalidMediaItem = (
+const postInvalidRecipe = (
   url: string | Application,
-  media_name: string,
+  token: string,
+  recipe: Partial<RecipeWithDietaryIds>,
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
       .post('/api/v1/recipes') // Updated path
-      .send({media_name})
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+      .send({recipe})
       .expect(400, (err, response) => {
         if (err) {
           reject(err);
@@ -284,7 +291,7 @@ export {
   deleteRecipe,
   getNotFoundRecipe,
   deleteNotFoundMediaItem,
-  postInvalidMediaItem,
+  postInvalidRecipe,
   getRecipesByUserId,
   getRecipesByToken,
   getRecipesByUsername,

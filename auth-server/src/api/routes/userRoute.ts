@@ -373,8 +373,9 @@ router.post(
    */
   '/profilepicture',
   authenticate,
-  body('filename').isString(),
-  body('filesize').isString(),
+  body('filename').isString().trim(),
+  body('filesize').toInt(),
+  body('media_type').isString().trim(),
   validationErrors,
   profilePicPost,
 );
@@ -429,10 +430,11 @@ router.put(
    * }
    *
    */
-  '/profilepicture',
+  '/profilepicture/change',
   authenticate,
-  body('filename').isString(),
-  body('filesize').isString(),
+  body('filename').isString().trim(),
+  body('filesize').toInt(),
+  body('media_type').isString().trim(),
   validationErrors,
   profilePicturePut,
 );
@@ -677,7 +679,7 @@ router.delete(
 
 router.get(
   /**
-   * @api {get} /users/token Check token and return user
+   * @api {get} /users/bytoken/token Check token and return user
    * @apiName CheckToken
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -714,7 +716,7 @@ router.get(
    * }
    *
    */
-  '/token',
+  '/bytoken/token',
   authenticate,
   checkToken,
 );

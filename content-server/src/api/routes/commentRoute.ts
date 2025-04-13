@@ -129,7 +129,7 @@ commentRouter
     commentPost,
   );
 
-commentRouter.route('/byRecipe/:id').get(
+commentRouter.route('/byrecipe/:id').get(
   /**
    * @api {get} /comments/byRecipe/:id Get Comments by Recipe ID
    * @apiName GetCommentsByRecipeId

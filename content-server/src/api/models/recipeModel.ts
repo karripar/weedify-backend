@@ -18,6 +18,7 @@ const BASE_QUERY = `
     rp.title,
     rp.instructions,
     rp.cooking_time,
+    rp.portions,
     rp.created_at,
     dl.level_name AS difficulty_level,
     CASE
@@ -112,9 +113,9 @@ const fetchRecipeById = async (recipe_id: number): Promise<Recipe> => {
 const postRecipe = async (
   recipe: Omit<RecipeWithDietaryIds, 'recipe_id' | 'created_at' | 'thumbnail'>,
   ingredients: { name: string; amount: number; unit: string }[],
-  dietary_info: number[], // dietary id's 
+  dietary_info: number[], // dietary id's
 ): Promise<Recipe> => {
-  const { user_id, filename, filesize, media_type, title, instructions, cooking_time, difficulty_level_id } = recipe;
+  const { user_id, filename, filesize, media_type, title, instructions, cooking_time, difficulty_level_id, portions} = recipe;
 
   console.log('postRecipe:', recipe); // Debugging
 
@@ -128,8 +129,8 @@ const postRecipe = async (
 
     // Insert the recipe
     const sql = `
-      INSERT INTO RecipePosts (user_id, filename, filesize, media_type, title, instructions, cooking_time, difficulty_level_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO RecipePosts (user_id, filename, filesize, media_type, title, instructions, cooking_time, difficulty_level_id, portions)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const params = [
       user_id,
@@ -139,7 +140,8 @@ const postRecipe = async (
       title,
       instructions,
       cooking_time,
-      difficulty_level_id
+      difficulty_level_id,
+      portions
     ];
 
     console.log('SQL Query:', sql);

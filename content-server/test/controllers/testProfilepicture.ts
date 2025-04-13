@@ -20,7 +20,7 @@ const uploadProfilePictureFile = (
           reject(err);
         } else {
           const upload: UploadResponse = response.body;
-          expect(upload.message).toBe('file uploaded');
+          expect(upload.message).toBe('File uploaded');
           expect(upload.data.filename).not.toBe('');
           expect(upload.data.filesize).toBeGreaterThan(0);
           resolve(upload);
@@ -58,7 +58,7 @@ const putProfilePicture = (
   url: string | Application,
   path: string,
   token: string,
-  pic: Partial<Recipe>,
+  pic: Partial<ProfilePicture>,
 ): Promise<ProfilePicture> => {
   return new Promise((resolve, reject) => {
     request(url)
@@ -92,6 +92,7 @@ const getProfilePicture = (
           reject(err);
         } else {
           const profilePicture: ProfilePicture = response.body;
+          console.log('profilePicture: ', profilePicture);
           expect(profilePicture.user_id).toBe(user_id);
           expect(profilePicture.filename).not.toBe('');
           resolve(profilePicture);

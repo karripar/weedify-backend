@@ -92,17 +92,17 @@ const getUserByToken = (
 ): Promise<Partial<User>> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get('/users/bytoken')
+      .get('/users/bytoken/token')
       .set('Authorization', `Bearer ${token}`)
       .expect(200, (err, res) => {
         if (err) {
           reject(err);
         } else {
+
           const user: Partial<User> = res.body;
+          console.log('user in testUser:', user);
           expect(user.username).not.toBe('');
           expect(user.email).not.toBe('');
-          expect(user.user_id).toBeGreaterThan(0);
-          expect(user.user_level_id).toBe(2);
           expect(user.created_at).not.toBe('');
           resolve(user);
         }

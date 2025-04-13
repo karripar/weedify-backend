@@ -60,6 +60,7 @@ recipeRouter
      *    "instructions": "Recipe instructions",
      *    "diet_type": "Diet type",
      *    "cooking_time": "Cooking time",
+     *    "portions": 4,
      *    "thumbnail": "Thumbnail URL",
      *    "screenshots": ["Screenshot URL 1", "Screenshot URL 2"],
      *    "createdAt": "2021-07-01T00:00:00.000Z",
@@ -115,6 +116,7 @@ recipeRouter
      *  "filename": "recipe.jpg",
      *  "filesize": 12345,
      *  "difficulty_level_id": 1,
+     *  "portions": 4,
      *  "ingredients": [
      *  {
      *   "name": "Ingredient Name",
@@ -180,6 +182,13 @@ recipeRouter
       .notEmpty()
       .isNumeric()
       .isInt({min: 1, max: 1440})
+      .toInt()
+      .trim()
+      .escape(),
+    body('portions')
+      .notEmpty()
+      .isNumeric()
+      .isInt({min: 1, max: 20})
       .toInt()
       .trim()
       .escape(),
@@ -280,8 +289,8 @@ recipeRouter
      *   "createdAt": "2021-07-01T00:00:00.000Z"
      *   "title": "Recipe Title",
      *  "instructions": "Recipe instructions",
-     *  "diet_type": "Diet type",
      *  "cooking_time": "Cooking time",
+     *  "portions": 4,
      *  "media_type": "Media type",
      *  "filename": "Filename",
      *  "filesize": 12345,
@@ -393,8 +402,8 @@ recipeRouter.route('/byuser/userid/:user_id').get(
    *    "createdAt": "2021-07-01T00:00:00.000Z"
    *    "title": "Recipe Title",
    *    "instructions": "Recipe instructions",
-   *    "diet_type": "Diet type",
    *    "cooking_time": "Cooking time",
+   *    "portions": 4,
    *    "media_type": "Media type",
    *    "filename": "Filename",
    *    "filesize": 12345,
@@ -452,6 +461,7 @@ recipeRouter.route('/byuser/token').get(
    *    "instructions": "Recipe instructions",
    *    "diet_type": "Diet type",
    *    "cooking_time": "Cooking time",
+   *    "portions": 4,
    *    "media_type": "Media type",
    *    "filename": "Filename",
    *    "filesize": 12345,
@@ -510,6 +520,7 @@ recipeRouter.route('/byusername/:username').get(
    *    "instructions": "Recipe instructions",
    *    "diet_type": "Diet type",
    *    "cooking_time": "Cooking time",
+   *    "portions": 4,
    *    "media_type": "Media type",
    *    "filename": "Filename",
    *    "filesize": 12345,
@@ -568,6 +579,7 @@ recipeRouter.route('/bytagname/:tagname').get(
    *    "instructions": "Recipe instructions",
    *    "diet_type": "Diet type",
    *    "cooking_time": "Cooking time",
+   *    "portions": 4,
    *    "media_type": "Media type",
    *    "filename": "Filename",
    *    "filesize": 12345,

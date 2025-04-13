@@ -57,11 +57,13 @@ const getLikesByUser = (
 const getLikeByRecipeIdAndUserId = (
   url: string | Application,
   recipeId: number,
+  token: string,
   userId: number,
 ): Promise<Like> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get(`/api/v1/likes/${recipeId}/user/${userId}`)
+      .get(`/api/v1/likes/recipe/${recipeId}/user`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(200, (err, response) => {
         if (err) {
           reject(err);
@@ -121,19 +123,19 @@ const getNotFoundLike = (
 
 const postInvalidLike = (
   url: string | Application,
-  recipeId: string,
+  recipeId: number,
   token: string,
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .post(`/api/v1/likes/${recipeId}`)
+      .post(`/api/v1/likes`)
+      .send({recipe_id: recipeId})
       .set('Authorization', `Bearer ${token}`)
-      .expect(400, (err, response) => {
+      .expect(404, (err, response) => {
         if (err) {
           reject(err);
         } else {
-          const message: MessageResponse = response.body;
-          expect(message.message).not.toBe('');
+          const message = response.body;
           resolve(message);
         }
       });

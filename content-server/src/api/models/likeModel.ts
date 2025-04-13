@@ -38,17 +38,25 @@ const postLike = async (
     [recipe_id, user_id],
   );
 
+  const [existingRecipe] = await promisePool.execute<RowDataPacket[] & Like[]>(
+    'SELECT * FROM RecipePosts WHERE recipe_id = ?',
+    [recipe_id],
+  );
+  if (existingRecipe.length === 0) {
+    throw new CustomError(ERROR_MESSAGES.RECIPE.NOT_FOUND, 404);
+  }
+
   if (existingLike.length > 0) {
     throw new CustomError(ERROR_MESSAGES.LIKE.ALREADY_EXISTS, 400);
   }
 
   const result = await promisePool.execute<ResultSetHeader>(
-    'INSERT INTO Likes (recipe, user_id) VALUES (?, ?)',
+    'INSERT INTO Likes (recipe_id, user_id) VALUES (?, ?)',
     [recipe_id, user_id],
   );
 
   if (result[0].affectedRows === 0) {
-    throw new CustomError(ERROR_MESSAGES.LIKE.NOT_CREATED, 500);
+    throw new CustomError(ERROR_MESSAGES.LIKE.NOT_CREATED, 404);
   }
 
   return {message: 'Like added'};
