@@ -383,7 +383,7 @@ recipeRouter
   );
 recipeRouter.route('/byuser/userid/:user_id').get(
   /**
-   * @api {get} /recipes/byuser/:user_id Get Recipes by User ID
+   * @api {get} /recipes/byuser/userid/:user_id Get Recipes by User ID
    * @apiName GetRecipesByUserId
    * @apiGroup recipeGroup
    * @apiVersion 1.0.0
@@ -440,7 +440,7 @@ recipeRouter.route('/byuser/userid/:user_id').get(
 );
 recipeRouter.route('/byuser/token').get(
   /**
-   * @api {get} /recipes/bytoken Get Recipes by Token
+   * @api {get} /recipes/byuser/token Get Recipes by Token
    * @apiName GetRecipesByToken
    * @apiGroup recipeGroup
    * @apiVersion 1.0.0

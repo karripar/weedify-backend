@@ -240,7 +240,7 @@ notificationRouter
 .route('/settings/toggle-enabled')
 .put(
   /**
-   * @api {put} /notifications/toggle-enabled Toggle Notifications Enabled
+   * @api {put} /notifications/settings/toggle-enabled Toggle Notifications Enabled
    * @apiName ToggleNotificationsEnabled
    * @apiGroup notificationGroup
    * @apiVersion 1.0.0

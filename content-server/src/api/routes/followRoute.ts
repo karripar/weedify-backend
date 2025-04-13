@@ -41,7 +41,7 @@ const followRouter = express.Router();
 
 followRouter.route('/').post(
   /**
-   * @api {post} /follow Follow User
+   * @api {post} /follows Follow User
    * @apiName FollowUser
    * @apiGroup followGroup
    * @apiVersion 1.0.0
@@ -89,7 +89,7 @@ followRouter.route('/').post(
 
 followRouter.route('/byuser/followed/:user_id').get(
   /**
-   * @api {get} /follow/byuser/followed/:user_id Get Followed Users by User
+   * @api {get} /follows/byuser/followed/:user_id Get Followed Users by User
    * @apiName GetFollowedUsersByUser
    * @apiGroup followGroup
    * @apiVersion 1.0.0
@@ -132,7 +132,7 @@ followRouter.route('/byuser/followed/:user_id').get(
 
 followRouter.route('/byuser/followers/:user_id').get(
   /**
-   * @api {get} /follow/byuser/followers/:user_id Get Followers by User
+   * @api {get} /follows/byuser/followers/:user_id Get Followers by User
    * @apiName GetFollowersByUser
    * @apiGroup followGroup
    * @apiVersion 1.0.0
@@ -168,7 +168,7 @@ followRouter.route('/byuser/followers/:user_id').get(
 
 followRouter.route('/byusername/followed/:username').get(
   /**
-   * @api {get} /follow/byusername/followed/:username Get Followed Users by Username
+   * @api {get} /follows/byusername/followed/:username Get Followed Users by Username
    * @apiName GetFollowedUsersByUsername
    * @apiGroup followGroup
    * @apiVersion 1.0.0
@@ -204,7 +204,7 @@ followRouter.route('/byusername/followed/:username').get(
 
 followRouter.route('/byusername/followers/:username').get(
   /**
-   * @api {get} /follow/byusername/followers/:username Get Followers by Username
+   * @api {get} /follows/byusername/followers/:username Get Followers by Username
    * @apiName GetFollowersByUsername
    * @apiGroup followGroup
    * @apiVersion 1.0.0
@@ -240,7 +240,7 @@ followRouter.route('/byusername/followers/:username').get(
 
 followRouter.route('/bytoken/followed').get(
   /**
-   * @api {get} /follow/bytoken/followed Get Followed Users by Token
+   * @api {get} /follows/bytoken/followed Get Followed Users with Token
    * @apiName GetFollowedUsersByToken
    * @apiGroup followGroup
    * @apiVersion 1.0.0
@@ -273,7 +273,7 @@ followRouter.route('/bytoken/followed').get(
 
 followRouter.route('/bytoken/followers').get(
   /**
-   * @api {get} /follow/bytoken/followers Get Followers by Token
+   * @api {get} /follows/bytoken/followers Get Followers by Token
    * @apiName GetFollowersByToken
    * @apiGroup followGroup
    * @apiVersion 1.0.0
@@ -306,7 +306,7 @@ followRouter.route('/bytoken/followers').get(
 
 followRouter.route('/:follow_id').delete(
   /**
-   * @api {delete} /follow/:follow_id Unfollow User
+   * @api {delete} /follows/:follow_id Unfollow User
    * @apiName UnfollowUser
    * @apiGroup followGroup
    * @apiVersion 1.0.0

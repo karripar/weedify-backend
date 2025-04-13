@@ -45,7 +45,7 @@ const router = express.Router();
 
 router.get(
   /**
-   * @api {get} /users/ Get all users
+   * @api {get} /users Get all users
    * @apiName GetUsers
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -383,7 +383,7 @@ router.post(
 
 router.put(
   /**
-   * @api {put} /users/profilepicture Update profile picture
+   * @api {put} /users/profilepicture/change Update profile picture
    * @apiName UpdateProfilePicture
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -442,7 +442,7 @@ router.put(
 
 router.post(
   /**
-   * @api {post} /users/ Create user
+   * @api {post} /users Create user
    * @apiName CreateUser
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -632,7 +632,7 @@ router.delete(
    * }
    *
    */
-  '/id',
+  '/id/:id',
   authenticate,
   param('id').isNumeric(),
   validationErrors,
@@ -641,7 +641,7 @@ router.delete(
 
 router.delete(
   /**
-   * @api {delete} /users/ Delete user as user
+   * @api {delete} /users Delete user as user
    * @apiName DeleteUserAsUser
    * @apiGroup UserGroup
    * @apiVersion 1.0.0

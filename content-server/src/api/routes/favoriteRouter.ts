@@ -116,7 +116,7 @@ favoriteRouter
 
 favoriteRouter.route('/byuser').get(
   /**
-   * @api {get} /favorites/byuser/:user_id Get Favorites by User
+   * @api {get} /favorites/byuser Get Favorites by User
    * @apiName GetFavoritesByUser
    * @apiGroup favoriteGroup
    * @apiVersion 1.0.0
@@ -126,8 +126,6 @@ favoriteRouter.route('/byuser').get(
    * @apiUse token
    * @apiHeader {String} Authorization Bearer token
    * @apiUse unauthorized
-   *
-   * @apiParam {Number} user_id User ID
    *
    * @apiSuccess {object[]} favorites List of favorite recipe items
    * @apiSuccessExample {json} Success-Response:
@@ -177,7 +175,7 @@ favoriteRouter.route('/byuser').get(
 
 favoriteRouter.route('/byuser/:recipe_id').get(
   /**
-   * @api {get} /favorites/byuser/:recipe_id Get favorite status by user
+   * @api {get} /favorites/byuser/:recipe_id Get favorite status by user for a recipe
    * @apiName GetFavoriteStatusByUser
    * @apiGroup favoriteGroup
    * @apiVersion 1.0.0
@@ -218,10 +216,10 @@ favoriteRouter.route('/byuser/:recipe_id').get(
 );
 
 favoriteRouter
-  .route('/byrecipe/:recipe_id')
+  .route('/byrecipe/count/:recipe_id')
   .get(
     /**
-     * @api {get} /favorites/:recipe_id Get Favorite Count
+     * @api {get} /favorites/byrecipe/:recipe_id Get Favorite Count
      * @apiName GetFavoriteCount
      * @apiGroup favoriteGroup
      * @apiVersion 1.0.0
@@ -258,7 +256,7 @@ favoriteRouter
   )
   .delete(
     /**
-     * @api {delete} /favorites/:recipe_id Remove Favorite
+     * @api {delete} /favorites/byrecipe/:recipe_id Remove Favorite
      * @apiName RemoveFavorite
      * @apiGroup favoriteGroup
      * @apiVersion 1.0.0
