@@ -64,7 +64,7 @@ const deleteFavorite = (
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .delete(`/api/v1/favorites/${recipeId}`)
+      .delete(`/api/v1/favorites/byrecipe/${recipeId}`)
       .set('Authorization', `Bearer ${token}`)
       .expect(200, (err, response) => {
         if (err) {

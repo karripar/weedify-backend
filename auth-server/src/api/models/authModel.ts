@@ -3,7 +3,7 @@ import {v4 as uuidv4} from 'uuid';
 import { promisePool } from '../../lib/db';
 import { RowDataPacket } from 'mysql2';
 import { MessageResponse } from 'hybrid-types/MessageTypes';
-import { ResetToken } from 'hybrid-types/DBTypes';
+import { ResetToken, User } from 'hybrid-types/DBTypes';
 
 const createResetToken = async (
   user_id: number,
@@ -59,9 +59,41 @@ const updatePassword = async (
   }
 }
 
+const putPassword = async (
+  user_id: number,
+  password: string,
+): Promise<MessageResponse> => {
+  try {
+    const hashedPassword = await bcrypt.hash(password, 12);
+    await promisePool.execute(
+      'UPDATE Users SET password = ? WHERE user_id = ?', [hashedPassword, user_id]);
+    return {
+      message: 'Password updated successfully',
+    };
+  } catch (error) {
+    console.error('Error updating password:', error);
+    throw new Error('Error updating password');
+  }
+}
+
+const selectPasswordHash = async (user_id: number): Promise<string> => {
+  try {
+    const [rows] = await promisePool.execute<RowDataPacket[] & Partial<User>>(
+      'SELECT password FROM Users WHERE user_id = ?',
+      [user_id],
+    );
+    return rows[0].password;
+  } catch (error) {
+    console.error('Error selecting password hash:', error);
+    throw new Error('Error selecting password hash');
+  }
+};
+
 
 export {
   createResetToken,
   verifyResetToken,
   updatePassword,
+  selectPasswordHash,
+  putPassword,
 }

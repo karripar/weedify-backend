@@ -7,6 +7,7 @@ import {
   fetchRecipesByUserId,
   fetchRecipesByUsername,
   fetchRecipesByTagname,
+  updateRecipe
 } from '../models/recipeModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import {Recipe, TokenContent, RecipeWithDietaryIds} from 'hybrid-types/DBTypes';
@@ -188,6 +189,75 @@ const RecipesByUserGet = async (
   }
 };
 
+interface RecipeUpdate {
+  title: string;
+  instructions: string;
+  cooking_time: number;
+  difficulty_level_id: number;
+  portions: number;
+  ingredients?: {
+    name: string;
+    amount: string | number;
+    unit: string;
+  }[];
+  dietary_info?: number[] | string | null;
+}
+
+const updateRecipePost = async (
+  req: Request<{ id: string }, unknown, RecipeUpdate>,
+  res: Response<Recipe>,
+  next: NextFunction
+) => {
+  try {
+    const recipeModifications = req.body;
+
+    console.log('RecipeUpdate body:', recipeModifications);
+    // Clean dietary info (if provided as an array or as a comma-separated string)
+    const dietaryInfo = Array.isArray(recipeModifications.dietary_info)
+      ? recipeModifications.dietary_info
+      : recipeModifications.dietary_info
+      ? recipeModifications.dietary_info.split(',').map(Number)
+      : [];
+
+    // Clean ingredients (optional)
+    const ingredients = Array.isArray(recipeModifications.ingredients)
+      ? recipeModifications.ingredients.map(ingredient => ({
+          name: ingredient.name,
+          amount: Number(ingredient.amount) || 0, // Default to 0 if invalid
+          unit: ingredient.unit,
+        }))
+      : undefined;
+
+    const recipeId = Number(req.params.id);
+    const userId = res.locals.user.user_id;
+
+    // check if user owns the recipe
+    const recipe = await fetchRecipeById(recipeId);
+    if (!recipe) {
+      next(new CustomError('Recipe not found', 404));
+      return;
+    }
+    if (recipe.user_id !== userId) {
+      next(new CustomError('You do not have permission to update this recipe', 403));
+      return;
+    }
+
+    console.log('Processed dietary_info:', dietaryInfo);
+    // Call the updateRecipe function with recipe modifications and optional fields
+    const updatedRecipe = await updateRecipe(recipeId, recipeModifications, ingredients, dietaryInfo);
+
+    if (!updatedRecipe) {
+      next(new CustomError('Recipe not found', 404));
+      return;
+    }
+
+    res.json(updatedRecipe);
+  } catch (err) {
+    next(err);
+  }
+};
+
+
 export {
   RecipeListGet,
   RecipeGet,
@@ -197,4 +267,5 @@ export {
   RecipesByTokenGet,
   RecipesByUsernameGet,
   RecipesByTagnameGet,
+  updateRecipePost,
 };

@@ -6,6 +6,7 @@ import {
   notificationMarkAsRead,
   notificationCheckEnabled,
   notificationToggleEnabled,
+  allNotificationsListGet
 } from '../controllers/notificationController'
 import {authenticate, validationErrors} from '../../middlewares';
 import {param} from 'express-validator';
@@ -32,6 +33,43 @@ const notificationRouter = express.Router();
  *   "error": "Unauthorized"
  * }
  */
+
+
+notificationRouter
+  .route('/')
+  .get(
+    /**
+     * @api {get} /notifications Get All Notifications
+     * @apiName GetAllNotifications
+     * @apiGroup notificationGroup
+     * @apiVersion 1.0.0
+     * @apiDescription Get all notifications
+     * @apiPermission none
+     *
+     * @apiSuccess {object[]} notifications List of notifications
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * [
+     *  {
+     *    "id": 1,
+     *   "user_id": 1,
+     *   "notification_text": "Notification text",
+     *   "notification_type_id": 1,
+     *   "is_read": false,
+     *   "is_archived": false,
+     *   "createdAt": "2021-07-01T00:00:00.000Z"
+     *  }
+     * ]
+     *
+     * @apiError (Error 500) {String} InternalServerError Error fetching notifications
+     * @apiErrorExample {json} InternalServerError
+     *   HTTP/1.1 500 InternalServerError
+     *  {
+     *   "error": "Error fetching notifications"
+     * }
+     */
+    allNotificationsListGet,
+  )
 
 notificationRouter
   .route('/user')
@@ -255,7 +293,7 @@ notificationRouter
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * {
-   *  "message": "Settings updated successfully"
+   *  "message": "Notification settings updated successfully"
    * }
    *
    * @apiError (Error 400) {String} BadRequest Invalid request body

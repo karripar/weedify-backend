@@ -84,6 +84,7 @@ const ratingCheckExists = async (
     const exists = await checkRatingExists(recipe_id, user_id);
     res.json(exists);
   } catch (error) {
+    console.log('Error checking rating existence:', error);
     next(error);
   }
 }

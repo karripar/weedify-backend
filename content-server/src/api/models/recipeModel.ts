@@ -234,10 +234,6 @@ const deleteRecipe = async (
     recipe_id,
   ]);
 
-  await connection.execute('DELETE FROM MediaTags WHERE recipe_id = ?;', [
-    recipe_id,
-  ]);
-
   const sql =
     level_name === 'Admin'
       ? connection.format('DELETE FROM RecipePosts WHERE recipe_id = ?', [
@@ -333,6 +329,101 @@ const fetchRecipesByTagname = async (tagname: string): Promise<Recipe[]> => {
   return rows;
 };
 
+// Update a recipe with optional fields (choose which to update)
+const updateRecipe = async (
+  recipe_id: number,
+  updateData: Partial<Omit<RecipeWithDietaryIds, 'recipe_id' | 'created_at' | 'filename' | 'filesize' | 'media_type'>>,
+  ingredients?: { name: string; amount: number; unit: string }[],
+  dietary_info?: number[],
+): Promise<Recipe> => {
+  const connection = await promisePool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const updateFields: string[] = [];
+    const updateValues = [];
+
+    if (updateData.title) {
+      updateFields.push('title = ?');
+      updateValues.push(updateData.title);
+    }
+    if (updateData.instructions) {
+      updateFields.push('instructions = ?');
+      updateValues.push(updateData.instructions);
+    }
+    if (updateData.cooking_time) {
+      updateFields.push('cooking_time = ?');
+      updateValues.push(updateData.cooking_time);
+    }
+    if (updateData.difficulty_level_id) {
+      updateFields.push('difficulty_level_id = ?');
+      updateValues.push(updateData.difficulty_level_id);
+    }
+    if (updateData.portions) {
+      updateFields.push('portions = ?');
+      updateValues.push(updateData.portions);
+    }
+
+    if (updateFields.length > 0) {
+      updateValues.push(recipe_id);
+      await connection.execute(
+        `UPDATE RecipePosts SET ${updateFields.join(', ')} WHERE recipe_id = ?`,
+        updateValues
+      );
+    }
+
+    // Update ingredients
+    if (ingredients) {
+      await connection.execute(`DELETE FROM RecipeIngredients WHERE recipe_id = ?`, [recipe_id]);
+
+      for (const ingredient of ingredients) {
+        const [rows] = await connection.execute<RowDataPacket[]>(
+          `SELECT ingredient_id FROM Ingredients WHERE ingredient_name = ?`,
+          [ingredient.name]
+        );
+
+        let ingredient_id: number;
+        if (rows.length > 0) {
+          ingredient_id = rows[0].ingredient_id;
+        } else {
+          const [result] = await connection.execute<ResultSetHeader>(
+            `INSERT INTO Ingredients (ingredient_name) VALUES (?)`,
+            [ingredient.name]
+          );
+          ingredient_id = result.insertId;
+        }
+
+        await connection.execute<ResultSetHeader>(
+          `INSERT INTO RecipeIngredients (recipe_id, ingredient_id, amount, unit) VALUES (?, ?, ?, ?)`,
+          [recipe_id, ingredient_id, ingredient.amount, ingredient.unit]
+        );
+      }
+    }
+
+    // Update dietary info
+    if (dietary_info) {
+      await connection.execute(`DELETE FROM RecipeDietTypes WHERE recipe_id = ?`, [recipe_id]);
+
+      for (const diet_id of dietary_info) {
+        await connection.execute<ResultSetHeader>(
+          `INSERT INTO RecipeDietTypes (recipe_id, diet_type_id) VALUES (?, ?)`,
+          [recipe_id, diet_id]
+        );
+      }
+    }
+
+    await connection.commit();
+    return await fetchRecipeById(recipe_id);
+  } catch (error) {
+    await connection.rollback();
+    console.error('Failed to update recipe:', error);
+    throw new CustomError('Failed to update recipe', 500);
+  } finally {
+    connection.release();
+  }
+};
+
+
 export {
   fetchAllRecipes,
   fetchRecipeById,
@@ -341,4 +432,5 @@ export {
   fetchRecipesByUserId,
   fetchRecipesByUsername,
   fetchRecipesByTagname,
+  updateRecipe,
 }

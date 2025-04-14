@@ -1,8 +1,8 @@
 import express from 'express';
 import {Login} from '../controllers/authController';
 import { body } from 'express-validator';
-import { validationErrors } from '../../middlewares';
-import { requestPasswordReset, resetPassword } from '../controllers/authController';
+import { authenticate, validationErrors } from '../../middlewares';
+import { requestPasswordReset, resetPassword, changePassword} from '../controllers/authController';
 const router = express.Router();
 
 /**
@@ -169,6 +169,67 @@ router.post(
   validationErrors,
   resetPassword,
 );
+
+router
+ .route('/settings/change-password')
+ .put(
+   /**
+    * @api {put} /auth/settings/change-password Change Password
+    * @apiName ChangePassword
+    * @apiGroup AuthGroup
+    * @apiVersion 1.0.0
+    * @apiDescription Change user password
+    * @apiPermission token
+    * @apiHeader {String} Authorization Bearer token
+    *
+    * @apiUse token
+    * @apiUse unauthorized
+    *
+    * @apiBody {String} old_password Old password
+    * @apiBody {String} new_password New password
+    *
+    * @apiSuccess {String} message Success message
+    * @apiSuccessExample {json} Success-Response:
+    * HTTP/1.1 200 OK
+    * {
+    *  "message": "Password updated successfully"
+    * }
+    *
+    * @apiError (Error 400) {String} BadRequest Invalid request data
+    * @apiErrorExample {json} BadRequest
+    *  HTTP/1.1 400 BadRequest
+    * {
+    *  "error": "Invalid request data"
+    * }
+    *
+    * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+    * @apiErrorExample {json} Unauthorized
+    *  HTTP/1.1 401 Unauthorized
+    * {
+    *   "error": "Unauthorized"
+    * }
+    *
+    * @apiError (Error 500) {String} InternalServerError Error updating password
+    * @apiErrorExample {json} InternalServerError
+    *  HTTP/1.1 500 InternalServerError
+    * {
+    *   "error": "Error updating password"
+    * }
+    */
+   body('current_password')
+      .isString()
+      .trim()
+      .isLength({ min: 8, max: 255 })
+      .withMessage('Invalid old password'),
+    body('new_password')
+      .isString()
+      .trim()
+      .isLength({ min: 8, max: 255 })
+      .withMessage('Invalid new password'),
+    validationErrors,
+    authenticate,
+    changePassword,
+  );
 
 
 

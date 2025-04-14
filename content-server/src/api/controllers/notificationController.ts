@@ -7,6 +7,7 @@ import {
   deleteOldNotifications,
   checkNotificationsEnabled,
   toggleNotificationsEnabled,
+  fetchAllNotifications
 } from '../models/notificationModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import {Notification, TokenContent} from 'hybrid-types/DBTypes';
@@ -22,6 +23,20 @@ const notificationListByUserGet = async (
     const notifications = await fetchNotificationByUserId(
       Number(res.locals.user.user_id),
       true);
+    res.json(notifications);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// for testing purposes
+const allNotificationsListGet = async (
+  req: Request,
+  res: Response<Notification[]>,
+  next: NextFunction,
+) => {
+  try {
+    const notifications = await fetchAllNotifications();
     res.json(notifications);
   } catch (error) {
     next(error);
@@ -124,4 +139,5 @@ export {
   notificationDeleteOld,
   notificationCheckEnabled,
   notificationToggleEnabled,
+  allNotificationsListGet,
 };

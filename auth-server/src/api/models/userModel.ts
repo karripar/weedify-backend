@@ -136,9 +136,7 @@ const deleteUser = async (
 
     // join user_id from RecipePosts
     const [recipeFiles] = await connection.execute<RowDataPacket[]>(
-      `SELECT filename FROM RecipeMedia
-      JOIN RecipePosts ON RecipeMedia.media_id = RecipePosts.media_id
-      WHERE RecipePosts.user_id = ?`,
+      `SELECT filename FROM RecipePosts WHERE user_id = ?`,
       [user_id],
     );
 
@@ -212,17 +210,12 @@ const deleteUser = async (
     ]);
 
     await connection.execute(
-      'DELETE FROM MediaTags WHERE media_id IN (SELECT media_id FROM MediaItems WHERE user_id = ?);',
+      'DELETE FROM Comments WHERE recipe_id IN (SELECT recipe_id FROM RecipePosts WHERE user_id = ?);',
       [user_id],
     );
 
     await connection.execute(
-      'DELETE FROM Comments WHERE media_id IN (SELECT media_id FROM MediaItems WHERE user_id = ?);',
-      [user_id],
-    );
-
-    await connection.execute(
-      'DELETE FROM Likes WHERE media_id IN (SELECT media_id FROM MediaItems WHERE user_id = ?);',
+      'DELETE FROM Likes WHERE recipe_id IN (SELECT recipe_id FROM RecipePosts WHERE user_id = ?);',
       [user_id],
     );
 
