@@ -65,7 +65,7 @@ router.get(
    *    {
    *      "users": [
    *        {
-   *          "id": 1,
+   *          "user_id": 1,
    *          "username": "username",
    *          "email": "test@user.com"
    *          "created_at": "2021-01-01T00:00:00.000Z",
@@ -109,7 +109,7 @@ router.get(
    *    HTTP/1.1 200 OK
    *    {
    *      "user": {
-   *        "id": 1,
+   *        "user_id": 1,
    *        "username": "username",
    *        "email": "test@user.com",
    *        "created_at": "2021-01-01T00:00:00.000Z",
@@ -168,14 +168,14 @@ router.get(
    *    HTTP/1.1 200 OK
    *    {
    *      "user": {
-   *        "id": 1,
+   *        "user_id": 1,
    *        "username": "username",
    *        "email": "test@user.com",
    *        "created_at": "2021-01-01T00:00:00.000Z",
    *        "level_name": "User",
    *        "filename": "profile.jpg",
-   *        "dietary": {
-   *          "id": 1,
+   *        "dietary_restrictions": {
+   *          "dietary_restriction_id": 1,
    *          "name": "Vegetarian",
    *         }
    *      }
@@ -372,8 +372,9 @@ router.post(
    */
   '/profilepicture',
   authenticate,
-  body('filename').isString(),
-  body('filesize').isString(),
+  body('filename').isString().trim(),
+  body('filesize').toInt(),
+  body('media_type').isString().trim(),
   validationErrors,
   profilePicPost,
 );
@@ -428,10 +429,9 @@ router.put(
    * }
    *
    */
-  '/profilepicture',
+  '/profilepicture/change',
   authenticate,
   body('filename').isString(),
-  body('media_type').isString(),
   body('filesize').isString(),
   validationErrors,
   profilePicturePut,
@@ -463,7 +463,7 @@ router.post(
    *    HTTP/1.1 200 OK
    *    {
    *      "user": {
-   *        "id": 1,
+   *        "user_id": 1,
    *        "username": "username",
    *        "email": "test@user.com",
    *        "created_at": "2021-01-01T00:00:00.000Z",
@@ -501,7 +501,6 @@ router.post(
   body('email')
     .isEmail()
     .trim()
-    .normalizeEmail()
     .isEmail()
     .withMessage('Invalid email'),
   body('password')
@@ -678,7 +677,7 @@ router.delete(
 
 router.get(
   /**
-   * @api {get} /users/token Check token and return user
+   * @api {get} /users/bytoken/token Check token and return user
    * @apiName CheckToken
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -693,7 +692,7 @@ router.get(
    *    {
    *      "message": "Token is valid",
    *      "user": {
-   *        "id": 1,
+   *        "user_id": 1,
    *        "username": "username",
    *        "email": "test@user.com",
    *        "created_at": "2021-01-01T00:00:00.000Z",
@@ -715,7 +714,7 @@ router.get(
    * }
    *
    */
-  '/token',
+  '/bytoken/token',
   authenticate,
   checkToken,
 );
@@ -723,7 +722,7 @@ router.get(
 // body items are optional
 router.put(
   /**
-   * @api {put} /users/ Update user
+   * @api {put} /users/user/update Update user
    * @apiName UpdateUser
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -735,7 +734,7 @@ router.put(
    * @apiBody {String} [bio] Bio of the user
    * @apiBody {String} [dietary] Dietary of the user
    *
-   * @apiBodyExample {json} Request-Example:
+   * @apiExample {json} Request-Example:
    * {
    *   "username": "new_username",
    *   "email": "test@email.com",
@@ -759,7 +758,7 @@ router.put(
    *  HTTP/1.1 200 OK
    * {
    *  "user": {
-   *   "id": 1,
+   *  "user_idid": 1,
    *  "username": "new_username",
    *  "email": "email@gmail.com",
    *  "created_at": "2021-01-01T00:00:00.000Z",
@@ -768,11 +767,11 @@ router.put(
    *  "bio": "New bio",
    *  "dietary": [
    *    {
-   *      "id": 1,
+   *      "dietary_restriction_id": 1,
    *      "name": "Vegetarian"
    *    },
    *    {
-   *      "id": 2,
+   *      "dietary_restriction_id": 2,
    *      "name": "Vegan"
    *    }
    *  ]

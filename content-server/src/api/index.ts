@@ -7,6 +7,7 @@ import followRouter from "./routes/followRoute";
 import favoriteRouter from "./routes/favoriteRouter";
 import notificationRouter from "./routes/notificationRoute";
 import dietaryRouter from "./routes/dietaryRoute";
+import ratingRouter from "./routes/ratingRouter";
 /*
 import routes here from other files
  */
@@ -26,8 +27,7 @@ router.get("/", (req: Request, res: Response<MessageResponse>) => {
 
 router.use('/recipes', recipeRouter);
 router.use('/likes', likeRouter)
-//router.use('/tags', tagRouter);
-//router.use('/ratings', ratingRouter);
+router.use('/ratings', ratingRouter);
 router.use('/comments', commentRouter);
 router.use('/follows', followRouter);
 router.use('/notifications', notificationRouter);

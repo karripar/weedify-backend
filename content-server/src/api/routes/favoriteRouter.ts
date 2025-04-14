@@ -64,7 +64,6 @@ favoriteRouter
      *   "error": "Unauthorized"
      * }
      */
-    authenticate,
     favoriteListGet,
   )
   .post(

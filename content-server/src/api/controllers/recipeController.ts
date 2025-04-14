@@ -55,9 +55,10 @@ const RecipePost = async (
       dietary_info: number[] | string[]; // Allow string[] in case it comes as strings
     }
   >,
-  res: Response<{ message: string; Recipe_id: number }, { user: TokenContent }>,
+  res: Response<{ message: string; recipe_id: number }, { user: TokenContent }>,
   next: NextFunction
 ) => {
+  console.log('RecipePost body:', req.body);
   try {
     // Add user_id to Recipe object from token
     req.body.user_id = res.locals.user.user_id;
@@ -83,9 +84,10 @@ const RecipePost = async (
     // Send the response with recipe_id
     res.json({
       message: 'Recipe created',
-      Recipe_id: response.recipe_id,
+      recipe_id: response.recipe_id,
     });
   } catch (error) {
+    console.error('Error in RecipePost:', error);
     next(error);
   }
 };

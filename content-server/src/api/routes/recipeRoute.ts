@@ -60,6 +60,7 @@ recipeRouter
      *    "instructions": "Recipe instructions",
      *    "diet_type": "Diet type",
      *    "cooking_time": "Cooking time",
+     *    "portions": 4,
      *    "thumbnail": "Thumbnail URL",
      *    "screenshots": ["Screenshot URL 1", "Screenshot URL 2"],
      *    "createdAt": "2021-07-01T00:00:00.000Z",
@@ -110,12 +111,12 @@ recipeRouter
      * {
      *  "title": "Recipe Title",
      *  "instructions": "Recipe instructions",
-     *  "diet_type": "Diet type",
      *  "cooking_time": 30,
      *  "media_type": "image/jpeg",
      *  "filename": "recipe.jpg",
      *  "filesize": 12345,
      *  "difficulty_level_id": 1,
+     *  "portions": 4,
      *  "ingredients": [
      *  {
      *   "name": "Ingredient Name",
@@ -181,6 +182,13 @@ recipeRouter
       .notEmpty()
       .isNumeric()
       .isInt({min: 1, max: 1440})
+      .toInt()
+      .trim()
+      .escape(),
+    body('portions')
+      .notEmpty()
+      .isNumeric()
+      .isInt({min: 1, max: 20})
       .toInt()
       .trim()
       .escape(),
@@ -281,8 +289,8 @@ recipeRouter
      *   "createdAt": "2021-07-01T00:00:00.000Z"
      *   "title": "Recipe Title",
      *  "instructions": "Recipe instructions",
-     *  "diet_type": "Diet type",
      *  "cooking_time": "Cooking time",
+     *  "portions": 4,
      *  "media_type": "Media type",
      *  "filename": "Filename",
      *  "filesize": 12345,
@@ -373,16 +381,14 @@ recipeRouter
     validationErrors,
     RecipeDelete,
   );
-recipeRouter.route('/byuser/:user_id').get(
+recipeRouter.route('/byuser/userid/:user_id').get(
   /**
    * @api {get} /recipes/byuser/:user_id Get Recipes by User ID
    * @apiName GetRecipesByUserId
    * @apiGroup recipeGroup
    * @apiVersion 1.0.0
    * @apiDescription Get all recipes by user ID
-   * @apiPermission token
-   *
-   * @apiUse token
+   * @apiPermission none
    *
    * @apiParam {number} user_id User ID
    *
@@ -396,8 +402,8 @@ recipeRouter.route('/byuser/:user_id').get(
    *    "createdAt": "2021-07-01T00:00:00.000Z"
    *    "title": "Recipe Title",
    *    "instructions": "Recipe instructions",
-   *    "diet_type": "Diet type",
    *    "cooking_time": "Cooking time",
+   *    "portions": 4,
    *    "media_type": "Media type",
    *    "filename": "Filename",
    *    "filesize": 12345,
@@ -428,12 +434,11 @@ recipeRouter.route('/byuser/:user_id').get(
    * }
    * }
    */
-  authenticate,
   param('user_id').notEmpty().isInt({min: 1}).toInt(),
   validationErrors,
   RecipesByUserGet,
 );
-recipeRouter.route('/bytoken').get(
+recipeRouter.route('/byuser/token').get(
   /**
    * @api {get} /recipes/bytoken Get Recipes by Token
    * @apiName GetRecipesByToken
@@ -456,6 +461,7 @@ recipeRouter.route('/bytoken').get(
    *    "instructions": "Recipe instructions",
    *    "diet_type": "Diet type",
    *    "cooking_time": "Cooking time",
+   *    "portions": 4,
    *    "media_type": "Media type",
    *    "filename": "Filename",
    *    "filesize": 12345,
@@ -514,6 +520,7 @@ recipeRouter.route('/byusername/:username').get(
    *    "instructions": "Recipe instructions",
    *    "diet_type": "Diet type",
    *    "cooking_time": "Cooking time",
+   *    "portions": 4,
    *    "media_type": "Media type",
    *    "filename": "Filename",
    *    "filesize": 12345,
@@ -572,6 +579,7 @@ recipeRouter.route('/bytagname/:tagname').get(
    *    "instructions": "Recipe instructions",
    *    "diet_type": "Diet type",
    *    "cooking_time": "Cooking time",
+   *    "portions": 4,
    *    "media_type": "Media type",
    *    "filename": "Filename",
    *    "filesize": 12345,

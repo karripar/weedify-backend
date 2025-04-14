@@ -48,7 +48,7 @@ dietaryRouter
      * [
      *  {
      *    "dietary_type_id": 1,
-     *    "dietary_type_name": "Vegetarian"
+     *    "diet_type_name": "Vegetarian"
      * }
      * ]
      *
@@ -80,7 +80,7 @@ dietaryRouter
      * [
      *  {
      *    "dietary_type_id": 1,
-     *    "dietary_type_name": "Vegetarian"
+     *    "diet_type_name": "Vegetarian"
      * }
      * ]
      *
@@ -121,7 +121,7 @@ dietaryRouter
      * [
      *  {
      *    "dietary_type_id": 1,
-     *    "dietary_type_name": "Vegetarian"
+     *    "diet_type_name": "Vegetarian"
      * }
      * ]
      *

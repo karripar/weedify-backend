@@ -252,6 +252,8 @@ const checkProfilePicExists = async (
       pp.profile_picture_id,
       pp.user_id,
       pp.filename,
+      pp.filesize,
+      pp.media_type,
       CONCAT(v.base_url, pp.filename) AS filename
     FROM ProfilePicture pp
     CROSS JOIN (SELECT ? AS base_url) AS v
@@ -271,9 +273,9 @@ const checkProfilePicExists = async (
 const postProfilePic = async (
   media: Omit<ProfilePicture, 'profile_picture_id' | 'created_at'>,
 ): Promise<ProfilePicture> => {
-  const {user_id, filename, filesize} = media; // media_type is always 'image' so no need to pass it in
+  const {user_id, filename, filesize, media_type} = media; // media_type is always 'image' so no need to pass it in
   const sql = `INSERT INTO ProfilePicture (user_id, filename, filesize, media_type) VALUES (?, ?, ?, ?)`;
-  const stmt = promisePool.format(sql, [user_id, filename, filesize]);
+  const stmt = promisePool.format(sql, [user_id, filename, filesize, media_type]);
   const [result] = await promisePool.execute<ResultSetHeader>(stmt);
 
   if (result.affectedRows === 0) {
@@ -300,10 +302,34 @@ const getProfilePicById = async (
   return rows[0];
 };
 
+const getProfilePicByUserId = async (
+  user_id: number,
+): Promise<ProfilePicture> => {
+  const [rows] = await promisePool.execute<
+    RowDataPacket[] & ProfilePicture[]>(
+    `SELECT
+      pp.profile_picture_id,
+      pp.user_id,
+      pp.filename,
+      pp.filesize,
+      pp.media_type,
+      CONCAT(v.base_url, pp.filename) AS filename
+    FROM ProfilePicture pp
+    CROSS JOIN (SELECT ? AS base_url) AS v
+    WHERE pp.user_id = ?`,
+    [profilePicDir, user_id],
+  );
+  if (rows.length === 0) {
+    customLog('getProfilePicByUserId: Profile picture not found');
+  }
+  return rows[0];
+};
+
 const putProfilePic = async (
   media: ProfilePicture,
   user_id: number,
 ): Promise<ProfilePicture> => {
+
   const {filename, filesize, media_type} = media;
 
   const existingProfilePic = await checkProfilePicExists(user_id);
@@ -314,15 +340,16 @@ const putProfilePic = async (
 
   if (existingProfilePic) {
     sql = `UPDATE ProfilePicture
-           SET filename = ?, media_type = ?, filesize = ?
+           SET filename = ?, filesize = ?, media_type = ?
            WHERE user_id = ?`;
-    stmt = promisePool.format(sql, [filename, media_type, filesize, user_id]);
+    stmt = promisePool.format(sql, [filename, filesize, media_type, user_id]);
   } else {
-    sql = `INSERT INTO ProfilePicture (user_id, filename, media_type, filesize) VALUES (?, ?, ?, ?)`;
-    stmt = promisePool.format(sql, [user_id, filename, media_type, filesize]);
+    sql = `INSERT INTO ProfilePicture (user_id, filename, filesize, media_type) VALUES (?, ?, ?, ?)`;
+    stmt = promisePool.format(sql, [user_id, filename, filesize, media_type]);
   }
 
   const [result] = await promisePool.execute<ResultSetHeader>(stmt);
+  console.log('result', result);
 
   if (result.affectedRows === 0) {
     throw new CustomError('Profile picture not updated or inserted', 500);
@@ -351,7 +378,8 @@ const putProfilePic = async (
     }
   }
 
-  return await getProfilePicById(result.insertId);
+
+  return await getProfilePicByUserId(user_id);
 };
 
 const updateUserDetails = async (
@@ -432,6 +460,18 @@ const getUserExistsByEmail = async (
   return rows[0];
 };
 
+const getUsernameById = async (
+  user_id: number,
+): Promise<Partial<User>> => {
+  const [rows] = await promisePool.execute<
+    RowDataPacket[] & Partial<User>[]>(
+      'SELECT username FROM Users WHERE user_id = ?',
+    [user_id],
+    );
+    return rows[0];
+}
+
+
 export {
   getUsers,
   getUserById,
@@ -445,4 +485,5 @@ export {
   putProfilePic,
   updateUserDetails,
   getUserExistsByEmail,
+  getUsernameById,
 };

@@ -25,11 +25,12 @@ export const ERROR_MESSAGES = {
     FILES_NOT_FOUND: 'No files found with this dietary type'
   },
   NOTIFICATION: {
-    NOT_FOUND: 'No notifications found',
+    NOT_FOUND: 'No notification data found',
     NOT_FOUND_USER: 'No notifications found for user',
     NOT_CREATED: 'Notification not created',
     NOT_DELETED: 'Notification not deleted',
     NOT_UPDATED: 'Notification not updated',
+    NO_USER_FOUND: 'No user found with this id',
   },
   LIKE: {
     NOT_FOUND: 'No likes found',

@@ -18,7 +18,7 @@
     "version": "1.0.0",
     "description": "REST API backend for Weedify content endpoints",
     "title": "Weedify Content API",
-    "url": "http://localhost:3002/api/v1/content",
+    "url": "http://localhost:3002/api/v1",
     "template": {
       "withCompare": true,
       "withGenerator": true

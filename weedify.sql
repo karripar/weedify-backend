@@ -23,8 +23,10 @@ CREATE TABLE Users (
     bio TEXT,
     user_level_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    notifications_enabled BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (user_level_id) REFERENCES UserLevels(user_level_id)
 );
+
 
 
 -- Create table ResetTokens
@@ -75,6 +77,7 @@ CREATE TABLE RecipePosts (
     title VARCHAR(255) NOT NULL,
     instructions TEXT NOT NULL,
     cooking_time INT NOT NULL,
+    portions INT NOT NULL,
     filename VARCHAR(255) NOT NULL,
     media_type VARCHAR(50) NOT NULL,
     filesize INT NOT NULL,
@@ -184,6 +187,7 @@ CREATE TABLE Ratings (
     user_id INT NOT NULL,
     recipe_id INT NOT NULL,
     rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    review TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (recipe_id) REFERENCES RecipePosts(recipe_id) ON DELETE CASCADE
@@ -207,7 +211,7 @@ INSERT INTO Users (username, password, email, user_level_id) VALUES ('karri', 'p
 
 INSERT INTO ProfilePicture (user_id, filename, media_type, filesize) VALUES (1, 'profile.jpg', 'image/jpeg', 12345), (2, 'profile.jpg', 'image/jpeg', 12345);
 
-INSERT INTO RecipePosts (user_id, title, instructions, difficulty_level_id, cooking_time, filename, media_type, filesize) VALUES (1, 'Kasvisruoka', 'Ohjeet kasvisruokaan', 1, 30, 'recipe.jpg', 'image/jpeg', 12345), (2, 'Liha-annos', 'Ohjeet liha-annokseen', 2, 45, 'recipe.jpg', 'image/jpeg', 12345);
+INSERT INTO RecipePosts (user_id, title, instructions, difficulty_level_id, cooking_time, filename, media_type, filesize, portions) VALUES (1, 'Kasvisruoka', 'Ohjeet kasvisruokaan', 1, 30, 'recipe.jpg', 'image/jpeg', 12345, 5), (2, 'Liha-annos', 'Ohjeet liha-annokseen', 2, 45, 'recipe.jpg', 'image/jpeg', 12345, 4);
 
 INSERT INTO Ingredients (ingredient_name) VALUES ('Peruna'), ('Porkkana'), ('Sipuli'), ('Kaalit'), ('Pasta'), ('Riisi'), ('Kala'), ('Liha'), ('Maito'), ('Juusto'), ('Kasvikset'), ('Hedelmät');
 
@@ -228,7 +232,7 @@ INSERT INTO Notifications (user_id, notification_text, notification_type_id) VAL
 
 INSERT INTO Notifications (user_id, notification_text, notification_type_id) VALUES (1, 'Testi-ilmoitus', 1), (2, 'Testi-ilmoitus2', 2);
 
-INSERT INTO Ratings (user_id, recipe_id, rating) VALUES (1, 1, 5), (2, 1, 4);
+INSERT INTO Ratings (user_id, recipe_id, rating, review) VALUES (1, 1, 5, 'Erinomainen resepti!'), (2, 1, 4, 'Hyvä resepti, mutta kaipaisi lisää suolaa.'), (1, 2, 3, 'Ihan ok resepti.'), (2, 2, 2, 'Ei ollut makuuni.');
 
 
 INSERT INTO RecipeDietTypes (recipe_id, diet_type_id) VALUES (1, 1), (2, 2);

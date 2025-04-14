@@ -5,6 +5,8 @@ import {
   markAsRead,
   markAsArchived,
   deleteOldNotifications,
+  checkNotificationsEnabled,
+  toggleNotificationsEnabled,
 } from '../models/notificationModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import {Notification, TokenContent} from 'hybrid-types/DBTypes';
@@ -84,10 +86,42 @@ const notificationDeleteOld = async (
   }
 }
 
+// check if notifications are enabled
+const notificationCheckEnabled = async (
+  req: Request,
+  res: Response<{enabled: boolean}>,
+  next: NextFunction,
+) => {
+  try {
+    const user_id = Number(req.params.id)
+    const enabled = await checkNotificationsEnabled(user_id);
+    res.json({enabled});
+  } catch (error) {
+    next(error);
+  }
+}
+
+// toggle notifications enabled
+const notificationToggleEnabled = async (
+  req: Request,
+  res: Response<MessageResponse>,
+  next: NextFunction,
+) => {
+  try {
+    const user_id = Number(res.locals.user.user_id);
+    const enabled = await toggleNotificationsEnabled(user_id);
+    res.json(enabled);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export {
   notificationListByUserGet,
   notificationPost,
   notificationMarkAsRead,
   notificationMarkAsArchived,
   notificationDeleteOld,
+  notificationCheckEnabled,
+  notificationToggleEnabled,
 };

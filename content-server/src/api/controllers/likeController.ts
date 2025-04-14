@@ -48,6 +48,7 @@ const likePost = async (
 
     res.json(result);
   } catch (error) {
+    console.error('Error in likePost:', error);
     next(error);
   }
 };

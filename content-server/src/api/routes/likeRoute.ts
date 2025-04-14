@@ -189,17 +189,19 @@ likeRouter
 )
 
 likeRouter
-.route('/recipe/:recipe_id/user/:user_id')
+.route('/recipe/:recipe_id/user')
 .get(
   /**
-   * @api {get} /likes/recipe/:recipe_id/user/:user_id Get like by recipe ID and user ID
+   * @api {get} /likes/recipe/:recipe_id/user Get like by recipe ID and user ID
    * @apiName LikeByRecipeIdAndUserIdGet
    * @apiGroup LikeGroup
    * @apiVersion 1.0.0
    * @apiDescription Get like by recipe ID and user ID
+   * @apiPermission token
+   *
+   * @apiHeader {String} Authorization Bearer token
    *
    * @apiParam {Number} recipe_id Recipe ID
-   * @apiParam {Number} user_id User ID
    *
    * @apiSuccess {Object} like Like object
    * @apiSuccess {Number} like.like_id Like ID
@@ -236,11 +238,7 @@ likeRouter
     .withMessage('recipe_id is required')
     .isNumeric()
     .withMessage('recipe_id must be a number'),
-  param('user_id')
-    .exists()
-    .withMessage('user_id is required')
-    .isNumeric()
-    .withMessage('user_id must be a number'),
+  authenticate,
   validationErrors,
   likeByRecipeIdAndUserIdGet,
 )
@@ -284,6 +282,7 @@ likeRouter
   param('id')
     .exists()
     .withMessage('id is required')
+    .toInt()
     .isNumeric()
     .withMessage('id must be a number'),
   validationErrors,

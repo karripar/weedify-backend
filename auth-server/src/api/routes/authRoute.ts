@@ -83,7 +83,7 @@ router.post(
   body('email')
     .isString()
     .isEmail()
-    .escape()
+    .trim()
     .isLength({ min: 5, max: 255 })
     .withMessage('Invalid email'),
   body('password')

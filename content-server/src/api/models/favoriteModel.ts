@@ -7,24 +7,25 @@ import { ERROR_MESSAGES } from '../../utils/errorMessages';
 
 const uploadPath = process.env.UPLOAD_URL;
 
-const BASE_RECIPE_QUERY = `
-  SELECT
-    rp.recipe_id,
-    rp.user_id,
-    rp.filename,
-    rp.filesize,
-    rp.media_type,
-    rp.title,
-    rp.instructions,
-    rp.cooking_time,
-    rp.created_at,
-    CONCAT(v.base_url, rp.filename) AS filename,
-    CASE
+const BASE_RECIPE_QUERY =  `
+SELECT
+  rp.recipe_id,
+  rp.user_id,
+  CONCAT(v.base_url, rp.filename) AS filename,
+  rp.filesize,
+  rp.media_type,
+  rp.title,
+  rp.instructions,
+  rp.cooking_time,
+  rp.portions,
+  rp.created_at,
+  dl.level_name AS difficulty_level,
+  CASE
       WHEN rp.media_type LIKE '%image%'
       THEN CONCAT(v.base_url, rp.filename, '-thumb.png')
       ELSE CONCAT(v.base_url, rp.filename, '-animation.gif')
-    END AS thumbnail,
-    CASE
+  END AS thumbnail,
+  CASE
       WHEN rp.media_type NOT LIKE '%image%'
       THEN JSON_ARRAY(
           CONCAT(v.base_url, rp.filename, '-thumb-1.png'),
@@ -32,11 +33,36 @@ const BASE_RECIPE_QUERY = `
           CONCAT(v.base_url, rp.filename, '-thumb-3.png'),
           CONCAT(v.base_url, rp.filename, '-thumb-4.png'),
           CONCAT(v.base_url, rp.filename, '-thumb-5.png')
-        )
+      )
       ELSE NULL
-    END AS screenshots
-  FROM RecipePosts rp
-  CROSS JOIN (SELECT ? AS base_url) AS v
+  END AS screenshots,
+  (
+      SELECT JSON_ARRAYAGG(
+          JSON_OBJECT(
+              'ingredient_id', i.ingredient_id,
+              'name', i.ingredient_name,
+              'amount', ri.amount,
+              'unit', ri.unit
+          )
+      )
+      FROM RecipeIngredients ri
+      LEFT JOIN Ingredients i ON ri.ingredient_id = i.ingredient_id
+      WHERE ri.recipe_id = rp.recipe_id
+  ) AS ingredients,
+  (
+      SELECT JSON_ARRAYAGG(
+          JSON_OBJECT(
+              'diet_type_id', dt.diet_type_id,
+              'name', dt.diet_type_name
+          )
+      )
+      FROM RecipeDietTypes rdt
+      LEFT JOIN DietTypes dt ON rdt.diet_type_id = dt.diet_type_id
+      WHERE rdt.recipe_id = rp.recipe_id
+  ) AS diet_types
+FROM RecipePosts rp
+LEFT JOIN DifficultyLevels dl ON rp.difficulty_level_id = dl.difficulty_level_id
+CROSS JOIN (SELECT ? AS base_url) AS v
 `;
 
 

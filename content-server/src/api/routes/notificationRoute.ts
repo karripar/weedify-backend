@@ -4,10 +4,11 @@ import {
   notificationListByUserGet,
   notificationMarkAsArchived,
   notificationMarkAsRead,
-  notificationPost,
+  notificationCheckEnabled,
+  notificationToggleEnabled,
 } from '../controllers/notificationController'
 import {authenticate, validationErrors} from '../../middlewares';
-import {body, param} from 'express-validator';
+import {param} from 'express-validator';
 
 const notificationRouter = express.Router();
 
@@ -52,7 +53,7 @@ notificationRouter
      *  {
      *    "id": 1,
      *    "user_id": 1,
-     *    "text": "Notification text",
+     *    "notification_text": "Notification text",
      *    "notification_type_id": 1,
      *    "is_read": false,
      *    "is_archived": false,
@@ -70,58 +71,12 @@ notificationRouter
     authenticate,
     notificationListByUserGet,
   )
-  .post(
-    /**
-     * @api {post} /notifications/user Create Notification
-     * @apiName CreateNotification
-     * @apiGroup notificationGroup
-     * @apiVersion 1.0.0
-     * @apiDescription Create a new notification
-     * @apiPermission token
-     * @apiHeader {String} Authorization Bearer token
-     *
-     * @apiUse token
-     * @apiUse unauthorized
-     *
-     * @apiBody {Number} notification_text Notification text
-     * @apiBody {Number} user_id User ID
-     * @apiBody {Number} notification_type_id Notification type ID
-     *
-     * @apiSuccess {String} message Success message
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *   "message": "Notification created successfully"
-     * }
-     *
-     * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
-     * @apiErrorExample {json} Unauthorized
-     *   HTTP/1.1 401 Unauthorized
-     *  {
-     *   "error": "Unauthorized"
-     * }
-     * @apiError (Error 500) {String} InternalServerError Error creating notification
-     * @apiErrorExample {json} InternalServerError
-     *   HTTP/1.1 500 InternalServerError
-     *  {
-     *   "error": "Error creating notification"
-     * }
-     */
-    authenticate,
-    body('user_id').isNumeric().withMessage('user_id must be a number'),
-    body('text').isString().withMessage('text must be a string'),
-    body('notification_type_id')
-      .isNumeric()
-      .withMessage('notification_type_id must be a number'),
-    validationErrors,
-    notificationPost,
-  );
 
 notificationRouter
-  .route('/user/:id')
+  .route('/user/:id/mark-read')
   .put(
     /**
-     * @api {put} /notifications/user/:id Mark Notification as Read
+     * @api {put} /notifications/user/:id/mark-read Mark Notification as Read
      * @apiName MarkNotificationAsRead
      * @apiGroup notificationGroup
      * @apiVersion 1.0.0
@@ -241,5 +196,90 @@ notificationRouter
     authenticate,
     notificationDeleteOld,
   );
+
+
+notificationRouter
+.route('/user/enabled/:id')
+.get(
+  /**
+   * @api {get} /notifications/user/enabled/:id Check if Notifications are Enabled
+   * @apiName CheckNotificationsEnabled
+   * @apiGroup notificationGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Check if notifications are enabled for a user
+   * @apiPermission none
+   *
+   * @apiParam {Number} id User ID
+   *
+   * @apiSuccess {Boolean} enabled Notifications enabled status
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   "enabled": true
+   * }
+   *
+   * @apiError (Error 404) {String} NotFound User not found
+   * @apiErrorExample {json} NotFound
+   *   HTTP/1.1 404 NotFound
+   *  {
+   *  "error": "User not found"
+   *  }
+   * @apiError (Error 500) {String} InternalServerError Error checking notifications enabled status
+   * @apiErrorExample {json} InternalServerError
+   *  HTTP/1.1 500 InternalServerError
+   * {
+   *  "error": "Error checking notifications enabled status"
+   * }
+   */
+  param('id').isNumeric().withMessage('id must be a number'),
+  validationErrors,
+  notificationCheckEnabled
+)
+
+notificationRouter
+.route('/settings/toggle-enabled')
+.put(
+  /**
+   * @api {put} /notifications/toggle-enabled Toggle Notifications Enabled
+   * @apiName ToggleNotificationsEnabled
+   * @apiGroup notificationGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Toggle notifications enabled status for a user. Status is set to true or false based on query made in the backend.
+   * @apiPermission token
+   * @apiHeader {String} Authorization Bearer token
+   *
+   * @apiUse token
+   * @apiUse unauthorized
+   *
+   * @apiSuccess {String} message Success message
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *  "message": "Settings updated successfully"
+   * }
+   *
+   * @apiError (Error 400) {String} BadRequest Invalid request body
+   * @apiErrorExample {json} BadRequest
+   *   HTTP/1.1 400 BadRequest
+   * {
+   *  "error": "Invalid request body"
+   * }
+   *
+   * @apiError (Error 404) {String} NotFound User not found
+   * @apiErrorExample {json} NotFound
+   *   HTTP/1.1 404 NotFound
+   *  {
+   *  "error": "User not found"
+   *  }
+   * @apiError (Error 500) {String} InternalServerError Error toggling notifications enabled status
+   * @apiErrorExample {json} InternalServerError
+   *  HTTP/1.1 500 InternalServerError
+   * {
+   *  "error": "Error toggling notifications enabled status"
+   * }
+   */
+  authenticate,
+  notificationToggleEnabled
+)
 
 export default notificationRouter;
