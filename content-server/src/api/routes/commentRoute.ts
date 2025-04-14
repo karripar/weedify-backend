@@ -131,7 +131,7 @@ commentRouter
 
 commentRouter.route('/byrecipe/:id').get(
   /**
-   * @api {get} /comments/byRecipe/:id Get Comments by Recipe ID
+   * @api {get} /comments/byrecipe/:id Get Comments by Recipe ID
    * @apiName GetCommentsByRecipeId
    * @apiGroup commentGroup
    * @apiVersion 1.0.0

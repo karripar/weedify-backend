@@ -119,7 +119,7 @@ router.post(
    *  "message": "Invalid email"
    * }
    */
-  '/request-reset',
+  '/request-password-reset',
   body('email')
     .isString()
     .isEmail()
@@ -132,14 +132,14 @@ router.post(
 
 router.post(
   /**
-   * @api {post} /auth/reset-password/:token Reset password
+   * @api {post} /auth/reset-password Reset password
    * @apiName ResetPassword
    * @apiGroup AuthGroup
    * @apiVersion  1.0.0
    * @apiDescription Reset password
    * @apiPermission none
    *
-   * @apiParam {String} token Password reset token
+   * @apiBody {String} token Password reset token
    *
    * @apiBody {String} password New password
    *

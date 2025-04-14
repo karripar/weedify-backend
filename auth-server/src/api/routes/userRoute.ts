@@ -45,7 +45,7 @@ const router = express.Router();
 
 router.get(
   /**
-   * @api {get} /users/ Get all users
+   * @api {get} /users Get all users
    * @apiName GetUsers
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -225,6 +225,7 @@ router.get(
    * @apiSuccess {String} created_at Date the profile picture was created
    * @apiSuccess {String} profile_picture_id Profile picture id
    * @apiSuccess {String} filesize Profile picture filesize
+   * @apiSuccess {String} media_type Profile picture media type
    *
    * @apiSuccessExample {json} Success-Response:
    *   HTTP/1.1 200 OK
@@ -233,7 +234,8 @@ router.get(
    *   "user_id": 1,
    *   "created_at": "2021-01-01T00:00:00.000Z",
    *   "profile_picture_id": 1,
-   *   "filesize": "1000"
+   *   "filesize": "1000",
+   *   "media_type": "image/jpeg"
    * }
    *
    * @apiError (Error 404) ProfilePictureNotFound The profile picture was not found
@@ -281,6 +283,7 @@ router.get(
    * @apiSuccess {String} created_at Date the profile picture was created
    * @apiSuccess {String} profile_picture_id Profile picture id
    * @apiSuccess {String} filesize Profile picture filesize
+   * @apiSuccess {String} media_type Profile picture media type
    *
    * @apiSuccessExample {json} Success-Response:
    *   HTTP/1.1 200 OK
@@ -289,7 +292,8 @@ router.get(
    *   "user_id": 1,
    *   "created_at": "2021-01-01T00:00:00.000Z",
    *   "profile_picture_id": 1,
-   *   "filesize": "1000"
+   *   "filesize": "1000",
+   *   "media_type": "image/jpeg"
    * }
    *
    * @apiError (Error 404) ProfilePictureNotFound The profile picture was not found
@@ -332,6 +336,7 @@ router.post(
    *
    * @apiBody {String} filename Profile picture filename
    * @apiBody {String} filesize Profile picture filesize
+   * @apiBody {String} media_type Profile picture media type
    *
    * @apiSuccess {Object} Profile picture object
    * @apiSuccess {String} filepath Profile picture filename
@@ -347,7 +352,8 @@ router.post(
    *   "user_id": 1,
    *   "created_at": "2021-01-01T00:00:00.000Z",
    *   "profile_picture_id": 1,
-   *   "filesize": "1000"
+   *   "filesize": "1000",
+   *   "media_type": "image/jpeg"
    * }
    *
    * @apiError (Error 401) Unauthorized The user is not authorized to access this endpoint
@@ -382,7 +388,7 @@ router.post(
 
 router.put(
   /**
-   * @api {put} /users/profilepicture Update profile picture
+   * @api {put} /users/profilepicture/change Update profile picture
    * @apiName UpdateProfilePicture
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -391,6 +397,7 @@ router.put(
    *
    * @apiBody {String} filename Profile picture filename
    * @apiBody {String} filesize Profile picture filesize
+   * @apiBody {String} media_type Profile picture media type
    *
    * @apiSuccess {Object} Profile picture object
    * @apiSuccess {String} filepath Profile picture filename
@@ -406,7 +413,8 @@ router.put(
    *   "user_id": 1,
    *   "created_at": "2021-01-01T00:00:00.000Z",
    *   "profile_picture_id": 1,
-   *   "filesize": "1000"
+   *   "filesize": "1000",
+   *   "media_type": "image/jpeg"
    * }
    *
    * @apiError (Error 401) Unauthorized The user is not authorized to access this endpoint
@@ -440,7 +448,7 @@ router.put(
 
 router.post(
   /**
-   * @api {post} /users/ Create user
+   * @api {post} /users Create user
    * @apiName CreateUser
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
@@ -468,7 +476,7 @@ router.post(
    *        "email": "test@user.com",
    *        "created_at": "2021-01-01T00:00:00.000Z",
    *        "level_name": "User",
-   *        "filename": ""
+   *        "filename": "null"
    *     }
    *   }
    * @apiError (Error 422) ValidationError Validation error
@@ -630,7 +638,7 @@ router.delete(
    * }
    *
    */
-  '/id',
+  '/id/:id',
   authenticate,
   param('id').isNumeric(),
   validationErrors,
@@ -639,7 +647,7 @@ router.delete(
 
 router.delete(
   /**
-   * @api {delete} /users/ Delete user as user
+   * @api {delete} /users Delete user as user
    * @apiName DeleteUserAsUser
    * @apiGroup UserGroup
    * @apiVersion 1.0.0
