@@ -225,7 +225,7 @@ router.get(
    * @apiSuccess {String} user_id User id
    * @apiSuccess {String} created_at Date the profile picture was created
    * @apiSuccess {String} profile_picture_id Profile picture id
-   * @apiSuccess {String} filesize Profile picture filesize
+   * @apiSuccess {Number} filesize Profile picture filesize
    * @apiSuccess {String} media_type Profile picture media type
    *
    * @apiSuccessExample {json} Success-Response:
@@ -235,7 +235,7 @@ router.get(
    *   "user_id": 1,
    *   "created_at": "2021-01-01T00:00:00.000Z",
    *   "profile_picture_id": 1,
-   *   "filesize": "1000",
+   *   "filesize": 1000,
    *   "media_type": "image/jpeg"
    * }
    *
@@ -283,7 +283,7 @@ router.get(
    * @apiSuccess {String} user_id User id
    * @apiSuccess {String} created_at Date the profile picture was created
    * @apiSuccess {String} profile_picture_id Profile picture id
-   * @apiSuccess {String} filesize Profile picture filesize
+   * @apiSuccess {Number} filesize Profile picture filesize
    * @apiSuccess {String} media_type Profile picture media type
    *
    * @apiSuccessExample {json} Success-Response:
@@ -293,7 +293,7 @@ router.get(
    *   "user_id": 1,
    *   "created_at": "2021-01-01T00:00:00.000Z",
    *   "profile_picture_id": 1,
-   *   "filesize": "1000",
+   *   "filesize": 1000,
    *   "media_type": "image/jpeg"
    * }
    *
@@ -336,7 +336,7 @@ router.post(
    * @apiPermission token
    *
    * @apiBody {String} filename Profile picture filename
-   * @apiBody {String} filesize Profile picture filesize
+   * @apiBody {Number} filesize Profile picture filesize
    * @apiBody {String} media_type Profile picture media type
    *
    * @apiSuccess {Object} Profile picture object
@@ -344,7 +344,7 @@ router.post(
    * @apiSuccess {String} user_id User id
    * @apiSuccess {String} created_at Date the profile picture was created
    * @apiSuccess {String} profile_picture_id Profile picture id
-   * @apiSuccess {String} filesize Profile picture filesize
+   * @apiSuccess {Number} filesize Profile picture filesize
    *
    * @apiSuccessExample {json} Success-Response:
    *   HTTP/1.1 200 OK
@@ -353,7 +353,7 @@ router.post(
    *   "user_id": 1,
    *   "created_at": "2021-01-01T00:00:00.000Z",
    *   "profile_picture_id": 1,
-   *   "filesize": "1000",
+   *   "filesize": 1000,
    *   "media_type": "image/jpeg"
    * }
    *
@@ -397,7 +397,7 @@ router.put(
    * @apiPermission token
    *
    * @apiBody {String} filename Profile picture filename
-   * @apiBody {String} filesize Profile picture filesize
+   * @apiBody {Number} filesize Profile picture filesize
    * @apiBody {String} media_type Profile picture media type
    *
    * @apiSuccess {Object} Profile picture object
@@ -405,7 +405,7 @@ router.put(
    * @apiSuccess {String} user_id User id
    * @apiSuccess {String} created_at Date the profile picture was created
    * @apiSuccess {String} profile_picture_id Profile picture id
-   * @apiSuccess {String} filesize Profile picture filesize
+   * @apiSuccess {Number} filesize Profile picture filesize
    *
    * @apiSuccessExample {json} Success-Response:
    *   HTTP/1.1 200 OK
@@ -414,7 +414,7 @@ router.put(
    *   "user_id": 1,
    *   "created_at": "2021-01-01T00:00:00.000Z",
    *   "profile_picture_id": 1,
-   *   "filesize": "1000",
+   *   "filesize": 1000,
    *   "media_type": "image/jpeg"
    * }
    *
@@ -441,7 +441,7 @@ router.put(
   '/profilepicture/change',
   authenticate,
   body('filename').isString().trim(),
-  body('filesize').toInt(),
+  body('filesize').toInt().isNumeric(),
   body('media_type').isString().trim(),
   validationErrors,
   profilePicturePut,

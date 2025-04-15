@@ -202,7 +202,7 @@ CREATE INDEX idx_ingredient_name ON Ingredients(ingredient_name);
 -- Insert mock data
 INSERT INTO DifficultyLevels (level_name) VALUES ('Easy'), ('Medium'), ('Hard');
 
-INSERT INTO UserLevels (level_name) VALUES ('Admin'), ('User');
+INSERT INTO UserLevels (level_name) VALUES ('Admin'), ('User'), ('Influencer');
 
 INSERT INTO DietTypes (diet_type_name) VALUES ('Vegetarian'), ('Vegan'), ('Gluten-Free'), ('Dairy-Free'), ('Nut-Free'), ('Halal'), ('Kosher'), ('Paleo'), ('Keto'), ('Low-Carb'), ('Mediterranean');
 
