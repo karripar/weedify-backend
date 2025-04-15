@@ -360,6 +360,7 @@ const updateRecipe = async (
     const updateFields: string[] = [];
     const updateValues = [];
 
+    // check which fields are provided
     if (updateData.title) {
       updateFields.push('title = ?');
       updateValues.push(updateData.title);
@@ -420,7 +421,7 @@ const updateRecipe = async (
       }
     }
 
-    // Update dietary info
+    // Update dietary info. With if statements the program will not crash if some fields are not provided
     if (dietary_info) {
       await connection.execute(
         `DELETE FROM RecipeDietTypes WHERE recipe_id = ?`,
