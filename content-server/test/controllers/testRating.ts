@@ -6,14 +6,14 @@ import { MessageResponse } from 'hybrid-types/MessageTypes';
 const postRating = (
   url: string | Application,
   recipeId: number,
-  rating: {rating: string, review: string},
+  rating: {rating: number, review: string},
   token: string,
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
       .post(`/api/v1/ratings`)
       .set('Authorization', `Bearer ${token}`)
-      .send({recipe_id: recipeId, ...rating})
+      .send({recipe_id: recipeId, rating})
       .expect(200, (err, response) => {
         if (err) {
           reject(err);
@@ -58,15 +58,20 @@ const getRatingByUserId = (
 const checkIfRatingExists = (
   url: string | Application,
   recipeId: number,
+  token: string,
 ): Promise<boolean> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get(`/api/v1/ratings/${recipeId}`)
+      .get(`/api/v1/ratings/check-exists/${recipeId}`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(200, (err, response) => {
+        console.log('response:', response.body);
         if (err) {
           reject(err);
         } else {
-          expect(response.body.exists).toBe(true);
+          const exists: boolean = response.body;
+          expect(exists).toBe(true);
+          resolve(exists);
         }
       });
   });
@@ -74,12 +79,12 @@ const checkIfRatingExists = (
 
 const deleteRating = (
   url: string | Application,
-  recipeId: number,
+  rating_id: number,
   token: string,
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .delete(`/api/v1/ratings/recipe/${recipeId}`)
+      .delete(`/api/v1/ratings/recipe/${rating_id}`)
       .set('Authorization', `Bearer ${token}`)
       .expect(200, (err, response) => {
         if (err) {

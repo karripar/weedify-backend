@@ -51,6 +51,8 @@ ratingRouter
      * HTTP/1.1 200 OK
      * [
      *   {
+     *     "rating_id": 1,
+     *     "recipe_id": 1,
      *     "user_id": 1,
      *     "rating": 4,
      *     "review": "Great recipe!",
@@ -190,8 +192,10 @@ ratingRouter
      * HTTP/1.1 200 OK
      * [
      *   {
+     *     "rating_id": 1,
      *     "recipe_id": 1,
      *     "rating": 4,
+     *     "user_id": 1,
      *     "review": "Great recipe!",
      *    "created_at": "2023-10-01T12:00:00Z"
      *  }

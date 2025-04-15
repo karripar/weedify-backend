@@ -5,7 +5,7 @@ import CustomError from '../../classes/CustomError';
 import { LoginResponse, MessageResponse } from 'hybrid-types/MessageTypes';
 import {getUserByEmail} from '../models/userModel';
 import { UserWithLevel, TokenContent } from 'hybrid-types/DBTypes';
-import { createResetToken, verifyResetToken, updatePassword } from '../models/authModel';
+import { createResetToken, verifyResetToken, updatePassword, selectPasswordHash, putPassword} from '../models/authModel';
 import { getUserExistsByEmail } from '../models/userModel';
 import { sendResetEmail } from '../../utils/emailer';
 
@@ -116,8 +116,39 @@ const resetPassword = async (
   }
 }
 
+const changePassword = async (
+  req: Request<{user_id: string}, {current_password: string, new_password: string}>,
+  res: Response<MessageResponse>,
+  next: NextFunction,
+) => {
+  try {
+    const {current_password, new_password} = req.body;
+    const user_id = Number(res.locals.user.user_id);
+
+    const oldPasswordHash = await selectPasswordHash(user_id);
+
+    const pwMatch = await bcrypt.compare(current_password, oldPasswordHash);
+    if (!pwMatch) {
+      next(new CustomError('Invalid password', 401));
+      return;
+    }
+
+    const success = await putPassword(user_id, new_password);
+    if (!success) {
+      next(new CustomError('Error updating password', 500));
+      return;
+    }
+    res.json({
+      message: 'Password updated successfully',
+    });
+  } catch (error) {
+    next(new CustomError((error as Error).message, 500));
+  }
+}
+
 export {
   Login,
   requestPasswordReset,
   resetPassword,
+  changePassword,
 }

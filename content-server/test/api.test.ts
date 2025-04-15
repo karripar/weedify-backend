@@ -19,6 +19,7 @@ import {
   loginUser,
   deleteUser,
   getUserByToken,
+  getUserWithInvalidToken,
 } from './controllers/testUser';
 import {
   uploadFile,
@@ -69,10 +70,8 @@ import {
 } from './controllers/testFavorite';
 import {
   checkIfNotificationsEnabled,
-  getUserNotifications,
-  MarkNotificationAsArchived,
-  MarkNotificationAsRead,
   toggleNotificationEnabled,
+  getAllNotifications
 } from './controllers/testNotification';
 
 import {
@@ -376,5 +375,74 @@ describe('Content Server API Tests', () => {
 
   it('Should get profile picture', async () => {
     await getProfilePicture(authApi, '/users/profilepicture/', user.user_id);
+  });
+
+  it('should fail to access a protected route with an invalid token (jwt malformed)', async () => {
+    await getUserWithInvalidToken(authApi, 'invalid_token');
+  });
+
+  it('should check if notifications are enabled', async () => {
+    await checkIfNotificationsEnabled(app, user.user_id);
+  });
+
+  it('should toggle notification enabled', async () => {
+    await toggleNotificationEnabled(app, token);
+  });
+
+  it('should get all notifications', async () => {
+    await getAllNotifications(app);
+  });
+
+  const rating = {
+    rating: 5,
+    review: 'This is a test review',
+  }
+  it('Should post a rating to a recipe', async () => {
+    await postRating(app, testRecipeItem.recipe_id, rating, token);
+  });
+
+  let ratingId: number;
+  it('Should get rating by user id', async () => {
+    const rating = await getRatingByUserId(app, token);
+    if (rating) {
+      ratingId = rating[0].rating_id;
+    }
+  });
+
+  it('Should check if rating exists', async () => {
+    await checkIfRatingExists(app, testRecipeItem.recipe_id, token);
+  });
+
+  it('Should get ratings by recipe id', async () => {
+    await getRatingsByRecipeId(app, testRecipeItem.recipe_id);
+  });
+
+  it('Should delete the rating', async () => {
+    await deleteRating(app, ratingId, token);
+  });
+
+  it('should post a favorite to a recipe', async () => {
+    await postFavorite(app, testRecipeItem.recipe_id, token);
+  });
+
+  let favoriteId: number;
+  it('should get favorites by user id', async () => {
+    await getFavoritesByUserId(app, user.user_id, token);
+  });
+
+  it('should get negative favorite status', async () => {
+    await getNegativeFavoriteStatus(app, 999, token);
+  });
+
+  it('should delete the favorite', async () => {
+    await deleteFavorite(app, testRecipeItem.recipe_id, token);
+  });
+
+  it('should delete the recipe', async () => {
+    await deleteRecipe(app, testRecipeItem.recipe_id, token);
+  });
+
+  it('should delete the user', async () => {
+    await deleteUser(authApi, '/users', token);
   });
 });

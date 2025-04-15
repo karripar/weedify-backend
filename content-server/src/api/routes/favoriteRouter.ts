@@ -253,7 +253,10 @@ favoriteRouter
     param('recipe_id').isInt({min: 1}).toInt(),
     validationErrors,
     favoriteCountGet,
-  )
+);
+
+favoriteRouter
+  .route('/byrecipe/:recipe_id')
   .delete(
     /**
      * @api {delete} /favorites/byrecipe/:recipe_id Remove Favorite
@@ -276,9 +279,7 @@ favoriteRouter
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
-     *  "recipe_id": 1,
-     *  "user_id": 1,
-     *  "createdAt": "2021-07-01T00:00:00.000Z"
+     *  message: "Favorite removed"
      * }
      *
      * @apiError (Error 400) {String} BadRequest Invalid request

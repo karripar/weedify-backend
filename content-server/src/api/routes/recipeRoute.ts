@@ -8,6 +8,7 @@ import {
   RecipesByTokenGet,
   RecipesByUsernameGet,
   RecipesByTagnameGet,
+  updateRecipePost,
 } from '../controllers/recipeController';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
@@ -106,6 +107,7 @@ recipeRouter
      * @apiBody {string} ingredients.name Name of the ingredient
      * @apiBody {number} ingredients.amount Amount of the ingredient in decimal format or integer
      * @apiBody {string} ingredients.unit Unit of the ingredient
+     * @apiBody {number[]} dietary_info List of dietary info IDs
      *
      * @apiExample {json} Request-Example:
      * {
@@ -380,7 +382,178 @@ recipeRouter
     param('id').notEmpty().isInt({min: 1}).toInt(),
     validationErrors,
     RecipeDelete,
+  )
+  .put(
+    /**
+     * @api {put} /recipes/:id Update Recipe
+     * @apiName UpdateRecipe
+     * @apiGroup recipeGroup
+     * @apiVersion 1.0.0
+     * @apiDescription Update a recipe by ID
+     * @apiPermission token
+     *
+     * @apiUse token
+     *
+     * @apiParam {number} id Recipe ID
+     *
+     * @apiBody {string} title Title of the recipe (optional)
+     * @apiBody {string} instructions Instructions for the recipe (optional)
+     * @apiBody {string} cooking_time Cooking time of the recipe (optional)
+     * @apiBody {string} difficulty_level_id Difficulty level of the recipe (optional)
+     * @apiBody {string} portions Portions of the recipe (optional)
+     * @apiBody {object[]} ingredients List of ingredients
+     * @apiBody {string} ingredients.name Name of the ingredient
+     * @apiBody {number} ingredients.amount Amount of the ingredient in decimal format or integer
+     * @apiBody {string} ingredients.unit Unit of the ingredient
+     * @apiBody {number[]} dietary_info List of dietary info IDs
+     *
+     * @apiExample {json} Request-Example:
+     * {
+     *  "title": "Updated Recipe Title",
+     *  "instructions": "Updated Recipe instructions",
+     *  "cooking_time": "Updated Cooking time",
+     *  "difficulty_level_id": 2,
+     *  "portions": 4,
+     *  "ingredients": [
+     *  {
+     *   "name": "Updated Ingredient Name",
+     *   "amount": 2,
+     *   "unit": "g"
+     *  },
+     *  {
+     *   "name": "Updated Another Ingredient",
+     *   "amount": 3,
+     *   "unit": "ml"
+     *  }
+     * ],
+     * "dietary_info": [
+     *  1,
+     *  2
+     * ]
+     * }
+     *
+     * @apiSuccess {string} message Success message
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *   "message": "Recipe updated"
+     * }
+     *
+     * @apiError (Error 400) {String} BadRequest Invalid request
+     * @apiErrorExample {json} BadRequest
+     * HTTP/1.1 400 Bad Request
+     * {
+     *   "error": "Bad Request"
+     * }
+     * }
+     *
+     * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+     * @apiErrorExample {json} Unauthorized
+     *  HTTP/1.1 401 Unauthorized
+     * {
+     *   "error": "Unauthorized"
+     * }
+     * }
+     *
+     * @apiError (Error 404) {String} NotFound Recipe not found
+     * @apiErrorExample {json} NotFound
+     * HTTP/1.1 404 Not Found
+     * {
+     *   "error": "Recipe not found"
+     * }
+     * }
+     * @apiError (Error 500) {String} InternalServerError Error updating recipe
+     * @apiErrorExample {json} InternalServerError
+     * HTTP/1.1 500 Internal Server Error
+     * {
+     *  "error": "Internal Server Error"
+     * }
+     * }
+     */
+    authenticate,
+    param('id').notEmpty().isInt({min: 1}).toInt(),
+    body('title')
+      .optional()
+      .isString()
+      .isLength({min: 3, max: 100})
+      .trim()
+      .escape(),
+    body('instructions')
+      .optional()
+      .isString()
+      .isLength({min: 20, max: 2000})
+      .trim()
+      .escape(),
+    body('cooking_time')
+      .optional()
+      .isInt({min: 1, max: 1440})
+      .toInt()
+      .trim()
+      .escape(),
+    body('portions')
+      .optional()
+      .isNumeric()
+      .isInt({min: 1, max: 20})
+      .toInt()
+      .trim()
+      .escape(),
+    body('difficulty_level_id')
+      .optional()
+      .isNumeric()
+      .isInt({min: 1, max: 3})
+      .toInt()
+      .trim()
+      .escape(),
+    body('ingredients')
+      .isArray()
+      .notEmpty()
+      .custom((value) => {
+        if (value.length === 0) {
+          throw new Error('Ingredients array cannot be empty');
+        }
+        return true;
+      }),
+    body('ingredients.*.name')
+      .notEmpty()
+      .isString()
+      .isLength({min: 3, max: 50})
+      .trim()
+      .escape(),
+    body('ingredients.*.amount')
+      .notEmpty()
+      .isNumeric()
+      .isInt({min: 1})
+      .toInt()
+      .trim()
+      .escape(),
+    body('ingredients.*.unit')
+      .notEmpty()
+      .isString()
+      .isLength({min: 1, max: 20})
+      .trim()
+      .escape(),
+    body('dietary_info')
+      .optional()
+      .isArray()
+      .notEmpty()
+      .custom((value) => {
+        if (value.length === 0) {
+          throw new Error('Dietary info array cannot be empty');
+        }
+        return true;
+      }),
+    body('dietary_info.*')
+      .optional()
+      .isNumeric()
+      .isInt({min: 1})
+      .toInt()
+      .trim()
+      .escape(),
+    validationErrors,
+    updateRecipePost,
   );
+
 recipeRouter.route('/byuser/userid/:user_id').get(
   /**
    * @api {get} /recipes/byuser/userid/:user_id Get Recipes by User ID

@@ -8,6 +8,16 @@ import { ERROR_MESSAGES } from '../../utils/errorMessages';
 
 // Request a list of notifications for a user
 
+const fetchAllNotifications = async (): Promise<Notification[]> => {
+  const sql = `
+    SELECT n.notification_id, n.user_id, n.notification_text, n.is_read, n.is_archived, n.created_at, nt.type_name
+    FROM Notifications n
+    JOIN NotificationTypes nt ON n.notification_type_id = nt.notification_type_id
+    ORDER BY n.created_at DESC`;
+  const [rows] = await promisePool.execute<RowDataPacket[] & Notification[]>(sql);
+  return rows;
+};
+
 const fetchNotificationByUserId = async (
   user_id: number,
   onlyUnread: boolean = false,
@@ -137,4 +147,5 @@ export {
   deleteOldNotifications,
   checkNotificationsEnabled,
   toggleNotificationsEnabled,
+  fetchAllNotifications,
 }

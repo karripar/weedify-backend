@@ -110,6 +110,26 @@ const getUserByToken = (
   });
 };
 
+const getUserWithInvalidToken = (
+  url: string | Application,
+  token: string,
+): Promise<Partial<User>> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .get('/users/bytoken/token')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(401, (err, res) => {
+        if (err) {
+          reject(err);
+        } else {
+          const body = res.body;
+          expect(body.message).toBe('jwt malformed');
+          resolve(body);
+        }
+      });
+  });
+};
+
 const checkIfEmailExists = (
   url: string | Application,
   email: string,
@@ -205,4 +225,5 @@ export {
   checkIfUsernameExists,
   updateUser,
   getUserById,
+  getUserWithInvalidToken,
 };
