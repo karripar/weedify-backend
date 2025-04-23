@@ -34,8 +34,10 @@ const commentListByRecipeIdGet = async (
 ) => {
   try {
     const comments = await fetchCommentsByRecipeId(Number(req.params.id));
+    console.log('Comments by recipe id:', comments);
     res.json(comments);
   } catch (error) {
+    console.error('Error fetching comments by recipe id:', error);
     next(error);
   }
 };

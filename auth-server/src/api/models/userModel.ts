@@ -70,7 +70,7 @@ const getUserById = async (
 
 
 
-const getUserByEmail = async (email: string): Promise<UserWithLevel> => {
+const getUserByEmail = async (email: string): Promise<UserWithLevel | null> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & UserWithLevel[]>(
     `SELECT Users.user_id, Users.username, Users.bio, Users.password, Users.email, Users.created_at, UserLevels.level_name, ProfilePicture.filename
      FROM Users
@@ -81,7 +81,7 @@ const getUserByEmail = async (email: string): Promise<UserWithLevel> => {
   );
   if (rows.length === 0) {
     customLog('getUserByEmail: User not found');
-    throw new CustomError('User not found', 404);
+    return null;
   }
   return rows[0];
 };
@@ -107,7 +107,7 @@ const createUser = async (
 
 const getUserByUsername = async (
   username: string,
-): Promise<UserWithNoPassword> => {
+): Promise<UserWithNoPassword | null> => {
   const [rows] = await promisePool.execute<
     RowDataPacket[] & UserWithNoPassword[]
   >(
@@ -120,7 +120,7 @@ const getUserByUsername = async (
   );
   if (rows.length === 0) {
     customLog('getUserByUsername: User not found');
-    throw new CustomError('User not found', 404);
+    return null;
   }
   return rows[0];
 };

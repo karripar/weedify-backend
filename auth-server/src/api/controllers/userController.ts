@@ -41,11 +41,15 @@ const usersGet = async (
 
 const userByUsernameGet = async (
   req: Request<{username: string}>,
-  res: Response<UserWithNoPassword>,
+  res: Response<UserWithNoPassword | null>,
   next: NextFunction,
 ) => {
   try {
     const user = await getUserByUsername(req.params.username);
+    if (!user) {
+      next(new CustomError('User not found', 404));
+      return;
+    }
     res.json(user);
   } catch (err) {
     next(err);
@@ -179,12 +183,12 @@ const userPost = async (
 
 const checkEmailExists = async (
   req: Request<{email: string}>,
-  res: Response<{exists: boolean}>,
+  res: Response<{available: boolean}>,
   next: NextFunction,
 ) => {
   try {
     const user = await getUserByEmail(req.params.email);
-    res.json({exists: user ? true : false});
+    res.json({available: user ? false : true});
   } catch (err) {
     next(err);
   }
@@ -192,12 +196,12 @@ const checkEmailExists = async (
 
 const checkUsernameExists = async (
   req: Request<{username: string}>,
-  res: Response<{exists: boolean}>,
+  res: Response<{available: boolean}>,
   next: NextFunction,
 ) => {
   try {
     const user = await getUserByUsername(req.params.username);
-    res.json({exists: user ? true : false});
+    res.json({available: user ? false : true});
   } catch (err) {
     next(err);
   }

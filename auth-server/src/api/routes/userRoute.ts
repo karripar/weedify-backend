@@ -529,14 +529,14 @@ router.get(
    *
    * @apiParam {String} email Email of the user
    *
-   * @apiSuccess {Object} exists Object with exists property
-   * @apiSuccess {Boolean} exists.exists True if email exists, false if not
+   * @apiSuccess {Object}  Object Object with 'available' property
+   * @apiSuccess {Boolean} available.available true if email is available, false if not
    *
    * @apiSuccessExample {json} Success-Response:
    *    HTTP/1.1 200 OK
    *    {
-   *      "exists": true
-   *   }
+   *      "available": true
+   *    }
    *  @apiError (Error 422) ValidationError Validation error
    * @apiErrorExample {json} ValidationError
    *  HTTP/1.1 422 Unprocessable Entity
@@ -568,15 +568,15 @@ router.get(
    *
    * @apiParam {String} username Username of the user
    *
-   * @apiSuccess {Object} exists Object with exists property
-   * @apiSuccess {Boolean} exists.exists True if username exists, false if not
+   * @apiSuccess {Object} Object Object with 'available' property
+   * @apiSuccess {Boolean} available.available true if username is available, false if not
    *
    * @apiSuccessExample {json} Success-Response:
    *    HTTP/1.1 200 OK
    *    {
-   *      "exists": true
-   *   }
-   *  @apiError (Error 422) ValidationError Validation error
+   *      "available": true
+   *    }
+   * @apiError (Error 422) ValidationError Validation error
    * @apiErrorExample {json} ValidationError
    *  HTTP/1.1 422 Unprocessable Entity
    * {
