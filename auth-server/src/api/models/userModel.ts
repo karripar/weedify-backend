@@ -268,7 +268,12 @@ const postProfilePic = async (
 ): Promise<ProfilePicture> => {
   const {user_id, filename, filesize, media_type} = media; // media_type is always 'image' so no need to pass it in
   const sql = `INSERT INTO ProfilePicture (user_id, filename, filesize, media_type) VALUES (?, ?, ?, ?)`;
-  const stmt = promisePool.format(sql, [user_id, filename, filesize, media_type]);
+  const stmt = promisePool.format(sql, [
+    user_id,
+    filename,
+    filesize,
+    media_type,
+  ]);
   const [result] = await promisePool.execute<ResultSetHeader>(stmt);
 
   if (result.affectedRows === 0) {
@@ -298,8 +303,7 @@ const getProfilePicById = async (
 const getProfilePicByUserId = async (
   user_id: number,
 ): Promise<ProfilePicture> => {
-  const [rows] = await promisePool.execute<
-    RowDataPacket[] & ProfilePicture[]>(
+  const [rows] = await promisePool.execute<RowDataPacket[] & ProfilePicture[]>(
     `SELECT
       pp.profile_picture_id,
       pp.user_id,
@@ -322,7 +326,6 @@ const putProfilePic = async (
   media: ProfilePicture,
   user_id: number,
 ): Promise<ProfilePicture> => {
-
   const {filename, filesize, media_type} = media;
 
   const existingProfilePic = await checkProfilePicExists(user_id);
@@ -360,7 +363,6 @@ const putProfilePic = async (
         body: JSON.stringify({user_id}),
       };
 
-      //
       const deleteResult = await fetchData<MessageResponse>(
         `${process.env.UPLOAD_SERVER}/profile/picture/${absolutePath}`,
         options,
@@ -370,7 +372,6 @@ const putProfilePic = async (
       console.error((error as Error).message);
     }
   }
-
 
   return await getProfilePicByUserId(user_id);
 };
@@ -397,7 +398,7 @@ const updateUserDetails = async (
       updateFields.push('email = ?');
       updateValues.push(userDetails.email);
     }
-    if (userDetails.bio) {
+    if (userDetails.bio !== undefined) {
       updateFields.push('bio = ?');
       updateValues.push(userDetails.bio);
     }
@@ -453,17 +454,13 @@ const getUserExistsByEmail = async (
   return rows[0];
 };
 
-const getUsernameById = async (
-  user_id: number,
-): Promise<Partial<User>> => {
-  const [rows] = await promisePool.execute<
-    RowDataPacket[] & Partial<User>[]>(
-      'SELECT username FROM Users WHERE user_id = ?',
+const getUsernameById = async (user_id: number): Promise<Partial<User>> => {
+  const [rows] = await promisePool.execute<RowDataPacket[] & Partial<User>[]>(
+    'SELECT username FROM Users WHERE user_id = ?',
     [user_id],
-    );
-    return rows[0];
-}
-
+  );
+  return rows[0];
+};
 
 export {
   getUsers,

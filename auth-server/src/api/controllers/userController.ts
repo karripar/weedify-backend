@@ -116,7 +116,11 @@ const profilePicturePut = async (
     const profilePic = req.body;
     const user_id = Number(res.locals.user.user_id);
 
-    if (!profilePic.filename || !profilePic.filesize || !profilePic.media_type) {
+    if (
+      !profilePic.filename ||
+      !profilePic.filesize ||
+      !profilePic.media_type
+    ) {
       next(new CustomError('Missing required fields', 400));
       return;
     }
