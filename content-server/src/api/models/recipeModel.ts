@@ -84,6 +84,7 @@ const fetchAllRecipes = async (
   rows.forEach((row) => {
     row.ingredients = JSON.parse(row.ingredients || '[]');
     row.diet_types = JSON.parse(row.diet_types || '[]');
+    row.screenshots = JSON.parse(row.screenshots || '[]');
   });
 
   return rows;
@@ -103,6 +104,7 @@ const fetchRecipeById = async (recipe_id: number): Promise<Recipe> => {
   rows.forEach((row) => {
     row.ingredients = JSON.parse(row.ingredients || '[]'); // NOTICE THIS, OTHERWISE INGREDIENT WILL BE IN UGLY JSON
     row.diet_types = JSON.parse(row.diet_types || '[]');
+    row.screenshots = JSON.parse(row.screenshots || '[]');
   });
 
   return rows[0];
@@ -309,6 +311,13 @@ const fetchRecipesByUserId = async (user_id: number): Promise<Recipe[]> => {
     sql,
     params,
   );
+
+  rows.forEach((row) => {
+    row.ingredients = JSON.parse(row.ingredients || '[]');
+    row.diet_types = JSON.parse(row.diet_types || '[]');
+    row.screenshots = JSON.parse(row.screenshots || '[]');
+  });
+
   return rows;
 };
 
@@ -323,6 +332,13 @@ const fetchRecipesByUsername = async (username: string): Promise<Recipe[]> => {
   if (!rows.length) {
     throw new CustomError(ERROR_MESSAGES.RECIPE.NOT_FOUND, 404);
   }
+
+  rows.forEach((row) => {
+    row.ingredients = JSON.parse(row.ingredients || '[]');
+    row.diet_types = JSON.parse(row.diet_types || '[]');
+    row.screenshots = JSON.parse(row.screenshots || '[]');
+  });
+
   return rows;
 };
 
