@@ -198,6 +198,9 @@ const deleteUser = async (
     await connection.execute('DELETE FROM Comments WHERE user_id = ?', [
       user_id,
     ]);
+    await connection.execute('DELETE FROM Notifications WHERE user_id = ?', [
+      user_id,
+    ]);
     await connection.execute('DELETE FROM RecipePosts WHERE user_id = ?', [
       user_id,
     ]);

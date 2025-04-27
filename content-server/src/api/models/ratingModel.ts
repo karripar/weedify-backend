@@ -62,7 +62,7 @@ const postRating = async (
     await postNotification(
       recipeOwnerId,
       `${recipeOwner.username} rated your recipe (${recipe.title})`,
-      3,
+      4,
     );
 
     if (result[0].affectedRows === 0) {

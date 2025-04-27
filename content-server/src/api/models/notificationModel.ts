@@ -21,18 +21,26 @@ const fetchAllNotifications = async (): Promise<Notification[]> => {
 const fetchNotificationByUserId = async (
   user_id: number,
   onlyUnread: boolean = false,
-) : Promise<Notification[]> => {
-  const sql = `
+): Promise<Notification[]> => {
+  let sql = `
     SELECT n.notification_id, n.notification_text, n.is_read, n.is_archived, n.created_at, nt.type_name
     FROM Notifications n
     JOIN NotificationTypes nt ON n.notification_type_id = nt.notification_type_id
     WHERE n.user_id = ?
-    ${onlyUnread ? "AND n.is_read = FALSE" : ""}
-    ORDER BY n.created_at DESC`;
+  `;
+  const params: (number | boolean)[] = [user_id];
 
-  const [rows] = await promisePool.execute<RowDataPacket[] & Notification[]>(sql, [user_id]);
+  if (onlyUnread) {
+    sql += ` AND n.is_read = ?`;
+    params.push(false);
+  }
+
+  sql += ` ORDER BY n.created_at DESC`;
+
+  const [rows] = await promisePool.execute<RowDataPacket[] & Notification[]>(sql, params);
   return rows;
 };
+
 
 // Post a new notification
 const postNotification = async (
@@ -72,6 +80,23 @@ const markAsRead = async (
   };
 };
 
+const markAllAsRead = async (
+  user_id: number,
+): Promise<MessageResponse> => {
+  const sql = `
+    UPDATE Notifications
+    SET is_read = TRUE
+    WHERE user_id = ? AND is_read = FALSE`;
+  const params = [user_id];
+  const [result] = await promisePool.execute<ResultSetHeader>(sql, params);
+  if (!result.affectedRows) {
+    throw new CustomError(ERROR_MESSAGES.NOTIFICATION.NOT_UPDATED, 500);
+  }
+  return {
+    message: "All notifications marked as read",
+  };
+};
+
 // Mark a notification as archived
 const markAsArchived = async (
   notification_id: number,
@@ -91,12 +116,12 @@ const markAsArchived = async (
 };
 
 
-// delete old notifications
+// delete old notifications for a user
 const deleteOldNotifications = async (): Promise<MessageResponse> => {
   const sql = `
     DELETE FROM Notifications
-    WHERE is_archived = TRUE
-    AND created_at < NOW() - INTERVAL 30 DAY`;
+    WHERE is_read = TRUE
+    AND created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)`;
   const [result] = await promisePool.execute<ResultSetHeader>(sql);
   if (!result.affectedRows) {
     throw new CustomError(ERROR_MESSAGES.NOTIFICATION.NOT_DELETED, 500);
@@ -148,4 +173,5 @@ export {
   checkNotificationsEnabled,
   toggleNotificationsEnabled,
   fetchAllNotifications,
+  markAllAsRead,
 }
