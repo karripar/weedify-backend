@@ -286,10 +286,10 @@ recipeRouter
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
-     *   "recipe_id": 1,
-     *   "user_id": 1,
-     *   "createdAt": "2021-07-01T00:00:00.000Z"
-     *   "title": "Recipe Title",
+     *  "recipe_id": 1,
+     *  "user_id": 1,
+     *  "createdAt": "2021-07-01T00:00:00.000Z"
+     *  "title": "Recipe Title",
      *  "instructions": "Recipe instructions",
      *  "cooking_time": "Cooking time",
      *  "portions": 4,
@@ -297,7 +297,7 @@ recipeRouter
      *  "filename": "Filename",
      *  "filesize": 12345,
      *  "thumbnail": "Thumbnail URL",
-     * "screenshots": ["Screenshot URL 1", "Screenshot URL 2"]
+     *  "screenshots": ["Screenshot URL 1", "Screenshot URL 2"]
      * }
      *
      * @apiError (Error 400) {String} BadRequest Invalid request

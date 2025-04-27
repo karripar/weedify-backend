@@ -15,6 +15,8 @@ import {
   profilePicPost,
   profilePicturePut,
   updateUser,
+  makeUserInfluencer,
+  demoteToUser
 } from '../controllers/userController';
 import {authenticate, validationErrors} from '../../middlewares';
 
@@ -872,6 +874,108 @@ router.put(
     .withMessage('Dietary must be an array of numbers'),
   validationErrors,
   updateUser,
+);
+
+router.put(
+  /**
+   * @api {put} /users/influencer/:id Make user influencer
+   * @apiName MakeUserInfluencer
+   * @apiGroup UserGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Make user influencer
+   * @apiPermission token
+   *
+   * @apiParam {Number} id User id
+   *
+   * @apiSuccess {Object} message Object with message property
+   * @apiSuccess {String} message.message Message
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *    HTTP/1.1 200 OK
+   *    {
+   *      "message": "User made influencer successfully"
+   *    }
+   *
+   * @apiError (Error 401) Unauthorized The user is not authorized to access this endpoint
+   * @apiErrorExample {json} Unauthorized
+   * HTTP/1.1 401 Unauthorized
+   * {
+   * "error": "Unauthorized"
+   * }
+   * @apiError (Error 422) ValidationError Validation error
+   * @apiErrorExample {json} ValidationError
+   * HTTP/1.1 422 Unprocessable Entity
+   * {
+   * "error": "Validation error"
+   * }
+   *
+   * @apiError (Error 500) InternalServerError Internal server error
+   * @apiErrorExample {json} InternalServerError
+   * HTTP/1.1 500 Internal Server Error
+   * {
+   * "error": "Internal server error"
+   * }
+   *
+   * @apiError (Error 404) UserNotFound The user was not found
+   * @apiErrorExample {json} UserNotFound
+   * HTTP/1.1 404 Not Found
+   * {
+   * "error": "User not found"
+   * }
+   *
+   */
+  '/influencer/:id',
+  authenticate,
+  param('id').isNumeric(),
+  validationErrors,
+  makeUserInfluencer,
+);
+
+router.put(
+  /**
+   * @api {put} /users/demote/:id Demote user to user
+   * @apiName DemoteToUser
+   * @apiGroup UserGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Demote user to user
+   * @apiPermission token
+   *
+   * @apiParam {Number} id User id
+   *
+   * @apiSuccess {Object} message Object with message property
+   * @apiSuccess {String} message.message Message
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *    HTTP/1.1 200 OK
+   *    {
+   *      "message": "User demoted successfully"
+   *    }
+   *
+   * @apiError (Error 401) Unauthorized The user is not authorized to access this endpoint
+   * @apiErrorExample {json} Unauthorized
+   * HTTP/1.1 401 Unauthorized
+   * {
+   * "error": "Unauthorized"
+   * }
+   * @apiError (Error 422) ValidationError Validation error
+   * @apiErrorExample {json} ValidationError
+   * HTTP/1.1 422 Unprocessable Entity
+   * {
+   * "error": "Validation error"
+   * }
+   *
+   * @apiError (Error 500) InternalServerError Internal server error
+   * @apiErrorExample {json} InternalServerError
+   * HTTP/1.1 500 Internal Server Error
+   * {
+   * "error": "Internal server error"
+   * }
+   */
+  '/demote/:id',
+  authenticate,
+  param('id').isNumeric(),
+  validationErrors,
+  demoteToUser,
 );
 
 export default router;

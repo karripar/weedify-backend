@@ -226,7 +226,7 @@ INSERT INTO Follows (follower_id, followed_id) VALUES (1, 2);
 
 INSERT INTO Favorites (user_id, recipe_id) VALUES (1, 1), (2, 1);
 
-INSERT INTO NotificationTypes (type_name) VALUES ('Like'), ('Comment'), ('Follow');
+INSERT INTO NotificationTypes (type_name) VALUES ('Like'), ('Comment'), ('Follow'), ('Rating');
 
 INSERT INTO Notifications (user_id, notification_text, notification_type_id) VALUES (1, 'Testi-ilmoitus', 1), (2, 'Testi-ilmoitus2', 2);
 
