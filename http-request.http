@@ -63,7 +63,7 @@ http://192.168.1.112:3001/api/v1/users/user/byuserid/3
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJsZXZlbF9uYW1lIjoiVXNlciIsImlhdCI6MTc0NTIzMTQ2MiwiZXhwIjoxNzQ1MjQyMjYyfQ.o0Rlg9tDqcEdn-nBpAQzfYWueDwIMiXXrzMsX8f8-38
 
 ### see if username is available
-http://192.168.1.112:3001/api/v1/users/username/testi
+http://192.168.1.112:3001/api/v1/users/username/elli
 
 ### see if email is available
 http://192.168.1.112:3001/api/v1/users/email/elli@02.com
