@@ -4,11 +4,10 @@ import {
   fetchRatingsByUserId,
   postRating,
   deleteRating,
-  checkRatingExists
+  checkRatingExists,
 } from '../models/ratingModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import {Rating, TokenContent} from 'hybrid-types/DBTypes';
-
 
 // list of ratings by Recipe item id
 const ratingListByRecipeIdGet = async (
@@ -22,7 +21,7 @@ const ratingListByRecipeIdGet = async (
   } catch (error) {
     next(error);
   }
-}
+};
 
 // list of ratings by user id
 const ratingListByUserIdGet = async (
@@ -37,7 +36,7 @@ const ratingListByUserIdGet = async (
   } catch (error) {
     next(error);
   }
-}
+};
 
 // create a new rating
 const ratingPost = async (
@@ -53,7 +52,7 @@ const ratingPost = async (
   } catch (error) {
     next(error);
   }
-}
+};
 
 // delete a rating
 const ratingDelete = async (
@@ -63,6 +62,7 @@ const ratingDelete = async (
 ) => {
   try {
     const rating_id = Number(req.params.id);
+    console.log('rating id', rating_id)
     const user_id = Number(res.locals.user.user_id);
     const userLevel = res.locals.user.level_name;
     const response = await deleteRating(rating_id, user_id, userLevel);
@@ -70,7 +70,7 @@ const ratingDelete = async (
   } catch (error) {
     next(error);
   }
-}
+};
 
 // check if a rating exists
 const ratingCheckExists = async (
@@ -87,12 +87,12 @@ const ratingCheckExists = async (
     console.log('Error checking rating existence:', error);
     next(error);
   }
-}
+};
 
 export {
   ratingListByRecipeIdGet,
   ratingListByUserIdGet,
   ratingPost,
   ratingDelete,
-  ratingCheckExists
-}
+  ratingCheckExists,
+};

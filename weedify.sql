@@ -198,6 +198,15 @@ CREATE INDEX idx_recipe_title ON RecipePosts(title);
 CREATE INDEX idx_recipe_cooking_time ON RecipePosts(cooking_time);
 CREATE INDEX idx_recipe_created_at ON RecipePosts(created_at);
 CREATE INDEX idx_ingredient_name ON Ingredients(ingredient_name);
+CREATE INDEX idx_user_username ON Users(username);
+CREATE INDEX idx_user_email ON Users(email);
+CREATE INDEX idx_comment_created_at ON Comments(created_at);
+CREATE INDEX idx_like_created_at ON Likes(created_at);
+CREATE INDEX idx_follow_created_at ON Follows(created_at);
+CREATE INDEX idx_favorite_created_at ON Favorites(created_at);
+CREATE INDEX idx_notification_created_at ON Notifications(created_at);
+CREATE INDEX idx_notification_is_read ON Notifications(is_read);
+CREATE INDEX idx_rating_created_at ON Ratings(created_at);
 
 -- Insert mock data
 INSERT INTO DifficultyLevels (level_name) VALUES ('Easy'), ('Medium'), ('Hard');
@@ -226,7 +235,7 @@ INSERT INTO Follows (follower_id, followed_id) VALUES (1, 2);
 
 INSERT INTO Favorites (user_id, recipe_id) VALUES (1, 1), (2, 1);
 
-INSERT INTO NotificationTypes (type_name) VALUES ('Like'), ('Comment'), ('Follow');
+INSERT INTO NotificationTypes (type_name) VALUES ('Like'), ('Comment'), ('Follow'), ('Rating');
 
 INSERT INTO Notifications (user_id, notification_text, notification_type_id) VALUES (1, 'Testi-ilmoitus', 1), (2, 'Testi-ilmoitus2', 2);
 
@@ -241,6 +250,11 @@ INSERT INTO DietaryRestrictions (restriction_name) VALUES ('Vegetarian'), ('Vega
 
 INSERT INTO UserDietaryRestrictions (user_id, dietary_restriction_id) VALUES (1, 1), (2, 2);
 
+SET GLOBAL event_scheduler = ON;
+
+CREATE EVENT IF NOT EXISTS delete_old_notifications
+ON SCHEDULE EVERY 1 DAY STARTS CURRENT_TIMESTAMP + INTERVAL 1 HOUR
+DO DELETE FROM Notifications WHERE is_read = TRUE AND created_at < NOW() - INTERVAL 30 DAY;
 
 
 

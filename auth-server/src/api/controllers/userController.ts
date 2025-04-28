@@ -14,6 +14,7 @@ import {
   putProfilePic,
   getProfilePicById,
   updateUserDetails,
+  changeUserLevel
 } from '../models/userModel';
 import {
   ProfilePicture,
@@ -329,6 +330,50 @@ const updateUser = async (
   }
 };
 
+const makeUserInfluencer = async (
+  req: Request<{user_id: string}>,
+  res: Response<{message: string}>,
+  next: NextFunction,
+) => {
+  try {
+    const user = res.locals.user;
+    if (user.level_name !== 'Admin') {
+      next(new CustomError('Unauthorized', 401));
+      return;
+    }
+    const user_id = Number(req.params.user_id);
+
+    await changeUserLevel(user_id, 3);
+
+    res.json({message: 'User made influencer'});
+  } catch (err) {
+    console.log('Error in makeUserInfluencer:', err);
+    next(err);
+  }
+};
+
+const demoteToUser = async (
+  req: Request<{user_id: string}>,
+  res: Response<{message: string}>,
+  next: NextFunction,
+) => {
+  try {
+    const user = res.locals.user;
+    if (user.level_name !== 'Admin') {
+      next(new CustomError('Unauthorized', 401));
+      return;
+    }
+    const user_id = Number(req.params.user_id);
+    await changeUserLevel(user_id, 2);
+    res.json({message: 'User demoted to user'});
+  } catch (err) {
+    console.log('Error in demoteToUser:', err);
+    next(err);
+  }
+};
+
+
+
 export {
   userByUsernameGet,
   userByIdGet,
@@ -344,4 +389,6 @@ export {
   profilePicturePut,
   profilePicByIdGet,
   updateUser,
+  makeUserInfluencer,
+  demoteToUser,
 };

@@ -7,7 +7,8 @@ import {
   deleteOldNotifications,
   checkNotificationsEnabled,
   toggleNotificationsEnabled,
-  fetchAllNotifications
+  fetchAllNotifications,
+  markAllAsRead
 } from '../models/notificationModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import {Notification, TokenContent} from 'hybrid-types/DBTypes';
@@ -23,6 +24,22 @@ const notificationListByUserGet = async (
     const notifications = await fetchNotificationByUserId(
       Number(res.locals.user.user_id),
       true);
+    res.json(notifications);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// list of all notifications for a user
+const notificationListAllByUserGet = async (
+  req: Request<{id: string}, Notification[]>,
+  res: Response<Notification[], {user: TokenContent}>,
+  next: NextFunction,
+) => {
+  try {
+    const notifications = await fetchNotificationByUserId(
+      Number(res.locals.user.user_id),
+      false);
     res.json(notifications);
   } catch (error) {
     next(error);
@@ -67,6 +84,21 @@ const notificationMarkAsRead = async (
 ) => {
   try {
     const response = await markAsRead(Number(req.params.id));
+    res.json(response);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// mark all notifications as read
+const notificationMarkAllAsRead = async (
+  req: Request,
+  res: Response<MessageResponse>,
+  next: NextFunction,
+) => {
+  try {
+    const user_id = Number(res.locals.user.user_id);
+    const response = await markAllAsRead(user_id);
     res.json(response);
   } catch (error) {
     next(error);
@@ -140,4 +172,6 @@ export {
   notificationCheckEnabled,
   notificationToggleEnabled,
   allNotificationsListGet,
+  notificationListAllByUserGet,
+  notificationMarkAllAsRead
 };

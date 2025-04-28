@@ -194,6 +194,9 @@ const deleteUser = async (
     await connection.execute('DELETE FROM Comments WHERE user_id = ?', [
       user_id,
     ]);
+    await connection.execute('DELETE FROM Notifications WHERE user_id = ?', [
+      user_id,
+    ]);
     await connection.execute('DELETE FROM RecipePosts WHERE user_id = ?', [
       user_id,
     ]);
@@ -462,6 +465,21 @@ const getUsernameById = async (user_id: number): Promise<Partial<User>> => {
   return rows[0];
 };
 
+const changeUserLevel = async (
+  user_id: number,
+  user_level_id: number,
+): Promise<MessageResponse> => {
+  const sql = `UPDATE Users SET user_level_id = ? WHERE user_id = ?`;
+  const stmt = promisePool.format(sql, [user_level_id, user_id]);
+  const [result] = await promisePool.execute<ResultSetHeader>(stmt);
+
+  if (result.affectedRows === 0) {
+    throw new CustomError('User not updated', 500);
+  }
+
+  return {message: 'User level updated successfully'};
+}
+
 export {
   getUsers,
   getUserById,
@@ -476,4 +494,5 @@ export {
   updateUserDetails,
   getUserExistsByEmail,
   getUsernameById,
+  changeUserLevel
 };
