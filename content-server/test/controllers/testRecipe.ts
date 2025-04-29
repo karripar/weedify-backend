@@ -161,10 +161,12 @@ const getNotFoundRecipe = (
 const deleteNotFoundMediaItem = (
   url: string | Application,
   id: number,
+  token: string,
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
       .delete(`/api/v1/recipes/${id}`) // Updated path
+      .set('Authorization', `Bearer ${token}`)
       .expect(404, (err, response) => {
         if (err) {
           reject(err);

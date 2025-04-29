@@ -130,39 +130,77 @@ const getUserWithInvalidToken = (
   });
 };
 
-const checkIfEmailExists = (
+const checkIfEmailAvailable = (
   url: string | Application,
   email: string,
 ): Promise<boolean> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get(`/api/v1/users/email/${email}`)
+      .get(`/users/email/${email}`)
       .expect(200, (err, res) => {
         if (err) {
           reject(err);
         } else {
-          const exists: {available: boolean} = res.body;
-          expect(exists.available).toBe(true);
-          resolve(exists.available);
+          const available: {available: boolean} = res.body;
+          expect(available.available).toBe(true);
+          resolve(available.available);
         }
       });
   });
 };
 
-const checkIfUsernameExists = (
+const checkIfUsernameAvailable = (
   url: string | Application,
   username: string,
 ): Promise<boolean> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get(`/api/v1/users/username/${username}`)
+      .get(`/users/username/${username}`)
       .expect(200, (err, res) => {
         if (err) {
           reject(err);
         } else {
-          const exists: {available: boolean} = res.body;
-          expect(exists.available).toBe(true);
-          resolve(exists.available);
+          const available: {available: boolean} = res.body;
+          expect(available.available).toBe(true);
+          resolve(available.available);
+        }
+      });
+  });
+};
+
+const getEmailNotAvailable = (
+  url: string | Application,
+  email: string,
+): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .get(`/users/email/${email}`)
+      .expect(200, (err, res) => {
+        if (err) {
+          reject(err);
+        } else {
+          const available: {available: boolean} = res.body;
+          expect(available.available).toBe(false);
+          resolve(available.available);
+        }
+      });
+  });
+}
+
+const getUsernameNotAvailable = (
+  url: string | Application,
+  username: string,
+): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .get(`/users/username/${username}`)
+      .expect(200, (err, res) => {
+        if (err) {
+          reject(err);
+        } else {
+          const available: {available: boolean} = res.body;
+          expect(available.available).toBe(false);
+          resolve(available.available);
         }
       });
   });
@@ -221,9 +259,11 @@ export {
   loginUser,
   deleteUser,
   getUserByToken,
-  checkIfEmailExists,
-  checkIfUsernameExists,
+  checkIfEmailAvailable,
+  checkIfUsernameAvailable,
   updateUser,
   getUserById,
   getUserWithInvalidToken,
+  getEmailNotAvailable,
+  getUsernameNotAvailable,
 };
