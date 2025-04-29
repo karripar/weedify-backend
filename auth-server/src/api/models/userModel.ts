@@ -68,7 +68,7 @@ const getUserById = async (user_id: number): Promise<UserWithDietaryInfo> => {
 
 const getUserByEmail = async (email: string): Promise<UserWithLevel | null> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & UserWithLevel[]>(
-    `SELECT Users.user_id, Users.username, Users.bio, Users.password, Users.email, Users.created_at, UserLevels.level_name, ProfilePicture.filename
+    `SELECT Users.user_id, Users.username, Users.bio, Users.password, Users.email, Users.user_level_id, Users.created_at, UserLevels.level_name, ProfilePicture.filename
      FROM Users
      JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
      LEFT JOIN ProfilePicture ON Users.user_id = ProfilePicture.user_id
