@@ -44,7 +44,7 @@ const getUserComments = (
             expect(comment.comment_id).toBeGreaterThan(0);
             expect(comment.recipe_id).toBeGreaterThan(0);
             expect(comment.user_id).toBeGreaterThan(0);
-            expect(comment.comment_text).not.toBe('');
+            expect(comment.comment).not.toBe('');
             expect(comment.created_at).not.toBe('');
           });
           resolve(comments);
@@ -70,7 +70,7 @@ const getComments = (
             expect(comment.comment_id).toBeGreaterThan(0);
             expect(comment.recipe_id).toBe(recipeId);
             expect(comment.user_id).toBeGreaterThan(0);
-            expect(comment.comment_text).not.toBe('');
+            expect(comment.comment).not.toBe('');
             expect(comment.created_at).not.toBe('');
           });
           resolve(comments);

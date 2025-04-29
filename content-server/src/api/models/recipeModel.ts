@@ -234,61 +234,61 @@ const deleteRecipe = async (
     return new CustomError(ERROR_MESSAGES.RECIPE.NOT_FOUND, 404);
   }
 
-  recipe.filename = recipe?.filename.replace(
-    process.env.UPLOAD_URL as string,
-    '',
-  );
+  if (user_id !== recipe.user_id && level_name !== 'Admin') {
+    return new CustomError(ERROR_MESSAGES.RECIPE.NOT_AUTHORIZED, 403);
+  }
+
+  if (recipe.filename) {
+    recipe.filename = recipe.filename.replace(process.env.UPLOAD_URL as string, '');
+  }
 
   const connection = await promisePool.getConnection();
-  await connection.beginTransaction();
-
-  await connection.execute('DELETE FROM Likes WHERE recipe_id = ?', [
-    recipe_id,
-  ]);
-  await connection.execute('DELETE FROM Comments WHERE recipe_id = ?;', [
-    recipe_id,
-  ]);
-
-  const sql =
-    level_name === 'Admin'
-      ? connection.format('DELETE FROM RecipePosts WHERE recipe_id = ?', [
-          recipe_id,
-        ])
-      : connection.format(
-          'DELETE FROM RecipePosts WHERE recipe_id = ? AND user_id = ?',
-          [recipe_id, user_id],
-        );
-
-  const [result] = await connection.execute<ResultSetHeader>(sql);
-
-  if (result.affectedRows === 0) {
-    return {message: 'Media not deleted'};
-  }
-
-  const options = {
-    method: 'DELETE',
-    headers: {
-      Authorization: 'Bearer ' + token,
-    },
-  };
 
   try {
-    const deleteResult = await fetchData<MessageResponse>(
-      `${process.env.UPLOAD_SERVER}/delete/${recipe.filename}`,
-      options,
-    );
+    await connection.beginTransaction();
 
-    console.log('deleteResult', deleteResult);
-  } catch (e) {
-    console.error('deleteRecipe file delete error:', (e as Error).message);
+    await connection.execute('DELETE FROM Likes WHERE recipe_id = ?', [recipe_id]);
+    await connection.execute('DELETE FROM Comments WHERE recipe_id = ?', [recipe_id]);
+
+    const sql =
+      level_name === 'Admin'
+        ? connection.format('DELETE FROM RecipePosts WHERE recipe_id = ?', [recipe_id])
+        : connection.format('DELETE FROM RecipePosts WHERE recipe_id = ? AND user_id = ?', [recipe_id, user_id]);
+
+    const [result] = await connection.execute<ResultSetHeader>(sql);
+
+    if (result.affectedRows === 0) {
+      await connection.rollback();
+      return { message: 'Media not deleted' };
+    }
+
+    if (recipe.filename) {
+      try {
+        const deleteResult = await fetchData<MessageResponse>(
+          `${process.env.UPLOAD_SERVER}/delete/${recipe.filename}`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: 'Bearer ' + token },
+          },
+        );
+        console.log('deleteResult', deleteResult);
+      } catch (e) {
+        console.error('deleteRecipe file delete error:', (e as Error).message);
+      }
+    }
+
+    await connection.commit();
+
+    return { message: 'Recipe deleted' };
+
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
   }
-
-  await connection.commit();
-
-  return {
-    message: 'Recipe deleted',
-  };
 };
+
 
 // Fetch all recipes for a user
 const fetchRecipesByUserId = async (user_id: number): Promise<Recipe[]> => {

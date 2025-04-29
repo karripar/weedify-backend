@@ -99,6 +99,7 @@ const RecipeDelete = async (
   next: NextFunction,
 ) => {
   try {
+
     const id = Number(req.params.id);
     const result = await deleteRecipe(
       id,
@@ -209,6 +210,22 @@ const updateRecipePost = async (
   next: NextFunction
 ) => {
   try {
+
+    const recipeId = Number(req.params.id);
+    const userId = res.locals.user.user_id;
+    const level_name = res.locals.user.level_name;
+
+    const recipe = await fetchRecipeById(recipeId);
+    if (!recipe) {
+      next(new CustomError('Recipe not found', 404));
+      return;
+    }
+    if (recipe.user_id !== userId && level_name !== 'Admin') {
+      next(new CustomError('You do not have permission to update this recipe', 403));
+      return;
+    }
+
+
     const recipeModifications = req.body;
 
     console.log('RecipeUpdate body:', recipeModifications);
@@ -227,20 +244,6 @@ const updateRecipePost = async (
           unit: ingredient.unit,
         }))
       : undefined;
-
-    const recipeId = Number(req.params.id);
-    const userId = res.locals.user.user_id;
-
-    // check if user owns the recipe
-    const recipe = await fetchRecipeById(recipeId);
-    if (!recipe) {
-      next(new CustomError('Recipe not found', 404));
-      return;
-    }
-    if (recipe.user_id !== userId) {
-      next(new CustomError('You do not have permission to update this recipe', 403));
-      return;
-    }
 
     console.log('Processed dietary_info:', dietaryInfo);
     // Call the updateRecipe function with recipe modifications and optional fields

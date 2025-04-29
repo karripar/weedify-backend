@@ -141,9 +141,9 @@ const checkIfEmailExists = (
         if (err) {
           reject(err);
         } else {
-          const exists: {exists: boolean} = res.body;
-          expect(exists.exists).toBe(true);
-          resolve(exists.exists);
+          const exists: {available: boolean} = res.body;
+          expect(exists.available).toBe(true);
+          resolve(exists.available);
         }
       });
   });
@@ -160,9 +160,9 @@ const checkIfUsernameExists = (
         if (err) {
           reject(err);
         } else {
-          const exists: {exists: boolean} = res.body;
-          expect(exists.exists).toBe(true);
-          resolve(exists.exists);
+          const exists: {available: boolean} = res.body;
+          expect(exists.available).toBe(true);
+          resolve(exists.available);
         }
       });
   });
