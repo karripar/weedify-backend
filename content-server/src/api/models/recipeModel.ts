@@ -114,7 +114,7 @@ const fetchRecipeById = async (recipe_id: number): Promise<Recipe> => {
 const postRecipe = async (
   recipe: Omit<RecipeWithDietaryIds, 'recipe_id' | 'created_at' | 'thumbnail'>,
   ingredients: {name: string; amount: number; unit: string}[],
-  dietary_info: number[], // dietary id's
+  dietary_info?: number[] | null, // dietary id's
 ): Promise<Recipe> => {
   const {
     user_id,
@@ -200,14 +200,17 @@ const postRecipe = async (
       }
     }
 
+    console.log('dietary info', dietary_info && dietary_info.length);
     // Insert dietary info
-    for (const diet_id of dietary_info) {
-      const [insertDietResult] = await connection.execute<ResultSetHeader>(
-        `INSERT INTO RecipeDietTypes (recipe_id, diet_type_id) VALUES (?, ?)`,
-        [recipeId, diet_id],
-      );
-      if (!insertDietResult.affectedRows) {
-        throw new CustomError(ERROR_MESSAGES.RECIPE.NOT_CREATED, 500);
+    if (dietary_info && dietary_info.length > 0) {
+      for (const diet_id of dietary_info) {
+        const [insertDietResult] = await connection.execute<ResultSetHeader>(
+          `INSERT INTO RecipeDietTypes (recipe_id, diet_type_id) VALUES (?, ?)`,
+          [recipeId, diet_id],
+        );
+        if (!insertDietResult.affectedRows) {
+          throw new CustomError(ERROR_MESSAGES.RECIPE.NOT_CREATED, 500);
+        }
       }
     }
 
@@ -367,7 +370,7 @@ const updateRecipe = async (
     >
   >,
   ingredients?: {name: string; amount: number; unit: string}[],
-  dietary_info?: number[],
+  dietary_info?: number[] | null,
 ): Promise<Recipe> => {
   const connection = await promisePool.getConnection();
   try {

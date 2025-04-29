@@ -53,7 +53,7 @@ const RecipePost = async (
         amount: string | number;
         unit: string;
       }[];
-      dietary_info: number[] | string[]; // Allow string[] in case it comes as strings
+      dietary_info?: number[] | string[] | null; // Allow string[] in case it comes as strings
     }
   >,
   res: Response<{ message: string; recipe_id: number }, { user: TokenContent }>,
@@ -67,7 +67,9 @@ const RecipePost = async (
     // dietary_info is a valid array of numbers
     const dietaryInfo = Array.isArray(req.body.dietary_info)
       ? req.body.dietary_info.map(Number).filter(num => !isNaN(num)) // Convert and filter NaN values
-      : [];
+      : null;
+
+    console.log('dietary info', dietaryInfo)
 
     const ingredients = req.body.ingredients.map(ingredient => ({
       name: ingredient.name,
@@ -217,7 +219,7 @@ const updateRecipePost = async (
       ? recipeModifications.dietary_info
       : recipeModifications.dietary_info
       ? recipeModifications.dietary_info.split(',').map(Number)
-      : [];
+      : null;
 
     // Clean ingredients (optional)
     const ingredients = Array.isArray(recipeModifications.ingredients)
