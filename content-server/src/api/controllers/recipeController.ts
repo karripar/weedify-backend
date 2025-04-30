@@ -8,6 +8,7 @@ import {
   fetchRecipesByUsername,
   fetchRecipesByTagname,
   updateRecipe,
+  fetchRecipesFromFollowedUsers
 } from '../models/recipeModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import {Recipe, TokenContent, RecipeWithDietaryIds} from 'hybrid-types/DBTypes';
@@ -313,6 +314,25 @@ const updateRecipePost = async (
   }
 };
 
+
+// Fetch recipes from followed users
+const fetchRecipesFromFollowedUsersGet = async (
+  req: Request<{}, {}, {}>,
+  res: Response<Recipe[]>,
+  next: NextFunction
+) => {
+  try {
+    const userId = res.locals.user.user_id;
+    if (!userId) {
+      throw new CustomError(ERROR_MESSAGES.RECIPE.NO_ID, 400);
+    }
+    const recipes = await fetchRecipesFromFollowedUsers(userId);
+    res.json(recipes);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   RecipeListGet,
   RecipeGet,
@@ -323,4 +343,5 @@ export {
   RecipesByUsernameGet,
   RecipesByTagnameGet,
   updateRecipePost,
+  fetchRecipesFromFollowedUsersGet
 };
