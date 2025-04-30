@@ -61,7 +61,19 @@ const BASE_QUERY = `
         FROM RecipeDietTypes rdt
         LEFT JOIN DietTypes dt ON rdt.diet_type_id = dt.diet_type_id
         WHERE rdt.recipe_id = rp.recipe_id
-    ) AS diet_types
+    ) AS diet_types,
+    (
+        SELECT JSON_OBJECT(
+            'energy_kcal', rn.energy_kcal,
+            'protein', rn.protein,
+            'fat', rn.fat,
+            'carbohydrate', rn.carbohydrate,
+            'fiber', rn.fiber,
+            'sugar', rn.sugar
+        )
+        FROM RecipeNutrition rn
+        WHERE rn.recipe_id = rp.recipe_id
+    ) AS nutrition
 FROM RecipePosts rp
 LEFT JOIN DifficultyLevels dl ON rp.difficulty_level_id = dl.difficulty_level_id
 CROSS JOIN (SELECT ? AS base_url) AS v
@@ -85,6 +97,7 @@ const fetchAllRecipes = async (
     row.ingredients = JSON.parse(row.ingredients || '[]');
     row.diet_types = JSON.parse(row.diet_types || '[]');
     row.screenshots = JSON.parse(row.screenshots || '[]');
+    row.nutrition = JSON.parse(row.nutrition || 'null'); // Lisää tämä rivi
   });
 
   return rows;
@@ -105,38 +118,62 @@ const fetchRecipeById = async (recipe_id: number): Promise<Recipe> => {
     row.ingredients = JSON.parse(row.ingredients || '[]'); // NOTICE THIS, OTHERWISE INGREDIENT WILL BE IN UGLY JSON
     row.diet_types = JSON.parse(row.diet_types || '[]');
     row.screenshots = JSON.parse(row.screenshots || '[]');
+    row.nutrition = JSON.parse(row.nutrition || 'null');
   });
 
   return rows[0];
 };
 
-// Post a new recipe with ingredients
+interface IngredientWithNutrition {
+  ingredient_id: number;
+  fineli_id: number; // Reference to Fineli database
+  name: string;
+  amount: number;
+  unit: string;
+  energy_kcal: number;
+  protein: number;
+  fat: number;
+  carbohydrate: number;
+  fiber: number;
+  sugar: number;
+}
+
+// Interface for nutrition totals with index signature
+interface NutritionTotals {
+  energy_kcal: number;
+  protein: number;
+  fat: number;
+  carbohydrate: number;
+  fiber: number;
+  sugar: number;
+  [key: string]: number; // index signature to allow string indexing
+}
+
 const postRecipe = async (
-  recipe: Omit<RecipeWithDietaryIds, 'recipe_id' | 'created_at' | 'thumbnail'>,
-  ingredients: {name: string; amount: number; unit: string}[],
-  dietary_info: number[], // dietary id's
-): Promise<Recipe> => {
-  const {
-    user_id,
-    filename,
-    filesize,
-    media_type,
-    title,
-    instructions,
-    cooking_time,
-    difficulty_level_id,
-    portions,
-  } = recipe;
-
-  console.log('postRecipe:', recipe); // Debugging
-
-  if (!difficulty_level_id) {
-    throw new Error('Missing difficulty_level_id'); // Prevent inserting null
-  }
-
+  user_id: number,
+  recipeData: RecipeWithDietaryIds,
+  ingredients: IngredientWithNutrition[],
+): Promise<{message: string; recipe_id: number}> => {
   const connection = await promisePool.getConnection();
+
   try {
     await connection.beginTransaction();
+
+    // Insert recipe basic info
+    const {
+      filename,
+      filesize,
+      media_type,
+      title,
+      instructions,
+      cooking_time,
+      difficulty_level_id,
+      portions,
+    } = recipeData;
+
+    if (!difficulty_level_id) {
+      throw new Error('Missing difficulty_level_id'); // Prevent inserting null
+    }
 
     // Insert the recipe
     const sql = `
@@ -164,44 +201,109 @@ const postRecipe = async (
     }
     const recipeId = result.insertId;
 
-    // Insert the ingredients
+    // Calculate recipe nutritional info totals (per portion)
+    const totalNutrition: NutritionTotals = ingredients.reduce(
+      (acc, ingredient) => {
+        return {
+          energy_kcal: acc.energy_kcal + ingredient.energy_kcal,
+          protein: acc.protein + ingredient.protein,
+          fat: acc.fat + ingredient.fat,
+          carbohydrate: acc.carbohydrate + ingredient.carbohydrate,
+          fiber: acc.fiber + ingredient.fiber,
+          sugar: acc.sugar + ingredient.sugar,
+        };
+      },
+      {
+        energy_kcal: 0,
+        protein: 0,
+        fat: 0,
+        carbohydrate: 0,
+        fiber: 0,
+        sugar: 0,
+      } as NutritionTotals,
+    );
+
+    // Calculate per portion
+    const portionsCount = recipeData.portions || 1; // Renamed to avoid redeclaration
+    Object.keys(totalNutrition).forEach((key) => {
+      totalNutrition[key] = totalNutrition[key] / portionsCount;
+    });
+
+    // Store nutrition information for the recipe
+    await connection.execute<ResultSetHeader>(
+      `INSERT INTO RecipeNutrition
+      (recipe_id, energy_kcal, protein, fat, carbohydrate, fiber, sugar)
+      VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        recipeId,
+        totalNutrition.energy_kcal,
+        totalNutrition.protein,
+        totalNutrition.fat,
+        totalNutrition.carbohydrate,
+        totalNutrition.fiber,
+        totalNutrition.sugar,
+      ],
+    );
+
+    // Insert ingredients with their nutritional data
     for (const ingredient of ingredients) {
-      const [ingredientRows] = await connection.execute<
-        RowDataPacket[] & Recipe[]
-      >('SELECT ingredient_id FROM Ingredients WHERE ingredient_name = ?', [
-        ingredient.name,
-      ]);
+      // First check if ingredient exists by fineli_id OR name
+      const [existingIngredients] = await connection.execute<RowDataPacket[]>(
+        'SELECT ingredient_id FROM Ingredients WHERE fineli_id = ? OR ingredient_name = ?',
+        [ingredient.fineli_id, ingredient.name],
+      );
 
-      let ingredientId: number;
+      let ingredient_id;
 
-      if (ingredientRows.length > 0) {
-        ingredientId = ingredientRows[0].ingredient_id;
+      if (existingIngredients.length > 0) {
+        ingredient_id = existingIngredients[0].ingredient_id;
+
+        await connection.execute(
+          `UPDATE Ingredients
+           SET energy_kcal = ?, protein = ?, fat = ?, carbohydrate = ?, fiber = ?, sugar = ?
+           WHERE ingredient_id = ?`,
+          [
+            ingredient.energy_kcal,
+            ingredient.protein,
+            ingredient.fat,
+            ingredient.carbohydrate,
+            ingredient.fiber,
+            ingredient.sugar,
+            ingredient_id,
+          ],
+        );
       } else {
         // Insert new ingredient
-        const [insertIngredientResult] =
-          await connection.execute<ResultSetHeader>(
-            'INSERT INTO Ingredients (ingredient_name) VALUES (?)',
-            [ingredient.name],
-          );
-        if (!insertIngredientResult.affectedRows) {
-          throw new CustomError(ERROR_MESSAGES.RECIPE.NOT_CREATED, 500);
-        }
-        ingredientId = insertIngredientResult.insertId;
+        const [result] = await connection.execute<ResultSetHeader>(
+          `INSERT INTO Ingredients
+          (ingredient_name, fineli_id, energy_kcal, protein, fat, carbohydrate, fiber, sugar)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            ingredient.name,
+            ingredient.fineli_id,
+            ingredient.energy_kcal,
+            ingredient.protein,
+            ingredient.fat,
+            ingredient.carbohydrate,
+            ingredient.fiber,
+            ingredient.sugar,
+          ],
+        );
+
+        ingredient_id = result.insertId;
       }
 
-      // Insert into RecipeIngredients
-      const [insertRecipeIngredientResult] =
-        await connection.execute<ResultSetHeader>(
-          `INSERT INTO RecipeIngredients (recipe_id, ingredient_id, amount, unit) VALUES (?, ?, ?, ?)`,
-          [recipeId, ingredientId, ingredient.amount, ingredient.unit],
-        );
-      if (!insertRecipeIngredientResult.affectedRows) {
-        throw new CustomError(ERROR_MESSAGES.RECIPE.NOT_CREATED, 500);
-      }
+      // Link ingredient to recipe
+      await connection.execute<ResultSetHeader>(
+        `INSERT INTO RecipeIngredients
+        (recipe_id, ingredient_id, amount, unit)
+        VALUES (?, ?, ?, ?)`,
+        [recipeId, ingredient_id, ingredient.amount, ingredient.unit],
+      );
     }
 
-    // Insert dietary info
-    for (const diet_id of dietary_info) {
+    // Since RecipeWithDietaryIds uses dietary_id according to the error message
+    for (const diet_id of recipeData.dietary_id || []) {
       const [insertDietResult] = await connection.execute<ResultSetHeader>(
         `INSERT INTO RecipeDietTypes (recipe_id, diet_type_id) VALUES (?, ?)`,
         [recipeId, diet_id],
@@ -212,7 +314,12 @@ const postRecipe = async (
     }
 
     await connection.commit();
-    return await fetchRecipeById(recipeId);
+    // Fix the return type to include both required properties
+    const recipe = await fetchRecipeById(recipeId);
+    return {
+      message: 'Recipe created',
+      recipe_id: recipe.recipe_id,
+    };
   } catch (error) {
     await connection.rollback();
     console.error('Error in postRecipeWithIngredients:', error);

@@ -1,4 +1,3 @@
-
 -- paths for sql-files
 -- Karri: source c:/users/karri/webdev/weedify/weedify-backend/weedify.sql;
 
@@ -240,6 +239,31 @@ INSERT INTO RecipeDietTypes (recipe_id, diet_type_id) VALUES (1, 1), (2, 2);
 INSERT INTO DietaryRestrictions (restriction_name) VALUES ('Vegetarian'), ('Vegan'), ('Gluten-Free'), ('Dairy-Free'), ('Nut-Free'), ('Halal'), ('Kosher'), ('Paleo'), ('Keto'), ('Low-Carb'), ('Mediterranean');
 
 INSERT INTO UserDietaryRestrictions (user_id, dietary_restriction_id) VALUES (1, 1), (2, 2);
+
+-- Update Ingredients table to include nutritional data and Fineli reference
+ALTER TABLE Ingredients
+ADD COLUMN fineli_id INT NULL,
+ADD COLUMN energy_kcal FLOAT NULL,
+ADD COLUMN protein FLOAT NULL,
+ADD COLUMN fat FLOAT NULL,
+ADD COLUMN carbohydrate FLOAT NULL,
+ADD COLUMN fiber FLOAT NULL,
+ADD COLUMN sugar FLOAT NULL,
+ADD INDEX idx_fineli_id (fineli_id);
+
+-- Create RecipeNutrition table for aggregated nutritional info
+CREATE TABLE IF NOT EXISTS RecipeNutrition (
+  recipe_nutrition_id INT AUTO_INCREMENT PRIMARY KEY,
+  recipe_id INT NOT NULL,
+  energy_kcal FLOAT NOT NULL,
+  protein FLOAT NOT NULL,
+  fat FLOAT NOT NULL,
+  carbohydrate FLOAT NOT NULL,
+  fiber FLOAT NOT NULL,
+  sugar FLOAT NOT NULL,
+  FOREIGN KEY (recipe_id) REFERENCES RecipePosts(recipe_id) ON DELETE CASCADE,
+  UNIQUE KEY (recipe_id)
+);
 
 
 

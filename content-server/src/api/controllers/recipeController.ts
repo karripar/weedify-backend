@@ -7,7 +7,7 @@ import {
   fetchRecipesByUserId,
   fetchRecipesByUsername,
   fetchRecipesByTagname,
-  updateRecipe
+  updateRecipe,
 } from '../models/recipeModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import {Recipe, TokenContent, RecipeWithDietaryIds} from 'hybrid-types/DBTypes';
@@ -52,12 +52,19 @@ const RecipePost = async (
         name: string;
         amount: string | number;
         unit: string;
+        fineli_id: number;
+        energy_kcal: number;
+        protein: number;
+        fat: number;
+        carbohydrate: number;
+        fiber: number;
+        sugar: number;
       }[];
       dietary_info: number[] | string[]; // Allow string[] in case it comes as strings
     }
   >,
-  res: Response<{ message: string; recipe_id: number }, { user: TokenContent }>,
-  next: NextFunction
+  res: Response<{message: string; recipe_id: number}, {user: TokenContent}>,
+  next: NextFunction,
 ) => {
   console.log('RecipePost body:', req.body);
   try {
@@ -66,21 +73,43 @@ const RecipePost = async (
 
     // dietary_info is a valid array of numbers
     const dietaryInfo = Array.isArray(req.body.dietary_info)
-      ? req.body.dietary_info.map(Number).filter(num => !isNaN(num)) // Convert and filter NaN values
+      ? req.body.dietary_info.map(Number).filter((num) => !isNaN(num))
       : [];
 
-    const ingredients = req.body.ingredients.map(ingredient => ({
+    // Update the ingredients mapping to include all required nutritional properties
+    const ingredients = req.body.ingredients.map((ingredient) => ({
+      ingredient_id: 0, // This will be assigned by the database
+      fineli_id: ingredient.fineli_id,
       name: ingredient.name,
-      amount: Number(ingredient.amount) || 0, // Default to 0 if invalid
+      amount: Number(ingredient.amount) || 0,
       unit: ingredient.unit,
+      energy_kcal: ingredient.energy_kcal || 0,
+      protein: ingredient.protein || 0,
+      fat: ingredient.fat || 0,
+      carbohydrate: ingredient.carbohydrate || 0,
+      fiber: ingredient.fiber || 0,
+      sugar: ingredient.sugar || 0,
     }));
 
     // Debugging logs
     console.log('Processed dietary_info:', dietaryInfo);
     console.log('Processed ingredients:', ingredients);
 
-    // Post the recipe
-    const response = await postRecipe(req.body, ingredients, dietaryInfo);
+    // Create a proper RecipeWithDietaryIds object with required properties
+    const recipeData: RecipeWithDietaryIds = {
+      ...req.body,
+      recipe_id: 0, // Placeholder, will be assigned by DB
+      created_at: new Date().toISOString(),
+      thumbnail: '', // Placeholder, will be generated later
+      dietary_id: dietaryInfo, // Use the preprocessed dietary info
+    };
+
+    // Post the recipe with the properly formatted data
+    const response = await postRecipe(
+      res.locals.user.user_id,
+      recipeData,
+      ingredients,
+    );
 
     // Send the response with recipe_id
     res.json({
@@ -204,9 +233,9 @@ interface RecipeUpdate {
 }
 
 const updateRecipePost = async (
-  req: Request<{ id: string }, unknown, RecipeUpdate>,
+  req: Request<{id: string}, unknown, RecipeUpdate>,
   res: Response<Recipe>,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const recipeModifications = req.body;
@@ -216,12 +245,12 @@ const updateRecipePost = async (
     const dietaryInfo = Array.isArray(recipeModifications.dietary_info)
       ? recipeModifications.dietary_info
       : recipeModifications.dietary_info
-      ? recipeModifications.dietary_info.split(',').map(Number)
-      : [];
+        ? recipeModifications.dietary_info.split(',').map(Number)
+        : [];
 
     // Clean ingredients (optional)
     const ingredients = Array.isArray(recipeModifications.ingredients)
-      ? recipeModifications.ingredients.map(ingredient => ({
+      ? recipeModifications.ingredients.map((ingredient) => ({
           name: ingredient.name,
           amount: Number(ingredient.amount) || 0, // Default to 0 if invalid
           unit: ingredient.unit,
@@ -238,13 +267,23 @@ const updateRecipePost = async (
       return;
     }
     if (recipe.user_id !== userId) {
-      next(new CustomError('You do not have permission to update this recipe', 403));
+      next(
+        new CustomError(
+          'You do not have permission to update this recipe',
+          403,
+        ),
+      );
       return;
     }
 
     console.log('Processed dietary_info:', dietaryInfo);
     // Call the updateRecipe function with recipe modifications and optional fields
-    const updatedRecipe = await updateRecipe(recipeId, recipeModifications, ingredients, dietaryInfo);
+    const updatedRecipe = await updateRecipe(
+      recipeId,
+      recipeModifications,
+      ingredients,
+      dietaryInfo,
+    );
 
     if (!updatedRecipe) {
       next(new CustomError('Recipe not found', 404));
@@ -256,7 +295,6 @@ const updateRecipePost = async (
     next(err);
   }
 };
-
 
 export {
   RecipeListGet,
