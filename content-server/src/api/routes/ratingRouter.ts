@@ -74,7 +74,7 @@ ratingRouter
    *
    * @apiUse token
    *
-   * @apiParam {Number} id rating ID
+   * @apiParam {Number} rating_id rating ID
    *
    * @apiSuccess {String} message Success message
    * @apiSuccessExample {json} Success-Response:

@@ -460,6 +460,7 @@ const fetchRecipesByUsername = async (username: string): Promise<Recipe[]> => {
     row.ingredients = JSON.parse(row.ingredients || '[]');
     row.diet_types = JSON.parse(row.diet_types || '[]');
     row.screenshots = JSON.parse(row.screenshots || '[]');
+    row.nutrition = JSON.parse(row.nutrition || 'null');
   });
 
   return rows;
@@ -542,7 +543,19 @@ const fetchRecipesFromFollowedUsers = async (
           FROM RecipeDietTypes rdt
           LEFT JOIN DietTypes dt ON rdt.diet_type_id = dt.diet_type_id
           WHERE rdt.recipe_id = rp.recipe_id
-      ) AS diet_types
+      ) AS diet_types,
+      (
+          SELECT JSON_OBJECT(
+              'energy_kcal', rn.energy_kcal,
+              'protein', rn.protein,
+              'fat', rn.fat,
+              'carbohydrate', rn.carbohydrate,
+              'fiber', rn.fiber,
+              'sugar', rn.sugar
+          )
+          FROM RecipeNutrition rn
+          WHERE rn.recipe_id = rp.recipe_id
+      ) AS nutrition
     FROM RecipePosts rp
     LEFT JOIN DifficultyLevels dl ON rp.difficulty_level_id = dl.difficulty_level_id
     CROSS JOIN (SELECT ? AS base_url) AS v
@@ -565,6 +578,7 @@ const fetchRecipesFromFollowedUsers = async (
     row.ingredients = JSON.parse(row.ingredients || '[]');
     row.diet_types = JSON.parse(row.diet_types || '[]');
     row.screenshots = JSON.parse(row.screenshots || '[]');
+    row.nutrition = JSON.parse(row.nutrition || 'null');
   });
   return rows;
 };

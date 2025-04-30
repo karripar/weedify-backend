@@ -73,6 +73,18 @@ recipeRouter
      *        "amount": 1,
      *        "unit": "g"
      *      }
+     *    ],
+     *    "nutrition": {
+     *      "energy_kcal": 112.93,
+     *      "protein": 6.5,
+     *      "fat": 1,
+     *      "carbohydrate": 14,
+     *      "fiber": 7,
+     *      "sugar": 14
+     *    }
+     *    "dietary_info": [
+     *    1,
+     *    2
      *    ]
      *  }
      * ]
@@ -298,7 +310,23 @@ recipeRouter
      *  "filename": "Filename",
      *  "filesize": 12345,
      *  "thumbnail": "Thumbnail URL",
-     *  "screenshots": ["Screenshot URL 1", "Screenshot URL 2"]
+     *  "screenshots": ["Screenshot URL 1", "Screenshot URL 2"],
+     *  "ingredients": [
+     *   {
+     *   "name": "Updated Ingredient Name",
+     *   "amount": 2,
+     *   "unit": "g"
+     *   },
+     *   {
+     *   "name": "Updated Another Ingredient",
+     *   "amount": 3,
+     *   "unit": "ml"
+     *   }
+     *  ],
+     * "dietary_info": [
+     * 1,
+     * 2
+     * ]
      * }
      *
      * @apiError (Error 400) {String} BadRequest Invalid request
@@ -595,6 +623,14 @@ recipeRouter.route('/byuser/userid/:user_id').get(
    *   "unit": "ml"
    *  }
    * ],
+   * "nutrition": {
+   *   "energy_kcal": 112.93,
+   *   "protein": 6.5,
+   *   "fat": 1,
+   *   "carbohydrate": 14,
+   *   "fiber": 7,
+   *   "sugar": 14
+   *  }
    * "dietary_info": [
    *  1,
    *  2
@@ -669,6 +705,14 @@ recipeRouter.route('/byuser/token').get(
    *   "unit": "ml"
    *  }
    * ],
+   * "nutrition": {
+   *   "energy_kcal": 112.93,
+   *   "protein": 6.5,
+   *   "fat": 1,
+   *   "carbohydrate": 14,
+   *   "fiber": 7,
+   *   "sugar": 14
+   *  }
    * "dietary_info": [
    *  1,
    *  2
@@ -744,6 +788,14 @@ recipeRouter.route('/byusername/:username').get(
    *   "unit": "ml"
    *  }
    * ],
+   * "nutrition": {
+   *   "energy_kcal": 112.93,
+   *   "protein": 6.5,
+   *   "fat": 1,
+   *   "carbohydrate": 14,
+   *   "fiber": 7,
+   *   "sugar": 14
+   *  }
    * "dietary_info": [
    *  1,
    *  2
@@ -819,6 +871,14 @@ recipeRouter.route('/bytagname/:tagname').get(
    *   "unit": "ml"
    *  }
    * ],
+   * "nutrition": {
+   *   "energy_kcal": 112.93,
+   *   "protein": 6.5,
+   *   "fat": 1,
+   *   "carbohydrate": 14,
+   *   "fiber": 7,
+   *   "sugar": 14
+   *  }
    * "dietary_info": [
    *  1,
    *  2
@@ -883,21 +943,29 @@ recipeRouter.route('/follows/followed').get(
    *    "thumbnail": "Thumbnail URL",
    *    "screenshots": ["Screenshot URL 1", "Screenshot URL 2"]
    *    "ingredients": [
-   *  {
-   *   "name": "Updated Ingredient Name",
-   *   "amount": 2,
-   *   "unit": "g"
-   *  },
-   *  {
-   *   "name": "Updated Another Ingredient",
-   *   "amount": 3,
-   *   "unit": "ml"
+   *    {
+   *      "name": "Updated Ingredient Name",
+   *      "amount": 2,
+   *      "unit": "g"
+   *    },
+   *    {
+   *      "name": "Updated Another Ingredient",
+   *      "amount": 3,
+   *      "unit": "ml"
+   *    }
+   *    ],
+   * "nutrition": {
+   *   "energy_kcal": 112.93,
+   *   "protein": 6.5,
+   *   "fat": 1,
+   *   "carbohydrate": 14,
+   *   "fiber": 7,
+   *   "sugar": 14
    *  }
-   * ],
-   * "dietary_info": [
-   *  1,
-   *  2
-   * ]
+   *  	"dietary_info": [
+   *      1,
+   *      2
+   *    ]
    *  }
    * ]
    *
