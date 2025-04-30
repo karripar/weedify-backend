@@ -489,7 +489,18 @@ const updateRecipe = async (
       'recipe_id' | 'created_at' | 'filename' | 'filesize' | 'media_type'
     >
   >,
-  ingredients?: {name: string; amount: number; unit: string}[],
+  ingredients?: {
+    name: string;
+    amount: number;
+    unit: string;
+    fineli_id?: number;
+    energy_kcal?: number;
+    protein?: number;
+    fat?: number;
+    carbohydrate?: number;
+    fiber?: number;
+    sugar?: number;
+  }[],
   dietary_info?: number[] | null,
 ): Promise<Recipe> => {
   const connection = await promisePool.getConnection();
@@ -536,25 +547,107 @@ const updateRecipe = async (
         [recipe_id],
       );
 
+      // Calculate recipe nutritional info totals
+      const totalNutrition: NutritionTotals = ingredients.reduce(
+        (acc, ingredient) => {
+          return {
+            energy_kcal: acc.energy_kcal + (ingredient.energy_kcal || 0),
+            protein: acc.protein + (ingredient.protein || 0),
+            fat: acc.fat + (ingredient.fat || 0),
+            carbohydrate: acc.carbohydrate + (ingredient.carbohydrate || 0),
+            fiber: acc.fiber + (ingredient.fiber || 0),
+            sugar: acc.sugar + (ingredient.sugar || 0),
+          };
+        },
+        {
+          energy_kcal: 0,
+          protein: 0,
+          fat: 0,
+          carbohydrate: 0,
+          fiber: 0,
+          sugar: 0,
+        } as NutritionTotals,
+      );
+
+      // Calculate per portion
+      const portionsCount = updateData.portions || 1;
+      Object.keys(totalNutrition).forEach((key) => {
+        totalNutrition[key] = totalNutrition[key] / portionsCount;
+      });
+
+      // Update recipe nutrition information
+      await connection.execute(
+        'DELETE FROM RecipeNutrition WHERE recipe_id = ?',
+        [recipe_id],
+      );
+
+      await connection.execute(
+        `INSERT INTO RecipeNutrition
+        (recipe_id, energy_kcal, protein, fat, carbohydrate, fiber, sugar)
+        VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          recipe_id,
+          totalNutrition.energy_kcal,
+          totalNutrition.protein,
+          totalNutrition.fat,
+          totalNutrition.carbohydrate,
+          totalNutrition.fiber,
+          totalNutrition.sugar,
+        ],
+      );
+
       for (const ingredient of ingredients) {
         const [rows] = await connection.execute<RowDataPacket[]>(
-          `SELECT ingredient_id FROM Ingredients WHERE ingredient_name = ?`,
-          [ingredient.name],
+          `SELECT ingredient_id FROM Ingredients WHERE ingredient_name = ? OR (fineli_id = ? AND fineli_id > 0)`,
+          [ingredient.name, ingredient.fineli_id || 0],
         );
 
         let ingredient_id: number;
         if (rows.length > 0) {
           ingredient_id = rows[0].ingredient_id;
+
+          // Update ingredient nutritional data if available
+          if (ingredient.energy_kcal !== undefined) {
+            await connection.execute(
+              `UPDATE Ingredients
+               SET fineli_id = ?, energy_kcal = ?, protein = ?, fat = ?, carbohydrate = ?, fiber = ?, sugar = ?
+               WHERE ingredient_id = ?`,
+              [
+                ingredient.fineli_id || 0,
+                ingredient.energy_kcal || 0,
+                ingredient.protein || 0,
+                ingredient.fat || 0,
+                ingredient.carbohydrate || 0,
+                ingredient.fiber || 0,
+                ingredient.sugar || 0,
+                ingredient_id,
+              ],
+            );
+          }
         } else {
+          // Insert new ingredient with nutritional data
           const [result] = await connection.execute<ResultSetHeader>(
-            `INSERT INTO Ingredients (ingredient_name) VALUES (?)`,
-            [ingredient.name],
+            `INSERT INTO Ingredients
+            (ingredient_name, fineli_id, energy_kcal, protein, fat, carbohydrate, fiber, sugar)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              ingredient.name,
+              ingredient.fineli_id || 0,
+              ingredient.energy_kcal || 0,
+              ingredient.protein || 0,
+              ingredient.fat || 0,
+              ingredient.carbohydrate || 0,
+              ingredient.fiber || 0,
+              ingredient.sugar || 0,
+            ],
           );
           ingredient_id = result.insertId;
         }
 
+        // Link ingredient to recipe
         await connection.execute<ResultSetHeader>(
-          `INSERT INTO RecipeIngredients (recipe_id, ingredient_id, amount, unit) VALUES (?, ?, ?, ?)`,
+          `INSERT INTO RecipeIngredients (recipe_id, ingredient_id, amount, unit)
+           VALUES (?, ?, ?, ?)`,
           [recipe_id, ingredient_id, ingredient.amount, ingredient.unit],
         );
       }

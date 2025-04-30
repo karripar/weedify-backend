@@ -229,6 +229,13 @@ interface RecipeUpdate {
     name: string;
     amount: string | number;
     unit: string;
+    fineli_id?: number;
+    energy_kcal?: number;
+    protein?: number;
+    fat?: number;
+    carbohydrate?: number;
+    fiber?: number;
+    sugar?: number;
   }[];
   dietary_info?: number[] | string | null;
 }
@@ -268,16 +275,25 @@ const updateRecipePost = async (
         ? recipeModifications.dietary_info.split(',').map(Number)
         : null;
 
-    // Clean ingredients (optional)
+    // Clean ingredients and preserve nutritional data
     const ingredients = Array.isArray(recipeModifications.ingredients)
       ? recipeModifications.ingredients.map((ingredient) => ({
           name: ingredient.name,
-          amount: Number(ingredient.amount) || 0, // Default to 0 if invalid
+          amount: Number(ingredient.amount) || 0,
           unit: ingredient.unit,
+          fineli_id: ingredient.fineli_id || 0,
+          energy_kcal: ingredient.energy_kcal || 0,
+          protein: ingredient.protein || 0,
+          fat: ingredient.fat || 0,
+          carbohydrate: ingredient.carbohydrate || 0,
+          fiber: ingredient.fiber || 0,
+          sugar: ingredient.sugar || 0,
         }))
       : undefined;
 
     console.log('Processed dietary_info:', dietaryInfo);
+    console.log('Processed ingredients with nutrition:', ingredients);
+
     // Call the updateRecipe function with recipe modifications and optional fields
     const updatedRecipe = await updateRecipe(
       recipeId,
