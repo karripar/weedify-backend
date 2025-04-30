@@ -40,10 +40,9 @@ const Login = async (
       bio: user.bio,
       email: user.email,
       created_at: user.created_at,
-      dietary_info: user.dietary_info,
       level_name: user.level_name,
       user_level_id: user.user_level_id,
-
+      dietary_info: user.dietary_info,
     };
 
     const tokenContent: TokenContent = {

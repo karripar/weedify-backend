@@ -89,11 +89,11 @@ followRouter.route('/').post(
 
 followRouter.route('/byuser/followed/:user_id').get(
   /**
-   * @api {get} /follows/byuser/followed/:user_id Get Followed Users by User
+   * @api {get} /follows/byuser/followed/:user_id Get Followed Users by User Id
    * @apiName GetFollowedUsersByUser
    * @apiGroup followGroup
    * @apiVersion 1.0.0
-   * @apiDescription Get followed users by user
+   * @apiDescription Get followed users by user ID
    * @apiPermission token
    *
    * @apiUse token

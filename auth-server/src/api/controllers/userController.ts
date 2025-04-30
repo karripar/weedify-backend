@@ -13,16 +13,15 @@ import {
   postProfilePic,
   putProfilePic,
   getProfilePicById,
-  updateUserDetails
+  updateUserDetails,
+  changeUserLevel
 } from '../models/userModel';
 import {
   ProfilePicture,
   User,
   TokenContent,
   UserWithNoPassword,
-
 } from 'hybrid-types/DBTypes';
-
 
 const salt = bcrypt.genSaltSync(12);
 
@@ -54,8 +53,7 @@ const userByUsernameGet = async (
   } catch (err) {
     next(err);
   }
-}
-
+};
 
 const userByIdGet = async (
   req: Request<{id: string}>,
@@ -69,7 +67,6 @@ const userByIdGet = async (
     next(err);
   }
 };
-
 
 const profilePictureGet = async (
   req: Request<{user_id: string}>,
@@ -85,10 +82,16 @@ const profilePictureGet = async (
   }
 };
 
-
 const profilePicPost = async (
-  req: Request<unknown, unknown, Omit<ProfilePicture, 'profile_picture_id' | 'created_at'>>,
-  res: Response<{message: string, profile_picture_id: number}, {user: TokenContent}>,
+  req: Request<
+    unknown,
+    unknown,
+    Omit<ProfilePicture, 'profile_picture_id' | 'created_at'>
+  >,
+  res: Response<
+    {message: string; profile_picture_id: number},
+    {user: TokenContent}
+  >,
   next: NextFunction,
 ) => {
   try {
@@ -103,12 +106,11 @@ const profilePicPost = async (
     res.json({
       message: 'Profile picture uploaded',
       profile_picture_id: response.profile_picture_id,
-    })
+    });
   } catch (err) {
     next(err);
   }
 };
-
 
 const profilePicturePut = async (
   req: Request<{user_id: string}, unknown, ProfilePicture>,
@@ -119,12 +121,16 @@ const profilePicturePut = async (
     const profilePic = req.body;
     const user_id = Number(res.locals.user.user_id);
 
-    if (!profilePic.filename || !profilePic.filesize || !profilePic.media_type) {
+    if (
+      !profilePic.filename ||
+      !profilePic.filesize ||
+      !profilePic.media_type
+    ) {
       next(new CustomError('Missing required fields', 400));
       return;
     }
 
-    const result = await putProfilePic(profilePic, user_id)
+    const result = await putProfilePic(profilePic, user_id);
     res.json(result);
   } catch (err) {
     console.log('Error in profilePicturePut:', err);
@@ -132,20 +138,20 @@ const profilePicturePut = async (
   }
 };
 
-
 const profilePicByIdGet = async (
   req: Request<{profile_picture_id: string}>,
   res: Response<ProfilePicture>,
   next: NextFunction,
 ) => {
   try {
-    const profilePic = await getProfilePicById(Number(req.params.profile_picture_id));
+    const profilePic = await getProfilePicById(
+      Number(req.params.profile_picture_id),
+    );
     res.json(profilePic);
   } catch (err) {
     next(err);
   }
-}
-
+};
 
 const userPost = async (
   req: Request<unknown, unknown, User>,
@@ -237,7 +243,6 @@ const deleteUserAsAdmin = async (
   }
 };
 
-
 const deleteUserAsUser = async (
   req: Request,
   res: Response<UserDeleteResponse, {user: TokenContent; token: string}>,
@@ -264,7 +269,6 @@ const deleteUserAsUser = async (
     next(err);
   }
 };
-
 
 const checkToken = async (
   req: Request,
@@ -296,12 +300,11 @@ interface UserWithDietaryInfo {
   dietary_info?: number[] | string | null; // can be a string, array, null, or undefined
 }
 
-
 // generic function to update user details with one call and optional body items
 const updateUser = async (
-  req: Request<{ user_id: string }, unknown, UserWithDietaryInfo>,
+  req: Request<{user_id: string}, unknown, UserWithDietaryInfo>,
   res: Response<UserWithDietaryInfo>,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userModifications = req.body;
@@ -310,8 +313,8 @@ const updateUser = async (
     const diets = Array.isArray(userModifications.dietary_info)
       ? userModifications.dietary_info
       : userModifications.dietary_info
-      ? userModifications.dietary_info.split(',').map(Number)
-      : [];
+        ? userModifications.dietary_info.split(',').map(Number)
+        : [];
 
     const user_id = res.locals.user.user_id;
     const user = await updateUserDetails(user_id, userModifications, diets);
@@ -323,6 +326,48 @@ const updateUser = async (
 
     res.json(user);
   } catch (err) {
+    next(err);
+  }
+};
+
+const makeUserInfluencer = async (
+  req: Request<{user_id: string}>,
+  res: Response<{message: string}>,
+  next: NextFunction,
+) => {
+  try {
+    const user = res.locals.user;
+    if (user.level_name !== 'Admin') {
+      next(new CustomError('Unauthorized', 401));
+      return;
+    }
+    const user_id = Number(req.params.user_id);
+
+    await changeUserLevel(user_id, 3);
+
+    res.json({message: 'User made influencer'});
+  } catch (err) {
+    console.log('Error in makeUserInfluencer:', err);
+    next(err);
+  }
+};
+
+const demoteToUser = async (
+  req: Request<{user_id: string}>,
+  res: Response<{message: string}>,
+  next: NextFunction,
+) => {
+  try {
+    const user = res.locals.user;
+    if (user.level_name !== 'Admin') {
+      next(new CustomError('Unauthorized', 401));
+      return;
+    }
+    const user_id = Number(req.params.user_id);
+    await changeUserLevel(user_id, 2);
+    res.json({message: 'User demoted to user'});
+  } catch (err) {
+    console.log('Error in demoteToUser:', err);
     next(err);
   }
 };
@@ -343,5 +388,7 @@ export {
   profilePicPost,
   profilePicturePut,
   profilePicByIdGet,
-  updateUser
+  updateUser,
+  makeUserInfluencer,
+  demoteToUser,
 };

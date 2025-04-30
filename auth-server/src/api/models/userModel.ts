@@ -6,7 +6,7 @@ import {
   UserWithNoPassword,
   ProfilePicture,
   UserWithDietaryInfo,
-  UserCheck
+  UserCheck,
 } from 'hybrid-types/DBTypes';
 import {UserDeleteResponse, MessageResponse} from 'hybrid-types/MessageTypes';
 import CustomError from '../../classes/CustomError';
@@ -26,9 +26,7 @@ const getUsers = async (): Promise<UserWithNoPassword[]> => {
   return rows;
 };
 
-const getUserById = async (
-  user_id: number,
-): Promise<UserWithDietaryInfo> => {
+const getUserById = async (user_id: number): Promise<UserWithDietaryInfo> => {
   const [rows] = await promisePool.execute<
     UserWithDietaryInfo[] & RowDataPacket[]
   >(
@@ -55,24 +53,22 @@ const getUserById = async (
     JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
     LEFT JOIN ProfilePicture ON Users.user_id = ProfilePicture.user_id
     WHERE Users.user_id = ?;`,
-    [user_id]
+    [user_id],
   );
 
   // dietary info is only for the user
   rows.forEach((row) => {
     if (row.dietary_restrictions) {
-       row.dietary_restrictions = JSON.parse(row.dietary_restrictions || '[]');
+      row.dietary_restrictions = JSON.parse(row.dietary_restrictions || '[]');
     }
   });
 
   return rows[0]; // Handle case where user is not found
 };
 
-
-
 const getUserByEmail = async (email: string): Promise<UserWithLevel | null> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & UserWithLevel[]>(
-    `SELECT Users.user_id, Users.username, Users.bio, Users.password, Users.email, Users.created_at, UserLevels.level_name, ProfilePicture.filename
+    `SELECT Users.user_id, Users.username, Users.bio, Users.password, Users.email, Users.user_level_id, Users.created_at, UserLevels.level_name, ProfilePicture.filename
      FROM Users
      JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
      LEFT JOIN ProfilePicture ON Users.user_id = ProfilePicture.user_id
@@ -198,6 +194,9 @@ const deleteUser = async (
     await connection.execute('DELETE FROM Comments WHERE user_id = ?', [
       user_id,
     ]);
+    await connection.execute('DELETE FROM Notifications WHERE user_id = ?', [
+      user_id,
+    ]);
     await connection.execute('DELETE FROM RecipePosts WHERE user_id = ?', [
       user_id,
     ]);
@@ -272,7 +271,12 @@ const postProfilePic = async (
 ): Promise<ProfilePicture> => {
   const {user_id, filename, filesize, media_type} = media; // media_type is always 'image' so no need to pass it in
   const sql = `INSERT INTO ProfilePicture (user_id, filename, filesize, media_type) VALUES (?, ?, ?, ?)`;
-  const stmt = promisePool.format(sql, [user_id, filename, filesize, media_type]);
+  const stmt = promisePool.format(sql, [
+    user_id,
+    filename,
+    filesize,
+    media_type,
+  ]);
   const [result] = await promisePool.execute<ResultSetHeader>(stmt);
 
   if (result.affectedRows === 0) {
@@ -302,8 +306,7 @@ const getProfilePicById = async (
 const getProfilePicByUserId = async (
   user_id: number,
 ): Promise<ProfilePicture> => {
-  const [rows] = await promisePool.execute<
-    RowDataPacket[] & ProfilePicture[]>(
+  const [rows] = await promisePool.execute<RowDataPacket[] & ProfilePicture[]>(
     `SELECT
       pp.profile_picture_id,
       pp.user_id,
@@ -326,7 +329,6 @@ const putProfilePic = async (
   media: ProfilePicture,
   user_id: number,
 ): Promise<ProfilePicture> => {
-
   const {filename, filesize, media_type} = media;
 
   const existingProfilePic = await checkProfilePicExists(user_id);
@@ -364,7 +366,6 @@ const putProfilePic = async (
         body: JSON.stringify({user_id}),
       };
 
-      //
       const deleteResult = await fetchData<MessageResponse>(
         `${process.env.UPLOAD_SERVER}/profile/picture/${absolutePath}`,
         options,
@@ -375,10 +376,8 @@ const putProfilePic = async (
     }
   }
 
-
   return await getProfilePicByUserId(user_id);
 };
-
 
 const updateUserDetails = async (
   user_id: number,
@@ -402,7 +401,7 @@ const updateUserDetails = async (
       updateFields.push('email = ?');
       updateValues.push(userDetails.email);
     }
-    if (userDetails.bio) {
+    if (userDetails.bio !== undefined) {
       updateFields.push('bio = ?');
       updateValues.push(userDetails.bio);
     }
@@ -411,24 +410,27 @@ const updateUserDetails = async (
       updateValues.push(user_id);
       await connection.execute(
         `UPDATE Users SET ${updateFields.join(', ')} WHERE user_id = ?`,
-        updateValues
+        updateValues,
       );
     }
 
     // Remove existing dietary restrictions
     await connection.execute(
       `DELETE FROM UserDietaryRestrictions WHERE user_id = ?`,
-      [user_id]
+      [user_id],
     );
 
     // Insert new dietary restrictions
     if (dietaryRestrictions.length > 0) {
       const placeholders = dietaryRestrictions.map(() => '(?, ?)').join(', ');
-      const values = dietaryRestrictions.flatMap(restrictionId => [user_id, restrictionId]);
+      const values = dietaryRestrictions.flatMap((restrictionId) => [
+        user_id,
+        restrictionId,
+      ]);
 
       await connection.execute(
         `INSERT INTO UserDietaryRestrictions (user_id, dietary_restriction_id) VALUES ${placeholders}`,
-        values
+        values,
       );
     }
 
@@ -444,30 +446,39 @@ const updateUserDetails = async (
   }
 };
 
-
 const getUserExistsByEmail = async (
   email: string,
 ): Promise<Partial<UserCheck>> => {
-  const [rows] = await promisePool.execute<
-    RowDataPacket[] & Partial<User>[]>(
-      'SELECT user_id, email FROM Users WHERE email = ?',
+  const [rows] = await promisePool.execute<RowDataPacket[] & Partial<User>[]>(
+    'SELECT user_id, email FROM Users WHERE email = ?',
     [email],
-    );
+  );
 
-    return rows[0];
+  return rows[0];
 };
 
-const getUsernameById = async (
-  user_id: number,
-): Promise<Partial<User>> => {
-  const [rows] = await promisePool.execute<
-    RowDataPacket[] & Partial<User>[]>(
-      'SELECT username FROM Users WHERE user_id = ?',
+const getUsernameById = async (user_id: number): Promise<Partial<User>> => {
+  const [rows] = await promisePool.execute<RowDataPacket[] & Partial<User>[]>(
+    'SELECT username FROM Users WHERE user_id = ?',
     [user_id],
-    );
-    return rows[0];
-}
+  );
+  return rows[0];
+};
 
+const changeUserLevel = async (
+  user_id: number,
+  user_level_id: number,
+): Promise<MessageResponse> => {
+  const sql = `UPDATE Users SET user_level_id = ? WHERE user_id = ?`;
+  const stmt = promisePool.format(sql, [user_level_id, user_id]);
+  const [result] = await promisePool.execute<ResultSetHeader>(stmt);
+
+  if (result.affectedRows === 0) {
+    throw new CustomError('User not updated', 500);
+  }
+
+  return {message: 'User level updated successfully'};
+}
 
 export {
   getUsers,
@@ -483,4 +494,5 @@ export {
   updateUserDetails,
   getUserExistsByEmail,
   getUsernameById,
+  changeUserLevel
 };

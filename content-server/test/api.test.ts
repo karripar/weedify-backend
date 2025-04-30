@@ -20,6 +20,11 @@ import {
   deleteUser,
   getUserByToken,
   getUserWithInvalidToken,
+  checkIfEmailAvailable,
+  checkIfUsernameAvailable,
+  getEmailNotAvailable,
+  getUsernameNotAvailable,
+  updateUser
 } from './controllers/testUser';
 import {
   uploadFile,
@@ -92,7 +97,7 @@ import {
 
 if (!process.env.AUTH_SERVER || !process.env.UPLOAD_SERVER) {
   throw new Error(
-    'Missing some of following variables: AUTH_SERVER, UPLOAD_SERVER, CONTENT_SERVER',
+    'Missing some of following env variables: AUTH_SERVER, UPLOAD_SERVER',
   );
 }
 
@@ -107,6 +112,8 @@ and one video and name it "ducks.mp4"
 
 const authApi = process.env.AUTH_SERVER;
 const uploadApi = process.env.UPLOAD_SERVER;
+const testName = 'Test_' + randomstring.generate(5);
+const testEmail = randomstring.generate(5) + '@test.com';
 
 describe('Content Server API Tests', () => {
   let token: string;
@@ -116,6 +123,14 @@ describe('Content Server API Tests', () => {
     email: randomstring.generate(5) + '@test.com',
     password: 'Abcd-1234',
   };
+
+  it('It should result in email being available', async () => {
+    await checkIfEmailAvailable(authApi, testEmail);
+  });
+
+  it('It should result in username being available', async () => {
+    await checkIfUsernameAvailable(authApi, testName);
+  });
 
   it('should create a new user', async () => {
     await registerUser(authApi, '/users', testUser);
@@ -128,6 +143,14 @@ describe('Content Server API Tests', () => {
     });
     token = loginResponse.token;
     user = loginResponse.user;
+  });
+
+  it('should get username not available', async () => {
+    await getUsernameNotAvailable(authApi, user.username);
+  });
+
+  it('should get email not available', async () => {
+    await getEmailNotAvailable(authApi, user.email);
   });
 
   let uploadResponse: UploadResponse;
@@ -442,7 +465,12 @@ describe('Content Server API Tests', () => {
     await deleteRecipe(app, testRecipeItem.recipe_id, token);
   });
 
+  it('should fail to delete the already deleted recipe', async () => {
+    await deleteNotFoundMediaItem(app, testRecipeItem.recipe_id, token);
+  });
+
   it('should delete the user', async () => {
     await deleteUser(authApi, '/users', token);
   });
-});
+})
+
