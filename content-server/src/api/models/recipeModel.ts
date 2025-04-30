@@ -357,6 +357,95 @@ const fetchRecipesByTagname = async (tagname: string): Promise<Recipe[]> => {
   return rows;
 };
 
+
+// fetch all recipes from followed users
+const fetchRecipesFromFollowedUsers = async (
+  user_id: number,
+  page: number | undefined = undefined,
+  limit: number | undefined = undefined,
+): Promise<Recipe[]> => {
+  const offset = page && limit ? (page - 1) * limit : undefined;
+
+  const sql = `
+    SELECT
+      rp.recipe_id,
+      rp.user_id,
+      CONCAT(v.base_url, rp.filename) AS filename,
+      rp.filesize,
+      rp.media_type,
+      rp.title,
+      rp.instructions,
+      rp.cooking_time,
+      rp.portions,
+      rp.created_at,
+      dl.level_name AS difficulty_level,
+      (SELECT COUNT(*) FROM Likes WHERE Likes.recipe_id = rp.recipe_id) AS likes_count,
+      CASE
+          WHEN rp.media_type LIKE '%image%'
+          THEN CONCAT(v.base_url, rp.filename, '-thumb.png')
+          ELSE CONCAT(v.base_url, rp.filename, '-animation.gif')
+      END AS thumbnail,
+      CASE
+          WHEN rp.media_type NOT LIKE '%image%'
+          THEN JSON_ARRAY(
+              CONCAT(v.base_url, rp.filename, '-thumb-1.png'),
+              CONCAT(v.base_url, rp.filename, '-thumb-2.png'),
+              CONCAT(v.base_url, rp.filename, '-thumb-3.png'),
+              CONCAT(v.base_url, rp.filename, '-thumb-4.png'),
+              CONCAT(v.base_url, rp.filename, '-thumb-5.png')
+          )
+          ELSE NULL
+      END AS screenshots,
+      (
+          SELECT JSON_ARRAYAGG(
+              JSON_OBJECT(
+                  'ingredient_id', i.ingredient_id,
+                  'name', i.ingredient_name,
+                  'amount', ri.amount,
+                  'unit', ri.unit
+              )
+          )
+          FROM RecipeIngredients ri
+          LEFT JOIN Ingredients i ON ri.ingredient_id = i.ingredient_id
+          WHERE ri.recipe_id = rp.recipe_id
+      ) AS ingredients,
+      (
+          SELECT JSON_ARRAYAGG(
+              JSON_OBJECT(
+                  'diet_type_id', dt.diet_type_id,
+                  'name', dt.diet_type_name
+              )
+          )
+          FROM RecipeDietTypes rdt
+          LEFT JOIN DietTypes dt ON rdt.diet_type_id = dt.diet_type_id
+          WHERE rdt.recipe_id = rp.recipe_id
+      ) AS diet_types
+    FROM RecipePosts rp
+    LEFT JOIN DifficultyLevels dl ON rp.difficulty_level_id = dl.difficulty_level_id
+    CROSS JOIN (SELECT ? AS base_url) AS v
+    WHERE rp.user_id IN (
+      SELECT followed_id
+      FROM Follows
+      WHERE follower_id = ?
+    )
+    GROUP BY rp.recipe_id
+    ORDER BY rp.created_at DESC
+    ${limit ? 'LIMIT ? OFFSET ?' : ''}
+  `;
+  const params = limit
+    ? [uploadPath, user_id, limit, offset]
+    : [uploadPath, user_id];
+  const stmt = promisePool.format(sql, params);
+  console.log(stmt); // Debugging
+  const [rows] = await promisePool.execute<RowDataPacket[] & Recipe[]>(stmt);
+  rows.forEach((row) => {
+    row.ingredients = JSON.parse(row.ingredients || '[]');
+    row.diet_types = JSON.parse(row.diet_types || '[]');
+    row.screenshots = JSON.parse(row.screenshots || '[]');
+  });
+  return rows;
+};
+
 // Update a recipe with optional fields (choose which to update)
 const updateRecipe = async (
   recipe_id: number,
@@ -472,4 +561,5 @@ export {
   fetchRecipesByUsername,
   fetchRecipesByTagname,
   updateRecipe,
+  fetchRecipesFromFollowedUsers,
 };

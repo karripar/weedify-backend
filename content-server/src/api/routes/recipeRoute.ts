@@ -9,6 +9,7 @@ import {
   RecipesByUsernameGet,
   RecipesByTagnameGet,
   updateRecipePost,
+  fetchRecipesFromFollowedUsersGet,
 } from '../controllers/recipeController';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
@@ -581,7 +582,23 @@ recipeRouter.route('/byuser/userid/:user_id').get(
    *    "filename": "Filename",
    *    "filesize": 12345,
    *    "thumbnail": "Thumbnail URL",
-   *    "screenshots": ["Screenshot URL 1", "Screenshot URL 2"]
+   *    "screenshots": ["Screenshot URL 1", "Screenshot URL 2"],
+   *    "ingredients": [
+   *  {
+   *   "name": "Updated Ingredient Name",
+   *   "amount": 2,
+   *   "unit": "g"
+   *  },
+   *  {
+   *   "name": "Updated Another Ingredient",
+   *   "amount": 3,
+   *   "unit": "ml"
+   *  }
+   * ],
+   * "dietary_info": [
+   *  1,
+   *  2
+   * ]
    *  }
    * ]
    *
@@ -639,7 +656,23 @@ recipeRouter.route('/byuser/token').get(
    *    "filename": "Filename",
    *    "filesize": 12345,
    *    "thumbnail": "Thumbnail URL",
-   *    "screenshots": ["Screenshot URL 1", "Screenshot URL 2"]
+   *    "screenshots": ["Screenshot URL 1", "Screenshot URL 2"],
+   *    "ingredients": [
+   *  {
+   *   "name": "Updated Ingredient Name",
+   *   "amount": 2,
+   *   "unit": "g"
+   *  },
+   *  {
+   *   "name": "Updated Another Ingredient",
+   *   "amount": 3,
+   *   "unit": "ml"
+   *  }
+   * ],
+   * "dietary_info": [
+   *  1,
+   *  2
+   * ]
    *  }
    * ]
    *
@@ -698,7 +731,23 @@ recipeRouter.route('/byusername/:username').get(
    *    "filename": "Filename",
    *    "filesize": 12345,
    *    "thumbnail": "Thumbnail URL",
-   *    "screenshots": ["Screenshot URL 1", "Screenshot URL 2"]
+   *    "screenshots": ["Screenshot URL 1", "Screenshot URL 2"],
+   *    "ingredients": [
+   *  {
+   *   "name": "Updated Ingredient Name",
+   *   "amount": 2,
+   *   "unit": "g"
+   *  },
+   *  {
+   *   "name": "Updated Another Ingredient",
+   *   "amount": 3,
+   *   "unit": "ml"
+   *  }
+   * ],
+   * "dietary_info": [
+   *  1,
+   *  2
+   * ]
    *  }
    * ]
    *
@@ -757,7 +806,23 @@ recipeRouter.route('/bytagname/:tagname').get(
    *    "filename": "Filename",
    *    "filesize": 12345,
    *    "thumbnail": "Thumbnail URL",
-   *    "screenshots": ["Screenshot URL 1", "Screenshot URL 2"]
+   *    "screenshots": ["Screenshot URL 1", "Screenshot URL 2"],
+   *    "ingredients": [
+   *  {
+   *   "name": "Updated Ingredient Name",
+   *   "amount": 2,
+   *   "unit": "g"
+   *  },
+   *  {
+   *   "name": "Updated Another Ingredient",
+   *   "amount": 3,
+   *   "unit": "ml"
+   *  }
+   * ],
+   * "dietary_info": [
+   *  1,
+   *  2
+   * ]
    *  }
    * ]
    *
@@ -786,6 +851,81 @@ recipeRouter.route('/bytagname/:tagname').get(
   param('tagname').notEmpty().isString().trim().escape(),
   validationErrors,
   RecipesByTagnameGet,
+);
+
+recipeRouter.route('/follows/followed').get(
+  /**
+   * @api {get} /recipes/followedusers Get Recipes from Followed Users
+   * @apiName GetRecipesFromFollowedUsers
+   * @apiGroup recipeGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Get all recipes from followed users
+   * @apiPermission token
+   *
+   * @apiUse token
+   *
+   * @apiSuccess {object[]} recipes List of recipes
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   *  {
+   *    "recipe_id": 1,
+   *    "user_id": 1,
+   *    "createdAt": "2021-07-01T00:00:00.000Z"
+   *    "title": "Recipe Title",
+   *    "instructions": "Recipe instructions",
+   *    "diet_type": "Diet type",
+   *    "cooking_time": "Cooking time",
+   *    "portions": 4,
+   *    "media_type": "Media type",
+   *    "filename": "Filename",
+   *    "filesize": 12345,
+   *    "thumbnail": "Thumbnail URL",
+   *    "screenshots": ["Screenshot URL 1", "Screenshot URL 2"]
+   *    "ingredients": [
+   *  {
+   *   "name": "Updated Ingredient Name",
+   *   "amount": 2,
+   *   "unit": "g"
+   *  },
+   *  {
+   *   "name": "Updated Another Ingredient",
+   *   "amount": 3,
+   *   "unit": "ml"
+   *  }
+   * ],
+   * "dietary_info": [
+   *  1,
+   *  2
+   * ]
+   *  }
+   * ]
+   *
+   * @apiError (Error 400) {String} BadRequest Invalid request
+   * @apiErrorExample {json} BadRequest
+   * HTTP/1.1 400 Bad Request
+   * {
+   *   "error": "Bad Request"
+   * }
+   * }
+   * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+   * @apiErrorExample {json} Unauthorized
+   *   HTTP/1.1 401 Unauthorized
+   *  {
+   *   "error": "Unauthorized"
+   * }
+   * }
+   * @apiError (Error 500) {String} InternalServerError Error fetching recipes
+   * @apiErrorExample {json} InternalServerError
+   * HTTP/1.1 500 Internal Server Error
+   * {
+   *   "error": "Internal Server Error"
+   * }
+   * }
+   */
+  authenticate,
+  validationErrors,
+  fetchRecipesFromFollowedUsersGet,
 );
 
 export default recipeRouter;
