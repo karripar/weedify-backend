@@ -56,6 +56,10 @@ const getUserById = async (user_id: number): Promise<UserWithDietaryInfo> => {
     [user_id],
   );
 
+  const user = rows[0];
+  if (user && user.filename) {
+    user.filename = `${profilePicDir}${user.filename}`;
+  }
   // dietary info is only for the user
   rows.forEach((row) => {
     if (row.dietary_restrictions) {
@@ -478,7 +482,7 @@ const changeUserLevel = async (
   }
 
   return {message: 'User level updated successfully'};
-}
+};
 
 export {
   getUsers,
@@ -494,5 +498,5 @@ export {
   updateUserDetails,
   getUserExistsByEmail,
   getUsernameById,
-  changeUserLevel
+  changeUserLevel,
 };
