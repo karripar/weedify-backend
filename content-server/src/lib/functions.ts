@@ -38,4 +38,16 @@ const handleErrors = (message: string, status: number, next: NextFunction) => {
   next(new CustomError(message, status));
 }
 
-export { corsSettings, customLog, fetchData, handleErrors };
+const safeJsonParse = <T>(value: unknown): T | null => {
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value) as T;
+    } catch (e) {
+      console.error('Failed to parse JSON:', e);
+      return null;
+    }
+  }
+  return value as T;
+}
+
+export { corsSettings, customLog, fetchData, handleErrors, safeJsonParse };

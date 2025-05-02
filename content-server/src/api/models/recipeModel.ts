@@ -4,7 +4,7 @@ import {Recipe, RecipeWithDietaryIds, UserLevel} from 'hybrid-types/DBTypes';
 import {promisePool} from '../../lib/db';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import CustomError from '../../classes/customError';
-import {fetchData} from '../../lib/functions';
+import {fetchData, safeJsonParse} from '../../lib/functions';
 const uploadPath = process.env.UPLOAD_URL;
 
 // Fetch all recipes
@@ -94,10 +94,10 @@ const fetchAllRecipes = async (
 
   const [rows] = await promisePool.execute<RowDataPacket[] & Recipe[]>(stmt);
   rows.forEach((row) => {
-    row.ingredients = JSON.parse(row.ingredients || '[]');
-    row.diet_types = JSON.parse(row.diet_types || '[]');
-    row.screenshots = JSON.parse(row.screenshots || '[]');
-    row.nutrition = JSON.parse(row.nutrition || 'null'); // Lisää tämä rivi
+    row.ingredients = safeJsonParse(row.ingredients || '[]');
+    row.diet_types = safeJsonParse(row.diet_types || '[]');
+    row.screenshots = safeJsonParse(row.screenshots || '[]');
+    row.nutrition = safeJsonParse(row.nutrition || 'null'); // Lisää tämä rivi
   });
 
   return rows;
@@ -115,10 +115,10 @@ const fetchRecipeById = async (recipe_id: number): Promise<Recipe> => {
   }
 
   rows.forEach((row) => {
-    row.ingredients = JSON.parse(row.ingredients || '[]'); // NOTICE THIS, OTHERWISE INGREDIENT WILL BE IN UGLY JSON
-    row.diet_types = JSON.parse(row.diet_types || '[]');
-    row.screenshots = JSON.parse(row.screenshots || '[]');
-    row.nutrition = JSON.parse(row.nutrition || 'null');
+    row.ingredients = safeJsonParse(row.ingredients || '[]'); // NOTICE THIS, OTHERWISE INGREDIENT WILL BE IN UGLY JSON
+    row.diet_types = safeJsonParse(row.diet_types || '[]');
+    row.screenshots = safeJsonParse(row.screenshots || '[]');
+    row.nutrition = safeJsonParse(row.nutrition || 'null');
   });
 
   return rows[0];
@@ -436,10 +436,10 @@ const fetchRecipesByUserId = async (user_id: number): Promise<Recipe[]> => {
   );
 
   rows.forEach((row) => {
-    row.ingredients = JSON.parse(row.ingredients || '[]');
-    row.diet_types = JSON.parse(row.diet_types || '[]');
-    row.screenshots = JSON.parse(row.screenshots || '[]');
-    row.nutrition = JSON.parse(row.nutrition || 'null');
+    row.ingredients = safeJsonParse(row.ingredients || '[]');
+    row.diet_types = safeJsonParse(row.diet_types || '[]');
+    row.screenshots = safeJsonParse(row.screenshots || '[]');
+    row.nutrition = safeJsonParse(row.nutrition || 'null');
   });
 
   return rows;
@@ -458,10 +458,10 @@ const fetchRecipesByUsername = async (username: string): Promise<Recipe[]> => {
   }
 
   rows.forEach((row) => {
-    row.ingredients = JSON.parse(row.ingredients || '[]');
-    row.diet_types = JSON.parse(row.diet_types || '[]');
-    row.screenshots = JSON.parse(row.screenshots || '[]');
-    row.nutrition = JSON.parse(row.nutrition || 'null');
+    row.ingredients = safeJsonParse(row.ingredients || '[]');
+    row.diet_types = safeJsonParse(row.diet_types || '[]');
+    row.screenshots = safeJsonParse(row.screenshots || '[]');
+    row.nutrition = safeJsonParse(row.nutrition || 'null');
   });
 
   return rows;
@@ -575,10 +575,10 @@ const fetchRecipesFromFollowedUsers = async (
   console.log(stmt); // Debugging
   const [rows] = await promisePool.execute<RowDataPacket[] & Recipe[]>(stmt);
   rows.forEach((row) => {
-    row.ingredients = JSON.parse(row.ingredients || '[]');
-    row.diet_types = JSON.parse(row.diet_types || '[]');
-    row.screenshots = JSON.parse(row.screenshots || '[]');
-    row.nutrition = JSON.parse(row.nutrition || 'null');
+    row.ingredients = safeJsonParse(row.ingredients || '[]');
+    row.diet_types = safeJsonParse(row.diet_types || '[]');
+    row.screenshots = safeJsonParse(row.screenshots || '[]');
+    row.nutrition = safeJsonParse(row.nutrition || 'null');
   });
   return rows;
 };
