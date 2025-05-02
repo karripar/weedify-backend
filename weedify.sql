@@ -90,7 +90,7 @@ CREATE TABLE RecipePosts (
 -- Create table Ingredients
 CREATE TABLE Ingredients (
     ingredient_id INT PRIMARY KEY AUTO_INCREMENT,
-    ingredient_name VARCHAR(50) NOT NULL UNIQUE
+    ingredient_name VARCHAR(150) NOT NULL UNIQUE
 );
 
 -- Create table RecipeIngredients

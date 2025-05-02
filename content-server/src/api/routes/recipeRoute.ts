@@ -245,7 +245,7 @@ recipeRouter
     body('ingredients.*.name')
       .notEmpty()
       .isString()
-      .isLength({min: 3, max: 50})
+      .isLength({min: 3, max: 150})
       .trim()
       .escape(),
     body('ingredients.*.amount')
@@ -546,7 +546,7 @@ recipeRouter
     body('ingredients.*.name')
       .notEmpty()
       .isString()
-      .isLength({min: 3, max: 50})
+      .isLength({min: 3, max: 150})
       .trim()
       .escape(),
     body('ingredients.*.amount')
