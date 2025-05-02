@@ -10,7 +10,7 @@ import {
 } from 'hybrid-types/DBTypes';
 import {UserDeleteResponse, MessageResponse} from 'hybrid-types/MessageTypes';
 import CustomError from '../../classes/CustomError';
-import {customLog, fetchData} from '../../lib/functions';
+import {customLog, fetchData, safeJsonParse} from '../../lib/functions';
 
 const profilePicDir = process.env.PROFILE_UPLOAD_URL;
 
@@ -63,7 +63,7 @@ const getUserById = async (user_id: number): Promise<UserWithDietaryInfo> => {
   // dietary info is only for the user
   rows.forEach((row) => {
     if (row.dietary_restrictions) {
-      row.dietary_restrictions = JSON.parse(row.dietary_restrictions || '[]');
+      row.dietary_restrictions = safeJsonParse(row.dietary_restrictions || '[]');
     }
   });
 
