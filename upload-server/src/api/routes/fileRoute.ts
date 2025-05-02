@@ -74,7 +74,7 @@ const doUpload = (
       req.file.mimetype.includes('video'))
     ) {
       next();
-    }
+    } 
   });
 }
 

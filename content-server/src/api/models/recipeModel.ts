@@ -439,6 +439,7 @@ const fetchRecipesByUserId = async (user_id: number): Promise<Recipe[]> => {
     row.ingredients = safeJsonParse(row.ingredients || '[]');
     row.diet_types = safeJsonParse(row.diet_types || '[]');
     row.screenshots = safeJsonParse(row.screenshots || '[]');
+    row.nutrition = safeJsonParse(row.nutrition || 'null');
   });
 
   return rows;
@@ -480,7 +481,6 @@ const fetchRecipesByTagname = async (tagname: string): Promise<Recipe[]> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & Recipe[]>(stmt);
   return rows;
 };
-
 
 // fetch all recipes from followed users
 const fetchRecipesFromFollowedUsers = async (
