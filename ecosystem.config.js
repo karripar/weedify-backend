@@ -2,7 +2,7 @@ module.exports = {
     apps: [
         {
             name: 'auth',
-            script: './auth-server/src/index.ts',
+            script: './auth-server/dist/index.js',
             interpreter: "node",
             autorestart: true,
             env: {
@@ -12,7 +12,7 @@ module.exports = {
         },
         {
             name: 'content',
-            script: './content-server/src/index.ts',
+            script: './content-server/dist/index.js',
             interpreter: "node",
             autorestart: true,
             env: {
@@ -22,7 +22,7 @@ module.exports = {
         },
         {
             name: 'upload',
-            script: './upload-server/src/index.ts',
+            script: './upload-server/dist/index.js',
             interpreter: "node",
             autorestart: true,
             env: {
