@@ -83,7 +83,7 @@ const fetchAllRecipes = async (
   page: number | undefined = undefined,
   limit: number | undefined = undefined,
 ): Promise<Recipe[]> => {
-  const offset = page && limit ? (page - 1) * limit : undefined;
+  const offset = page && limit ? (page - 1) * limit : 0;
 
   // Use BASE_QUERY
   const sql = limit ? `${BASE_QUERY} LIMIT ? OFFSET ?` : BASE_QUERY;
@@ -97,7 +97,7 @@ const fetchAllRecipes = async (
     row.ingredients = safeJsonParse(row.ingredients || '[]');
     row.diet_types = safeJsonParse(row.diet_types || '[]');
     row.screenshots = safeJsonParse(row.screenshots || '[]');
-    row.nutrition = safeJsonParse(row.nutrition || 'null'); // Lisää tämä rivi
+    row.nutrition = safeJsonParse(row.nutrition || null); // Lisää tämä rivi
   });
 
   return rows;
@@ -488,7 +488,7 @@ const fetchRecipesFromFollowedUsers = async (
   page: number | undefined = undefined,
   limit: number | undefined = undefined,
 ): Promise<Recipe[]> => {
-  const offset = page && limit ? (page - 1) * limit : undefined;
+  const offset = page && limit ? (page - 1) * limit : 0;
 
   const sql = `
     SELECT
