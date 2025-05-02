@@ -3,6 +3,7 @@ module.exports = {
         {
             name: 'auth',
             script: './auth-server/src/index.ts',
+            interpreter: "node",
             autorestart: true,
             env: {
                 PORT: 3001,
@@ -12,6 +13,7 @@ module.exports = {
         {
             name: 'content',
             script: './content-server/src/index.ts',
+            interpreter: "node",
             autorestart: true,
             env: {
                 PORT: 3002,
@@ -21,6 +23,7 @@ module.exports = {
         {
             name: 'upload',
             script: './upload-server/src/index.ts',
+            interpreter: "node",
             autorestart: true,
             env: {
                 PORT: 3003,
