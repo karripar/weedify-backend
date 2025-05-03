@@ -8,7 +8,7 @@ import {
   fetchRecipesByUsername,
   fetchRecipesByTagname,
   updateRecipe,
-  fetchRecipesFromFollowedUsers
+  fetchRecipesFromFollowedUsers,
 } from '../models/recipeModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import {Recipe, TokenContent, RecipeWithDietaryIds} from 'hybrid-types/DBTypes';
@@ -279,9 +279,9 @@ const updateRecipePost = async (
     // Clean ingredients and preserve nutritional data
     const ingredients = Array.isArray(recipeModifications.ingredients)
       ? recipeModifications.ingredients.map((ingredient) => ({
-          name: ingredient.name,
+          name: ingredient.name || '',
           amount: Number(ingredient.amount) || 0,
-          unit: ingredient.unit,
+          unit: ingredient.unit || '',
           fineli_id: ingredient.fineli_id || 0,
           energy_kcal: ingredient.energy_kcal || 0,
           protein: ingredient.protein || 0,
@@ -290,7 +290,7 @@ const updateRecipePost = async (
           fiber: ingredient.fiber || 0,
           sugar: ingredient.sugar || 0,
         }))
-      : undefined;
+      : []; // Default to an empty array if ingredients isn't an array
 
     console.log('Processed dietary_info:', dietaryInfo);
     console.log('Processed ingredients with nutrition:', ingredients);
@@ -314,12 +314,11 @@ const updateRecipePost = async (
   }
 };
 
-
 // Fetch recipes from followed users
 const fetchRecipesFromFollowedUsersGet = async (
   req: Request<{}, {}, {}>,
   res: Response<Recipe[]>,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userId = res.locals.user.user_id;
@@ -343,5 +342,5 @@ export {
   RecipesByUsernameGet,
   RecipesByTagnameGet,
   updateRecipePost,
-  fetchRecipesFromFollowedUsersGet
+  fetchRecipesFromFollowedUsersGet,
 };

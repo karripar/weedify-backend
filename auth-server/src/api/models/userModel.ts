@@ -405,7 +405,7 @@ const updateUserDetails = async (
       updateFields.push('email = ?');
       updateValues.push(userDetails.email);
     }
-    if (userDetails.bio !== undefined) {
+    if (userDetails.bio !== null) {
       updateFields.push('bio = ?');
       updateValues.push(userDetails.bio);
     }
