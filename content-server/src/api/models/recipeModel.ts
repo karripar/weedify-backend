@@ -7,7 +7,7 @@ import CustomError from '../../classes/customError';
 import {fetchData, safeJsonParse} from '../../lib/functions';
 const uploadPath = process.env.UPLOAD_URL;
 
-// Fetch all recipes
+// Fetch all recipes with this hell of a query
 const BASE_QUERY = `
   SELECT
     rp.recipe_id,
@@ -348,12 +348,12 @@ const deleteRecipe = async (
   }
 
   if (user_id !== recipe.user_id && level_name !== 'Admin') {
-    return new CustomError(ERROR_MESSAGES.RECIPE.NOT_AUTHORIZED, 403);
+    return new CustomError(ERROR_MESSAGES.RECIPE.NOT_AUTHORIZED, 403); // if user is not admin or owner
   }
 
   if (recipe.filename) {
     recipe.filename = recipe.filename.replace(
-      process.env.UPLOAD_URL as string,
+      process.env.UPLOAD_URL as string, // remove base URL
       '',
     );
   }
@@ -370,6 +370,7 @@ const deleteRecipe = async (
       recipe_id,
     ]);
 
+    // Delete recipe based on user level
     const sql =
       level_name === 'Admin'
         ? connection.format('DELETE FROM RecipePosts WHERE recipe_id = ?', [
@@ -390,7 +391,7 @@ const deleteRecipe = async (
     if (recipe.filename) {
       try {
         const deleteResult = await fetchData<MessageResponse>(
-          `${process.env.UPLOAD_SERVER}/delete/${recipe.filename}`,
+          `${process.env.UPLOAD_SERVER}/delete/${recipe.filename}`, // use the filename without base URL
           {
             method: 'DELETE',
             headers: {Authorization: 'Bearer ' + token},
@@ -710,7 +711,7 @@ const updateRecipe = async (
           ingredient_id = rows[0].ingredient_id;
 
           // Update ingredient nutritional data if available
-          if (ingredient.energy_kcal !== undefined) {
+          if (ingredient.energy_kcal !== null) {
             await connection.execute(
               `UPDATE Ingredients
                SET fineli_id = ?, energy_kcal = ?, protein = ?, fat = ?, carbohydrate = ?, fiber = ?, sugar = ?

@@ -32,6 +32,11 @@ const validationErrors = (req: Request, res: Response, next: NextFunction) => {
   next();
 }
 
+const isDecimalWithTwoPlaces = (value: number): boolean => {
+  return /^(\d+)(\.\d{1,2})?$/.test(value.toString());
+};
+
+
 // Middleware to authenticate the user
 const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -59,4 +64,4 @@ const authenticate = async (req: Request, res: Response, next: NextFunction) => 
 }
 
 
-export {notFound, errorHandler, validationErrors, authenticate};
+export {notFound, errorHandler, validationErrors, authenticate, isDecimalWithTwoPlaces};

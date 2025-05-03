@@ -7,7 +7,6 @@ import {
   RecipesByUserGet,
   RecipesByTokenGet,
   RecipesByUsernameGet,
-  RecipesByTagnameGet,
   updateRecipePost,
   fetchRecipesFromFollowedUsersGet,
 } from '../controllers/recipeController';
@@ -82,9 +81,11 @@ recipeRouter
      *      "fiber": 7,
      *      "sugar": 14
      *    }
-     *    "dietary_info": [
-     *    1,
-     *    2
+     *    "diet_types": [
+     *     {
+     *      "diet_type_id": 1,
+     *     "name": "Diet Type Name"
+     *    }
      *    ]
      *  }
      * ]
@@ -116,10 +117,20 @@ recipeRouter
      * @apiBody {string} media_type Media type of the recipe file from the upload response
      * @apiBody {string} filename Filename of the recipe from the upload response
      * @apiBody {number} filesize Filesize of the recipe from the upload response
+     * @apiBody {number} difficulty_level_id Difficulty level of the recipe (1-3)
+     * @apiBody {number} portions Portions of the recipe
      * @apiBody {object[]} ingredients List of ingredients
      * @apiBody {string} ingredients.name Name of the ingredient
      * @apiBody {number} ingredients.amount Amount of the ingredient in decimal format or integer
      * @apiBody {string} ingredients.unit Unit of the ingredient
+     * @apiBody {number} ingredients.fineli_id Fineli API ID of the ingredient
+     * @apiBody {number} ingredients.energy_kcal Energy in kcal of the ingredient
+     * @apiBody {number} ingredients.protein Protein content of the ingredient
+     * @apiBody {number} ingredients.fat Fat content of the ingredient
+     * @apiBody {number} ingredients.carbohydrate Carbohydrate content of the ingredient
+     * @apiBody {number} ingredients.fiber Fiber content of the ingredient
+     * @apiBody {number} ingredients.sugar Sugar content of the ingredient
+     *
      * @apiBody {number[]} dietary_info List of dietary info IDs
      *
      * @apiExample {json} Request-Example:
@@ -136,12 +147,26 @@ recipeRouter
      *  {
      *   "name": "Ingredient Name",
      *   "amount": 1,
-     *   "unit": "g"
+     *   "unit": "g",
+     *   "fineli_id": 123,
+     *   "energy_kcal": 100,
+     *   "protein": 5,
+     *   "fat": 1,
+     *   "carbohydrate": 10,
+     *   "fiber": 2,
+     *   "sugar": 5
      *  },
      *  {
      *   "name": "Another Ingredient",
      *   "amount": 2,
-     *   "unit": "ml"
+     *   "unit": "ml",
+     *   "fineli_id": 12345,
+     *   "energy_kcal": 100,
+     *   "protein": 5,
+     *   "fat": 1,
+     *   "carbohydrate": 10,
+     *   "fiber": 2,
+     *   "sugar": 5
      *  }
      * ],
      * "dietary_info": [
@@ -261,6 +286,30 @@ recipeRouter
       .isLength({min: 1, max: 20})
       .trim()
       .escape(),
+    body('ingredients.*.fineli_id')
+      .notEmpty()
+      .isNumeric()
+      .isInt({min: 1})
+      .toInt()
+      .trim(),
+    body('ingredients.*.energy_kcal')
+      .isDecimal({decimal_digits: '0,2'})
+      .trim(),
+    body('ingredients.*.protein')
+      .isDecimal({decimal_digits: '0,2'})
+      .trim(),
+    body('ingredients.*.fat')
+      .isDecimal({decimal_digits: '0,2'})
+      .trim(),
+    body('ingredients.*.carbohydrate')
+      .isDecimal({decimal_digits: '0,2'})
+      .trim(),
+    body('ingredients.*.fiber')
+      .isDecimal({decimal_digits: '0,2'})
+      .trim(),
+    body('ingredients.*.sugar')
+      .isDecimal({decimal_digits: '0,2'})
+      .trim(),
     body('dietary_info')
       .optional()
       .isArray()
@@ -323,10 +372,12 @@ recipeRouter
      *   "unit": "ml"
      *   }
      *  ],
-     * "dietary_info": [
-     * 1,
-     * 2
-     * ]
+     *    "diet_types": [
+     *     {
+     *      "diet_type_id": 1,
+     *     "name": "Diet Type Name"
+     *    }
+     *    ]
      * }
      *
      * @apiError (Error 400) {String} BadRequest Invalid request
@@ -434,8 +485,14 @@ recipeRouter
      * @apiBody {string} ingredients.name Name of the ingredient
      * @apiBody {number} ingredients.amount Amount of the ingredient in decimal format or integer
      * @apiBody {string} ingredients.unit Unit of the ingredient
+     * @apiBody {number} ingredients.fineli_id Fineli API ID of the ingredient
+     * @apiBody {number} ingredients.energy_kcal Energy in kcal of the ingredient
+     * @apiBody {number} ingredients.protein Protein content of the ingredient
+     * @apiBody {number} ingredients.fat Fat content of the ingredient
+     * @apiBody {number} ingredients.carbohydrate Carbohydrate content of the ingredient
+     * @apiBody {number} ingredients.fiber Fiber content of the ingredient
+     * @apiBody {number} ingredients.sugar Sugar content of the ingredient
      * @apiBody {number[]} dietary_info List of dietary info IDs
-     *
      * @apiExample {json} Request-Example:
      * {
      *  "title": "Updated Recipe Title",
@@ -447,12 +504,26 @@ recipeRouter
      *  {
      *   "name": "Updated Ingredient Name",
      *   "amount": 2,
-     *   "unit": "g"
+     *   "unit": "g",
+     *   "fineli_id": 12345,
+     *   "energy_kcal": 100,
+     *   "protein": 5,
+     *   "fat": 1,
+     *   "carbohydrate": 10,
+     *   "fiber": 2,
+     *   "sugar": 5
      *  },
      *  {
      *   "name": "Updated Another Ingredient",
      *   "amount": 3,
-     *   "unit": "ml"
+     *   "unit": "ml",
+     *   "fineli_id": 12345,
+     *   "energy_kcal": 100,
+     *   "protein": 5,
+     *   "fat": 1,
+     *   "carbohydrate": 10,
+     *   "fiber": 2,
+     *   "sugar": 5
      *  }
      * ],
      * "dietary_info": [
@@ -562,6 +633,30 @@ recipeRouter
       .isLength({min: 1, max: 20})
       .trim()
       .escape(),
+    body('ingredients.*.fineli_id')
+      .notEmpty()
+      .isNumeric()
+      .isInt({min: 1})
+      .toInt()
+      .trim(),
+    body('ingredients.*.energy_kcal')
+      .isDecimal({decimal_digits: '0,2'})
+      .trim(),
+    body('ingredients.*.protein')
+      .isDecimal({decimal_digits: '0,2'})
+      .trim(),
+    body('ingredients.*.fat')
+      .isDecimal({decimal_digits: '0,2'})
+      .trim(),
+    body('ingredients.*.carbohydrate')
+      .isDecimal({decimal_digits: '0,2'})
+      .trim(),
+    body('ingredients.*.fiber')
+      .isDecimal({decimal_digits: '0,2'})
+      .trim(),
+    body('ingredients.*.sugar')
+      .isDecimal({decimal_digits: '0,2'})
+      .trim(),
     body('dietary_info')
       .optional()
       .isArray()
@@ -631,10 +726,12 @@ recipeRouter.route('/byuser/userid/:user_id').get(
    *   "fiber": 7,
    *   "sugar": 14
    *  }
-   * "dietary_info": [
-   *  1,
-   *  2
-   * ]
+   *  "diet_types": [
+   *    {
+   *      "diet_type_id": 1,
+   *      "name": "Diet Type Name"
+   *    }
+   *    ]
    *  }
    * ]
    *
@@ -713,10 +810,12 @@ recipeRouter.route('/byuser/token').get(
    *   "fiber": 7,
    *   "sugar": 14
    *  }
-   * "dietary_info": [
-   *  1,
-   *  2
-   * ]
+   *    "diet_types": [
+   *     {
+   *      "diet_type_id": 1,
+   *     "name": "Diet Type Name"
+   *    }
+   *    ]
    *  }
    * ]
    *
@@ -796,10 +895,12 @@ recipeRouter.route('/byusername/:username').get(
    *   "fiber": 7,
    *   "sugar": 14
    *  }
-   * "dietary_info": [
-   *  1,
-   *  2
-   * ]
+   *    "diet_types": [
+   *     {
+   *      "diet_type_id": 1,
+   *     "name": "Diet Type Name"
+   *    }
+   *    ]
    *  }
    * ]
    *
@@ -830,88 +931,7 @@ recipeRouter.route('/byusername/:username').get(
   RecipesByUsernameGet,
 );
 
-recipeRouter.route('/bytagname/:tagname').get(
-  /**
-   * @api {get} /recipes/bytagname/:tagname Get Recipes by Tagname
-   * @apiName GetRecipesByTagname
-   * @apiGroup recipeGroup
-   * @apiVersion 1.0.0
-   * @apiDescription Get all recipes by tagname
-   * @apiPermission none
-   *
-   * @apiParam {string} tagname Tagname
-   *
-   * @apiSuccess {object[]} recipes List of recipes
-   * @apiSuccessExample {json} Success-Response:
-   * HTTP/1.1 200 OK
-   * [
-   *  {
-   *    "recipe_id": 1,
-   *    "user_id": 1,
-   *    "createdAt": "2021-07-01T00:00:00.000Z"
-   *    "title": "Recipe Title",
-   *    "instructions": "Recipe instructions",
-   *    "diet_type": "Diet type",
-   *    "cooking_time": "Cooking time",
-   *    "portions": 4,
-   *    "media_type": "Media type",
-   *    "filename": "Filename",
-   *    "filesize": 12345,
-   *    "thumbnail": "Thumbnail URL",
-   *    "screenshots": ["Screenshot URL 1", "Screenshot URL 2"],
-   *    "ingredients": [
-   *  {
-   *   "name": "Updated Ingredient Name",
-   *   "amount": 2,
-   *   "unit": "g"
-   *  },
-   *  {
-   *   "name": "Updated Another Ingredient",
-   *   "amount": 3,
-   *   "unit": "ml"
-   *  }
-   * ],
-   * "nutrition": {
-   *   "energy_kcal": 112.93,
-   *   "protein": 6.5,
-   *   "fat": 1,
-   *   "carbohydrate": 14,
-   *   "fiber": 7,
-   *   "sugar": 14
-   *  }
-   * "dietary_info": [
-   *  1,
-   *  2
-   * ]
-   *  }
-   * ]
-   *
-   * @apiError (Error 400) {String} BadRequest Invalid request
-   * @apiErrorExample {json} BadRequest
-   * HTTP/1.1 400 Bad Request
-   * {
-   *   "error": "Bad Request"
-   * }
-   * }
-   * @apiError (Error 404) {String} NotFound Recipe not found
-   * @apiErrorExample {json} NotFound
-   * HTTP/1.1 404 Not Found
-   * {
-   *   "error": "Recipe not found"
-   * }
-   * }
-   * @apiError (Error 500) {String} InternalServerError Error fetching recipes
-   * @apiErrorExample {json} InternalServerError
-   * HTTP/1.1 500 Internal Server Error
-   * {
-   *   "error": "Internal Server Error"
-   * }
-   * }
-   */
-  param('tagname').notEmpty().isString().trim().escape(),
-  validationErrors,
-  RecipesByTagnameGet,
-);
+
 
 recipeRouter.route('/follows/followed').get(
   /**
@@ -962,9 +982,11 @@ recipeRouter.route('/follows/followed').get(
    *   "fiber": 7,
    *   "sugar": 14
    *  }
-   *  	"dietary_info": [
-   *      1,
-   *      2
+   *    "diet_types": [
+   *     {
+   *      "diet_type_id": 1,
+   *     "name": "Diet Type Name"
+   *    }
    *    ]
    *  }
    * ]
