@@ -17,7 +17,7 @@ const router = express.Router();
 
 router.get('/', (req: Request, res: Response<MessageResponse>) => {
   res.json({
-    message: 'routes: under construction',
+    message: 'Routes in use: /recipes, /likes, /ratings, /comments, /follows, /notifications, /favorites, /dietary, /ingredients',
   });
 });
 
