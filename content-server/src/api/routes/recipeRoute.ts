@@ -935,7 +935,7 @@ recipeRouter.route('/byusername/:username').get(
 
 recipeRouter.route('/follows/followed').get(
   /**
-   * @api {get} /recipes/followedusers Get Recipes from Followed Users
+   * @api {get} /recipes/follows/followed Get Recipes from Followed Users
    * @apiName GetRecipesFromFollowedUsers
    * @apiGroup recipeGroup
    * @apiVersion 1.0.0

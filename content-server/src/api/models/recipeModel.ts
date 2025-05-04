@@ -41,6 +41,7 @@ const BASE_QUERY = `
     (
         SELECT JSON_ARRAYAGG(
             JSON_OBJECT(
+                'fineli_id', i.fineli_id,
                 'ingredient_id', i.ingredient_id,
                 'name', i.ingredient_name,
                 'amount', ri.amount,
@@ -524,6 +525,7 @@ const fetchRecipesFromFollowedUsers = async (
       (
           SELECT JSON_ARRAYAGG(
               JSON_OBJECT(
+                  'fineli_id', i.fineli_id,
                   'ingredient_id', i.ingredient_id,
                   'name', i.ingredient_name,
                   'amount', ri.amount,

@@ -740,14 +740,14 @@ router.put(
    * @apiBody {String} [username] Username of the user
    * @apiBody {String} [email] Email of the user
    * @apiBody {String} [bio] Bio of the user
-   * @apiBody {String} [dietary] Dietary of the user
+   * @apiBody {String} [dietary_info] Dietary of the user
    *
    * @apiExample {json} Request-Example:
    * {
    *   "username": "new_username",
    *   "email": "test@email.com",
    *   "bio": "New bio",
-   *   "dietary": [
+   *   "dietary_info": [
    *     1,
    *     2
    * ]
@@ -773,7 +773,7 @@ router.put(
    *  "level_name": "User",
    *  "filename": "profile.jpg",
    *  "bio": "New bio",
-   *  "dietary": [
+   *  "dietary_restrictions": [
    *    {
    *      "dietary_restriction_id": 1,
    *      "name": "Vegetarian"
@@ -847,7 +847,6 @@ router.put(
     .optional()
     .isEmail()
     .trim()
-    .normalizeEmail()
     .isEmail()
     .withMessage('Invalid email'),
   body('bio')

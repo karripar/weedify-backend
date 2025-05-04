@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 import {
   User,
-  UserWithDietaryIds,
   UserWithDietaryInfo,
 } from 'hybrid-types/DBTypes';
 import request from 'supertest';
@@ -206,14 +205,23 @@ const getUsernameNotAvailable = (
   });
 };
 
+type userWithDiets = {
+  user_id: number;
+  username: string;
+  email: string;
+  bio: string;
+  dietary_info: number[];
+};
+
 const updateUser = (
   url: string | Application,
+  path: string,
   token: string,
-  user: Partial<UserWithDietaryIds>,
+  user: Partial<userWithDiets>,
 ): Promise<UserWithDietaryInfo> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .put('/api/v1/users')
+      .put(path)
       .set('Authorization', `Bearer ${token}`)
       .send(user)
       .expect(200, (err, res) => {
@@ -223,6 +231,8 @@ const updateUser = (
           const updatedUser: UserWithDietaryInfo = res.body;
           expect(updatedUser.username).toBe(user.username);
           expect(updatedUser.email).toBe(user.email);
+          expect(updatedUser.bio).toBe(user.bio);
+          expect(updatedUser.dietary_restrictions).not.toBe('');
           resolve(updatedUser);
         }
       });

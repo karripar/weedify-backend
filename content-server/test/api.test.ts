@@ -9,6 +9,8 @@ import {
   RecipeWithDietaryIds,
   RecipeWithDietaryInfo,
   ProfilePicture,
+  UserWithDietaryIds,
+  UserWithDietaryInfo,
 } from 'hybrid-types/DBTypes';
 import app from '../src/app';
 import randomstring from 'randomstring';
@@ -37,6 +39,8 @@ import {
   postInvalidRecipe,
   getRecipesByUserId,
   getRecipesByToken,
+  updateRecipe,
+  getFollowedUsersRecipes
 } from './controllers/testRecipe';
 import {
   postLike,
@@ -175,8 +179,29 @@ describe('Content Server API Tests', () => {
         difficulty_level_id: 1,
         portions: 4,
         ingredients: [
-          {name: 'Avokado', amount: 1, unit: 'kpl'},
-          {name: 'Kananmuna', amount: 2, unit: 'kpl'},
+          {
+            name: 'Avokado',
+            amount: 1,
+            unit: 'kpl',
+            fineli_id: 345,
+            energy_kcal: 100,
+            protein: 5,
+            fat: 1,
+            carbohydrate: 10,
+            fiber: 2,
+            sugar: 5},
+          {
+            name: 'Kananmuna',
+            amount: 2,
+            unit: 'kpl',
+            fineli_id: 34,
+            energy_kcal: 100,
+            protein: 5,
+            fat: 1,
+            carbohydrate: 10,
+            fiber: 2,
+            sugar: 5
+          },
         ],
         dietary_info: [1, 2],
       };
@@ -232,8 +257,8 @@ describe('Content Server API Tests', () => {
     difficulty_level_id: 19, // invalid difficulty level
     portions: 0, // invalid portions
     ingredients: [
-      {name: 'Avokado', amount: 1, unit: 'kpl'},
-      {name: 'Kananmuna', amount: 2, unit: 'kpl'},
+      {name: 'Kurkku', amount: 1, unit: 'kpl'},
+      {name: 'Appelsiini', amount: 2, unit: 'kpl'}, // missing required fields
     ],
     dietary_info: [1, 2],
   };
@@ -265,6 +290,51 @@ describe('Content Server API Tests', () => {
 
   it('should get not found like', async () => {
     await getNotFoundLike(app, 99999999);
+  });
+
+  it('should update the recipe', async () => {
+    const updatedRecipe = {
+      title: 'Updated test recipe',
+      instructions: 'These are the updated instructions for the test recipe. Please follow them carefully.',
+      cooking_time: 20,
+      difficulty_level_id: 2,
+      portions: 4,
+      ingredients: [
+        {
+          name: 'Updated ingredient',
+          amount: 2,
+          unit: 'kpl',
+          fineli_id: 123,
+          energy_kcal: 200,
+          protein: 10,
+          fat: 2,
+          carbohydrate: 20,
+          fiber: 4,
+          sugar: 10,
+        },
+        {
+          name: 'Another updated ingredient',
+          amount: 3,
+          unit: 'kpl',
+          fineli_id: 456,
+          energy_kcal: 300,
+          protein: 15,
+          fat: 3,
+          carbohydrate: 30,
+          fiber: 6,
+          sugar: 15,
+        },
+      ],
+      dietary_info: [1, 2],
+    };
+
+    await updateRecipe(
+      app,
+      '/api/v1/recipes/' + testRecipeItem.recipe_id,
+      token,
+      testRecipeItem.recipe_id,
+      updatedRecipe,
+    );
   });
 
   it('should post invalid like and fail', async () => {
@@ -328,6 +398,10 @@ describe('Content Server API Tests', () => {
     if (response.length > 0) {
       testFollowId = response[0].follow_id;
     }
+  });
+
+  it('Should get followed users recipes', async () => {
+    await getFollowedUsersRecipes(app, token);
   });
 
   it('Should delete the follow', async () => {
@@ -394,6 +468,16 @@ describe('Content Server API Tests', () => {
         profileItem,
       );
     }
+  });
+
+  it('should update user details', async () => {
+    const updatedUser = {
+      username: 'Updated_' + randomstring.generate(5),
+      email: randomstring.generate(5) + '@test.com',
+      bio: 'This is an updated bio',
+      dietary_info: [1, 2],
+    };
+    await updateUser(authApi, '/users/user/update', token, updatedUser);
   });
 
   it('Should get profile picture', async () => {

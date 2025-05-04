@@ -1,7 +1,8 @@
 import {
   RecipeWithDietaryInfo,
   RecipeWithDietaryIds,
-  PartialFullRecipe
+  PartialFullRecipe,
+  RecipeWithAllFields
 } from 'hybrid-types/DBTypes';
 import {MessageResponse, UploadResponse} from 'hybrid-types/MessageTypes';
 import request from 'supertest';
@@ -64,6 +65,40 @@ const getRecipes = (
   });
 };
 
+const getFollowedUsersRecipes = (
+  urL: string | Application,
+  token: string,
+): Promise<PartialFullRecipe[]> => {
+  return new Promise((resolve, reject) => {
+    request(urL)
+      .get('/api/v1/recipes/follows/followed')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200, (err, res) => {
+        if (err) {
+          reject(err);
+        } else {
+          const recipes: PartialFullRecipe[] = res.body;
+          expect(recipes.length).toBeGreaterThan(0);
+          recipes.forEach((recipe) => {
+            expect(recipe.recipe_id).toBeGreaterThan(0);
+            expect(recipe.title).not.toBe('');
+            expect(recipe.instructions).not.toBe('');
+            expect(recipe.cooking_time).toBeGreaterThan(0);
+            expect(recipe.filename).not.toBe('');
+            expect(recipe.filesize).toBeGreaterThan(0);
+            expect(recipe.media_type).not.toBe('');
+            expect(recipe.diet_types).not.toBe('');
+            expect(recipe.user_id).toBeGreaterThan(0);
+            expect(recipe.portions).toBeGreaterThan(0);
+            expect(recipe.difficulty_level).not.toBe('');
+            expect(recipe.difficulty_level).not.toBe('');
+            resolve(recipes);
+          });
+        }
+      });
+  });
+};
+
 const getRecipeById = (
   urL: string | Application,
   recipeId: number,
@@ -113,6 +148,40 @@ const postRecipe = (
           reject(err);
         } else {
           resolve(res.body);
+        }
+      });
+  });
+};
+
+const updateRecipe = (
+  url: string | Application,
+  path: string,
+  token: string,
+  recipeId: number,
+  recipe: Partial<RecipeWithDietaryIds>,
+): Promise<RecipeWithAllFields & {recipe_id: number}> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .put(path)
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+      .send(recipe)
+      .expect(200)
+      .end((err, res) => {
+        if (err) {
+          reject(err);
+        } else {
+          const updatedRecipe: RecipeWithAllFields & {recipe_id: number} = res.body;
+          expect(updatedRecipe.recipe_id).toBe(recipeId);
+          expect(updatedRecipe.title).not.toBe('');
+          expect(updatedRecipe.instructions).not.toBe('');
+          expect(updatedRecipe.cooking_time).toBeGreaterThan(0);
+          expect(updatedRecipe.filename).not.toBe('');
+          expect(updatedRecipe.filesize).toBeGreaterThan(0);
+          expect(updatedRecipe.media_type).not.toBe('');
+          expect(updatedRecipe.diet_types).not.toBe('');
+          expect(updatedRecipe.user_id).toBeGreaterThan(0);
+          resolve(updatedRecipe);
         }
       });
   });
@@ -297,4 +366,6 @@ export {
   getRecipesByUserId,
   getRecipesByToken,
   getRecipesByUsername,
+  updateRecipe,
+  getFollowedUsersRecipes,
 };
