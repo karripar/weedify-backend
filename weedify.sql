@@ -223,7 +223,7 @@ INSERT INTO UserLevels (level_name) VALUES ('Admin'), ('User'), ('Influencer');
 INSERT INTO DietTypes (diet_type_name) VALUES ('Vegetarian'), ('Vegan'), ('Gluten-Free'), ('Dairy-Free'), ('Nut-Free'), ('Halal'), ('Kosher'), ('Paleo'), ('Keto'), ('Low-Carb'), ('Mediterranean');
 
 
-INSERT INTO Users (username, password, email, user_level_id) VALUES ('karri', 'password', 'karri@testi.com', 2), ('testi', 'password', 'testi@testi.com', 2);
+INSERT INTO Users (username, password, email, user_level_id) VALUES ('user', 'password', 'user@testi.com', 2), ('testi', 'password', 'testi@testi.com', 2);
 
 INSERT INTO ProfilePicture (user_id, filename, media_type, filesize) VALUES (1, 'profile.jpg', 'image/jpeg', 12345), (2, 'profile.jpg', 'image/jpeg', 12345);
 
@@ -253,7 +253,7 @@ INSERT INTO Ratings (user_id, recipe_id, rating, review) VALUES (1, 1, 5, 'Erino
 
 INSERT INTO RecipeDietTypes (recipe_id, diet_type_id) VALUES (1, 1), (2, 2);
 
-INSERT INTO DietaryRestrictions (restriction_name) VALUES ('Vegetarian'), ('Vegan'), ('Gluten-Free'), ('Dairy-Free'), ('Nut-Free'), ('Halal'), ('Kosher'), ('Paleo'), ('Keto'), ('Low-Carb'), ('Mediterranean');
+INSERT INTO DietaryRestrictions (restriction_name) VALUES ('Vegetarian'), ('Vegan'), ('Gluten-Free'), ('Dairy-Free'), ('Nut-Free'), ('Halal'), ('Kosher'), ('Paleo'), ('Keto'), ('Low-Carb'), ('Mediterranean'), ('Lactose-Free'),('Shellfish-Free'), ('Soy-Free'), ('Egg-Free'), ('Fish-Free');
 
 INSERT INTO UserDietaryRestrictions (user_id, dietary_restriction_id) VALUES (1, 1), (2, 2);
 
