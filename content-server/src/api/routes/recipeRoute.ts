@@ -215,7 +215,7 @@ recipeRouter
     body('instructions')
       .notEmpty()
       .isString()
-      .isLength({min: 20, max: 2000})
+      .isLength({min: 20, max: 4000})
       .trim()
       .escape(),
     body('cooking_time')
@@ -582,7 +582,7 @@ recipeRouter
     body('instructions')
       .optional()
       .isString()
-      .isLength({min: 20, max: 2000})
+      .isLength({min: 20, max: 4000})
       .trim()
       .escape(),
     body('cooking_time')
