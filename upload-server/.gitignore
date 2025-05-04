@@ -74,7 +74,8 @@ typings/
 .serverless
 
 dist
-uploads
+uploads/*
+!uploads/default
 public
 .history
 .env
