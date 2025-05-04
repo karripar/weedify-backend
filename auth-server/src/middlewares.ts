@@ -42,7 +42,7 @@ const authenticate = async (req: Request, res: Response, next: NextFunction) => 
   }
 
   // decode the user_id from the token
-  const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as TokenContent; // 
+  const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as TokenContent; //
   console.log(decoded);
 
   const user = await getUserById(decoded.user_id);
@@ -58,5 +58,13 @@ const authenticate = async (req: Request, res: Response, next: NextFunction) => 
   }
 }
 
+const routeNotInUse = (req: Request, res: Response) => {
+  res.status(404).json({
+    message: "Route currently not in use (check back later)",
+    status: 404,
+  });
+};
 
-export {notFound, errorHandler, validationErrors, authenticate};
+
+
+export {notFound, errorHandler, validationErrors, authenticate, routeNotInUse};

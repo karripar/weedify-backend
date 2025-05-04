@@ -1,7 +1,7 @@
 import express from 'express';
 import {Login} from '../controllers/authController';
 import { body } from 'express-validator';
-import { authenticate, validationErrors } from '../../middlewares';
+import { authenticate, validationErrors, routeNotInUse} from '../../middlewares';
 import { requestPasswordReset, resetPassword, changePassword} from '../controllers/authController';
 const router = express.Router();
 
@@ -120,13 +120,14 @@ router.post(
    * }
    */
   '/request-password-reset',
-  body('email')
+  /**body('email')
     .isString()
     .isEmail()
     .escape()
     .isLength({ min: 5, max: 255 })
     .withMessage('Invalid email'),
-  validationErrors,
+  validationErrors,**/
+  routeNotInUse,
   requestPasswordReset,
 );
 

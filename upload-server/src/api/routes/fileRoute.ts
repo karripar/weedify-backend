@@ -74,7 +74,7 @@ const doUpload = (
       req.file.mimetype.includes('video'))
     ) {
       next();
-    } 
+    }
   });
 }
 
@@ -88,7 +88,7 @@ router.post(
    * @apiGroup FileUploadGroup
    * @apiVersion  1.0.0
    * @apiDescription Upload a file
-   * @apiPermission none
+   * @apiPermission token
    *
    * @apiUse token
    *
@@ -191,7 +191,9 @@ router.delete(
    * @apiGroup FileUploadGroup
    * @apiVersion  1.0.0
    * @apiDescription Delete a file
-   * @apiPermission none
+   * @apiPermission token
+   *
+   * @apiUse token
    *
    * @apiParam {String} filename Filename of the file to delete
    *
@@ -226,7 +228,9 @@ router.delete(
    * @apiGroup FileUploadGroup
    * @apiVersion  1.0.0
    * @apiDescription Delete a profile file
-   * @apiPermission none
+   * @apiPermission token
+   *
+   * @apiUse token
    *
    * @apiParam {String} filename Filename of the profile file to delete
    *
