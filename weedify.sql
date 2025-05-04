@@ -206,6 +206,14 @@ CREATE INDEX idx_favorite_created_at ON Favorites(created_at);
 CREATE INDEX idx_notification_created_at ON Notifications(created_at);
 CREATE INDEX idx_notification_is_read ON Notifications(is_read);
 CREATE INDEX idx_rating_created_at ON Ratings(created_at);
+CREATE INDEX idx_recipe_difficulty ON RecipePosts(difficulty_level_id);
+CREATE INDEX idx_recipe_user ON RecipePosts(user_id);
+CREATE INDEX idx_recipe_ingredient ON RecipeIngredients(recipe_id, ingredient_id);
+CREATE INDEX idx_recipe_diet ON RecipeDietTypes(recipe_id, diet_type_id);
+CREATE INDEX idx_user_level ON Users(user_level_id);
+CREATE INDEX idx_user_diet ON UserDietaryRestrictions(user_id, dietary_restriction_id);
+CREATE INDEX idx_notification_type ON Notifications(notification_type_id);
+
 
 -- Insert mock data
 INSERT INTO DifficultyLevels (level_name) VALUES ('Easy'), ('Medium'), ('Hard');
