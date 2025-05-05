@@ -16,9 +16,9 @@
   "apidoc": {
     "name": "Weedify Upload API",
     "version": "1.0.0",
-    "description": "REST API backend for Weedify upload endpoints",
+    "description": "REST API backend for Weedify upload endpoints. Files are served at localhost:3003/uploads",
     "title": "Weedify Upload API",
-    "url": "http://localhost:3003/api/v1/upload",
+    "url": "http://localhost:3003/api/v1",
     "template": {
       "withCompare": true,
       "withGenerator": true
