@@ -172,29 +172,31 @@ const deleteUser = async (
       });
     }
 
-    const options = {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({user_id}),
-    };
-
     // delete profile picture
     const existingProfilePic = await checkProfilePicExists(user_id);
 
-    if (existingProfilePic?.filename) {
-      try {
-        const response = await fetchData<MessageResponse>(
-          `${process.env.UPLOAD_SERVER}/profile/${existingProfilePic.filename}`,
-          options,
-        );
-        console.log('response', response);
-      } catch (error) {
-        console.error((error as Error).message);
-      }
+    // delete existing profile picture
+  if (existingProfilePic?.filename && existingProfilePic.user_id === user_id) {
+    try {
+      const absolutePath = existingProfilePic.filename.split('/').pop();
+      console.log('absolutePath', absolutePath);
+      const options = {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({user_id}),
+      };
+
+      const deleteResult = await fetchData<MessageResponse>(
+        `${process.env.UPLOAD_SERVER}/upload/profile/${absolutePath}`,
+        options,
+      );
+      console.log('deleteResult', deleteResult);
+    } catch (error) {
+      console.error((error as Error).message);
     }
+  }
 
     // delete user content from content server
     await connection.execute('DELETE FROM Comments WHERE user_id = ?', [
