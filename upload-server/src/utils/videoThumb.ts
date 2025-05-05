@@ -1,5 +1,6 @@
 import ffmpeg from 'fluent-ffmpeg';
 import path from 'path';
+import { UPLOAD_DIR } from './paths';
 
 ffmpeg.setFfmpegPath('c:/ffmpeg/bin/ffmpeg.exe');
 ffmpeg.setFfprobePath('c:/ffmpeg/bin/ffprobe.exe');
@@ -10,7 +11,7 @@ const makeVideoThumbail = (
   return new Promise((resolve, reject) => {
     const thumbs: string[] = [];
     const originalFilename = path.basename(videoPath);
-    const gifFilename = `./uploads/${originalFilename}-animation.gif`; // new gif filename
+    const gifFilename = path.join(UPLOAD_DIR, `${originalFilename}-animation.gif`);
 
     // some error handling
     try {
@@ -31,7 +32,7 @@ const makeVideoThumbail = (
           .input(videoPath)
           .screenshots({
             count: 3,
-            filename: `./uploads/${originalFilename}-thumb-%i.png`, // new thumbnail filename
+            filename: path.join(UPLOAD_DIR, `${originalFilename}-thumb-%i.png`), // new thumbnail filename
             size: '320x?',
           })
           .on('filenames', (filenames) => {
