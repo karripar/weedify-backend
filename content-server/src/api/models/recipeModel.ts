@@ -207,12 +207,12 @@ const postRecipe = async (
     const totalNutrition: NutritionTotals = ingredients.reduce(
       (acc, ingredient) => {
         return {
-          energy_kcal: acc.energy_kcal + ingredient.energy_kcal,
-          protein: acc.protein + ingredient.protein,
-          fat: acc.fat + ingredient.fat,
-          carbohydrate: acc.carbohydrate + ingredient.carbohydrate,
-          fiber: acc.fiber + ingredient.fiber,
-          sugar: acc.sugar + ingredient.sugar,
+          energy_kcal: acc.energy_kcal + Number(ingredient.energy_kcal || 0),
+          protein: acc.protein + Number(ingredient.protein || 0),
+          fat: acc.fat + Number(ingredient.fat || 0),
+          carbohydrate: acc.carbohydrate + Number(ingredient.carbohydrate || 0),
+          fiber: acc.fiber + Number(ingredient.fiber || 0),
+          sugar: acc.sugar + Number(ingredient.sugar || 0),
         };
       },
       {
@@ -661,12 +661,13 @@ const updateRecipe = async (
       const totalNutrition: NutritionTotals = ingredients.reduce(
         (acc, ingredient) => {
           return {
-            energy_kcal: acc.energy_kcal + (ingredient.energy_kcal || 0),
-            protein: acc.protein + (ingredient.protein || 0),
-            fat: acc.fat + (ingredient.fat || 0),
-            carbohydrate: acc.carbohydrate + (ingredient.carbohydrate || 0),
-            fiber: acc.fiber + (ingredient.fiber || 0),
-            sugar: acc.sugar + (ingredient.sugar || 0),
+            energy_kcal: acc.energy_kcal + Number(ingredient.energy_kcal || 0),
+            protein: acc.protein + Number(ingredient.protein || 0),
+            fat: acc.fat + Number(ingredient.fat || 0),
+            carbohydrate:
+              acc.carbohydrate + Number(ingredient.carbohydrate || 0),
+            fiber: acc.fiber + Number(ingredient.fiber || 0),
+            sugar: acc.sugar + Number(ingredient.sugar || 0),
           };
         },
         {
