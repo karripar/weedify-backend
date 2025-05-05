@@ -92,9 +92,16 @@ const deleteFile = async (
     filesToDelete.forEach((file) => {
       const filePathToDelete = `${UPLOAD_DIR}/${file}`;
       if (fs.existsSync(filePathToDelete)) {
-        fs.unlinkSync(filePath);
+        try {
+          fs.unlinkSync(filePathToDelete);
+          console.log(`Deleted recipe file: ${filePathToDelete}`);
+        } catch (err) {
+          console.error(`Failed to delete recipe file: ${filePathToDelete}`, err);
+        }
+      } else {
+        console.warn(`Recipe file not found for deletion: ${filePathToDelete}`);
       }
-    })
+    });
   } catch (err) {
     console.error('Error deleting files for recipe', err);
     throw new CustomError('An error occurred', 500);
