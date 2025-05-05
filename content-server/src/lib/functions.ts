@@ -50,4 +50,4 @@ const safeJsonParse = <T>(value: unknown): T | null => {
   return value as T;
 }
 
-export { corsSettings, customLog, fetchData, handleErrors, safeJsonParse};
+export { corsSettings, customLog, fetchData, handleErrors, safeJsonParse };

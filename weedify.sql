@@ -220,7 +220,7 @@ INSERT INTO DifficultyLevels (level_name) VALUES ('Easy'), ('Medium'), ('Hard');
 
 INSERT INTO UserLevels (level_name) VALUES ('Admin'), ('User'), ('Influencer');
 
-INSERT INTO DietTypes (diet_type_name) VALUES ('Vegetarian'), ('Vegan'), ('Gluten-Free'), ('Dairy-Free'), ('Nut-Free'), ('Halal'), ('Kosher'), ('Paleo'), ('Keto'), ('Low-Carb'), ('Mediterranean');
+INSERT INTO DietTypes (diet_type_name) VALUES ('Vegetarian'), ('Vegan'), ('Gluten-Free'), ('Dairy-Free'), ('Nut-Free'), ('Halal'), ('Kosher'), ('Paleo'), ('Keto'), ('Low-Carb'), ('Mediterranean'), ('Lactose-Free'), ('Shellfish-Free'), ('Soy-Free'), ('Egg-Free'), ('Fish-Free');
 
 
 INSERT INTO Users (username, password, email, user_level_id) VALUES ('user', 'password', 'user@testi.com', 2), ('testi', 'password', 'testi@testi.com', 2);

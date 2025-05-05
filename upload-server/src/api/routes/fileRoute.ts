@@ -1,6 +1,6 @@
 import express, {NextFunction, Request, Response} from 'express';
 import multer from 'multer';
-import { authenticate, getThumbnails } from '../../middlewares';
+import { authenticate, getThumbnails, uploadRateLimit} from '../../middlewares';
 import CustomError from '../../classes/CustomError';
 import { TokenContent } from 'hybrid-types/DBTypes';
 import randomstring from 'randomstring';
@@ -132,6 +132,7 @@ router.post(
    */
   '/upload',
   authenticate,
+  uploadRateLimit,
   doUpload,
   getThumbnails,
   uploadFile
@@ -179,6 +180,7 @@ router.post(
    */
   '/upload/profile',
   authenticate,
+  uploadRateLimit,
   profileUpload,
   uploadFile
 );

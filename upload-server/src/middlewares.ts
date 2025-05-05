@@ -4,7 +4,7 @@ import {NextFunction, Request, Response} from 'express';
 import jwt from 'jsonwebtoken';
 import {TokenContent} from 'hybrid-types/DBTypes';
 import sharp from 'sharp';
-import path from 'path';
+import rateLimit from 'express-rate-limit';
 import makeVideoThumbail from './utils/videoThumb';
 
 
@@ -113,4 +113,19 @@ const userToBody = (
   next();
 };
 
-export {notFound, errorHandler, authenticate, getThumbnails, userToBody};
+
+const uploadRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 5 requests per windowMs
+  message: {
+    message: 'Too many uploads, please try again later.',
+    status: 429,
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req, res) => {
+    return res.locals.user.user_id || req.ip; // use user_id if available, otherwise use IP
+  }
+});
+
+export {notFound, errorHandler, authenticate, getThumbnails, userToBody, uploadRateLimit};
