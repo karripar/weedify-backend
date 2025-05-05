@@ -61,7 +61,6 @@ const authenticate = async (
 };
 
 
-// thumbnail generation for images
 const getThumbnails = async (
   req: Request,
   res: Response,
@@ -69,35 +68,45 @@ const getThumbnails = async (
 ) => {
   try {
     if (!req.file) {
-      next(new CustomError('No file uploaded', 400));
-      return;
+      return next(new CustomError('No file uploaded', 400));
     }
 
-    console.log('path: ', req.file.path);
+    console.log('File path: ', req.file.path);
 
+    // Handle image files
     if (!req.file.mimetype.includes('video')) {
       sharp.cache(false);
       await sharp(req.file.path)
         .resize(320, 320)
         .png()
         .toFile(req.file.path + '-thumb.png')
+        .then(() => {
+          console.log('Image thumbnail generated successfully');
+          next(); // Call next only after thumbnail generation
+        })
         .catch((err) => {
-          console.error('Error generating thumbnail:', err);
-          next(new CustomError('Error generating thumbnail', 500));
+          console.error('Error generating image thumbnail:', err);
+          return next(new CustomError('Error generating image thumbnail', 500));
         });
-        console.log('Thumbnail generated successfully');
-      next();
       return;
-
     }
-    // if the file is a video, generate thumbnails and gif
+
+    // Handle video files
     await makeVideoThumbail(req.file.path)
-    next();
+      .then(() => {
+        console.log('Video thumbnail and gif generated successfully');
+        next(); // Call next only after video thumbnail and gif generation
+      })
+      .catch((err) => {
+        console.error('Error generating video thumbnail:', err);
+        next(new CustomError('Error generating video thumbnail', 500));
+      });
   } catch (error) {
-    console.error('Error generating thumbnail:', error);
-    next(new CustomError('Error generating thumbnail', 500));
+    console.error('Unexpected error generating thumbnail:', error);
+    next(new CustomError('Unexpected error generating thumbnail', 500));
   }
 };
+
 
 // user from res.locals to body
 const userToBody = (
