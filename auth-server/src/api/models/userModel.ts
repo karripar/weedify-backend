@@ -140,37 +140,26 @@ const deleteUser = async (
       [user_id],
     );
 
-    // delete recipe files
-    if (recipeFiles.length > 0) {
-      recipeFiles.forEach(async (file) => {
-        const filename = file.filename.replace(
-          process.env.UPLOAD_URL as string,
-          '',
-        );
-        console.log('filename', filename);
-        const options = {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        };
+    for (const file of recipeFiles) {
+      const options = {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      };
 
-        // delete profile file from upload server
-        try {
-          const url = `${process.env.UPLOAD_SERVER}/upload/profile/${filename}`;
-          console.log('Delete profile image url', url);
-          const response = await fetchData<MessageResponse>(
-            url,
-            options,
-          );
-
-          console.log('response', response);
-        } catch (error) {
-          console.error((error as Error).message);
-        }
-      });
+      try {
+        const url = `${process.env.UPLOAD_SERVER}/upload/${file}`;
+        console.log('Delete recipe image url', url);
+        const response = await fetchData<MessageResponse>(url, options);
+        console.log('response', response);
+      } catch (error) {
+        console.error((error as Error).message);
+        // optionally rollback here if critical
+      }
     }
+
 
     // delete profile picture
     const existingProfilePic = await checkProfilePicExists(user_id);
