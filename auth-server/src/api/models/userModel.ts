@@ -156,10 +156,12 @@ const deleteUser = async (
           },
         };
 
-        // delete file from upload server
+        // delete profile file from upload server
         try {
+          const url = `${process.env.UPLOAD_SERVER}/upload/profile/${filename}`;
+          console.log('Delete profile image url', url);
           const response = await fetchData<MessageResponse>(
-            `${process.env.UPLOAD_SERVER}/delete/${filename}`,
+            url,
             options,
           );
 
@@ -371,7 +373,7 @@ const putProfilePic = async (
       };
 
       const deleteResult = await fetchData<MessageResponse>(
-        `${process.env.UPLOAD_SERVER}/profile/picture/${absolutePath}`,
+        `${process.env.UPLOAD_SERVER}/upload/profile/${absolutePath}`,
         options,
       );
       console.log('deleteResult', deleteResult);
