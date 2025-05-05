@@ -7,13 +7,14 @@ ffmpeg.setFfprobePath('c:/ffmpeg/bin/ffprobe.exe');
 
 const makeVideoThumbail = (
   videoPath: string
-): Promise<{thumbs: string[]; gif: string}> => {
+): Promise<{ thumbs: string[]; gif: string }> => {
   return new Promise((resolve, reject) => {
     const thumbs: string[] = [];
     const originalFilename = path.basename(videoPath);
-    const gifFilename = path.join(UPLOAD_DIR, `${originalFilename}-animation.gif`);
+    const baseName = path.parse(originalFilename).name;
+    const gifFilename = path.join(UPLOAD_DIR, `${baseName}-animation.gif`);
+    const paletteFilename = path.join(UPLOAD_DIR, `${baseName}-palette.png`);
 
-    // some error handling
     try {
       ffmpeg.ffprobe(videoPath, (err, data) => {
         if (err) {
@@ -22,54 +23,63 @@ const makeVideoThumbail = (
         }
 
         const rawDuration = data.format.duration;
-        const duration =
-          typeof rawDuration === 'number' && rawDuration > 0 ? rawDuration : 10; // default to 10 seconds
+        const duration = typeof rawDuration === 'number' && rawDuration > 0 ? rawDuration : 10;
         const speedFactor = duration / 5;
-        const validSpeedFactor =
-          typeof speedFactor === 'number' && speedFactor > 0 ? speedFactor : 1; // default to 1
+        const validSpeedFactor = speedFactor > 0 ? speedFactor : 1;
 
-        ffmpeg()
-          .input(videoPath)
+        // Generate thumbnails
+        ffmpeg(videoPath)
           .screenshots({
             count: 3,
-            filename: path.join(UPLOAD_DIR, `${originalFilename}-thumb-%i.png`), // new thumbnail filename
+            filename: `${baseName}-thumb-%i.png`,
+            folder: UPLOAD_DIR,
             size: '320x?',
           })
           .on('filenames', (filenames) => {
-            filenames.forEach((filename) => {
-              thumbs.push(filename); // push each thumbnail filename to the array
-            });
+            filenames.forEach((filename) => thumbs.push(path.join(UPLOAD_DIR, filename)));
           })
           .on('end', () => {
-            ffmpeg()
-              .input(videoPath)
+            // First pass: generate palette
+            ffmpeg(videoPath)
               .outputOptions([
-                '-filter_complex',
-                `[0:v]setpts=(PTS-STARTPTS)/${validSpeedFactor},fps=10,scale=320:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=32[p];[b][p]paletteuse`,
-                '-c:v',
-                'gif',
-                '-compression_level',
-                '50',
-                '-f',
-                'gif',
+                `-vf`,
+                `setpts=(PTS-STARTPTS)/${validSpeedFactor},fps=10,scale=320:-1:flags=lanczos,palettegen=max_colors=32`,
               ])
-              .output(gifFilename) // output gif filename
+              .output(paletteFilename)
               .on('end', () => {
-                resolve({thumbs, gif: gifFilename});
+                // Second pass: use palette to generate GIF
+                ffmpeg(videoPath)
+                  .input(paletteFilename)
+                  .complexFilter([
+                    `[0:v]setpts=(PTS-STARTPTS)/${validSpeedFactor},fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse`,
+                  ])
+                  .outputOptions([
+                    '-c:v', 'gif',
+                    '-compression_level', '50',
+                  ])
+                  .output(gifFilename)
+                  .on('end', () => {
+                    resolve({ thumbs, gif: gifFilename });
+                  })
+                  .on('error', (err) => {
+                    console.error('GIF generation error:', err);
+                    resolve({ thumbs, gif: '' });
+                  })
+                  .run();
               })
               .on('error', (err) => {
-                console.log(err);
-                resolve({thumbs, gif: ''}); // resolve with empty gif on error so we can still return the thumbs
+                console.error('Palette generation error:', err);
+                resolve({ thumbs, gif: '' });
               })
-              .run(); // run the ffmpeg command to create the gif
+              .run();
           })
           .on('error', (err) => {
-            console.log(err);
+            console.error('Thumbnail error:', err);
             reject(err);
           });
       });
     } catch (error) {
-      console.log(error);
+      console.error('Outer error:', error);
       reject(error);
     }
   });
