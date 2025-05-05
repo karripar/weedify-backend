@@ -392,8 +392,10 @@ const deleteRecipe = async (
 
     if (recipe.filename) {
       try {
+        const url = process.env.UPLOAD_URL + '/upload/' + recipe.filename;
+        console.log('url in deleting recipe file', url);
         const deleteResult = await fetchData<MessageResponse>(
-          `${process.env.UPLOAD_SERVER}/upload/${recipe.filename}`, // use the filename without base URL
+          url, // use the filename without base URL
           {
             method: 'DELETE',
             headers: {Authorization: 'Bearer ' + token},
