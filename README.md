@@ -17,6 +17,12 @@ discriminate no matter what diet the user prefers.
 - See the apidoc documentation for detailed API query instructions.
 - If `hybrid-types` are not found from the node_modules, run `npm i --save-dev github:karripar/weedify-types` to fix the issue.
 <br>
+<br>
+NOTE:<br>
+
+**[FFmpeg installation on Windows](https://www.wikihow.com/Install-FFmpeg-on-Windows)**<br>
+- Uploading video-files might require installing ffmpeg on your windows device, follow the instructions in the link above.
+- Source is already set for the files in the videoThumb.ts file in the upload-server.<br><br>
 
 - If you're using an older version of Node.js (pre v23.6.0) see this article: **[NodeSource](https://nodesource.com/blog/Node.js-Supports-TypeScript-Natively)**.
 - Running TypeScript in development mode natively works after the v23.6.0 update. If using an older one, change this part in the package.json(s)<br><br>
