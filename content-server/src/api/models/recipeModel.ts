@@ -516,16 +516,16 @@ const fetchRecipesFromFollowedUsers = async (
           ELSE CONCAT(v.base_url, rp.filename, '-animation.gif')
       END AS thumbnail,
       CASE
-          WHEN rp.media_type NOT LIKE '%image%'
-          THEN JSON_ARRAY(
-              CONCAT(v.base_url, rp.filename, '-thumb-1.png'),
-              CONCAT(v.base_url, rp.filename, '-thumb-2.png'),
-              CONCAT(v.base_url, rp.filename, '-thumb-3.png'),
-              CONCAT(v.base_url, rp.filename, '-thumb-4.png'),
-              CONCAT(v.base_url, rp.filename, '-thumb-5.png')
+        WHEN rp.media_type NOT LIKE '%image%'
+        THEN JSON_ARRAY(
+            CONCAT(v.base_url, SUBSTRING_INDEX(rp.filename, '.', 1), '-thumb-1.png'),
+            CONCAT(v.base_url, SUBSTRING_INDEX(rp.filename, '.', 1), '-thumb-2.png'),
+            CONCAT(v.base_url, SUBSTRING_INDEX(rp.filename, '.', 1), '-thumb-3.png'),
+            CONCAT(v.base_url, SUBSTRING_INDEX(rp.filename, '.', 1), '-thumb-4.png'),
+            CONCAT(v.base_url, SUBSTRING_INDEX(rp.filename, '.', 1), '-thumb-5.png')
           )
           ELSE NULL
-      END AS screenshots,
+        END AS screenshots,
       (
           SELECT JSON_ARRAYAGG(
               JSON_OBJECT(
