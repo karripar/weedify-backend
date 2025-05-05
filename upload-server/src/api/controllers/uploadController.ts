@@ -101,6 +101,7 @@ const deleteFile = async (
 
   res.json({message: 'File and related files deleted'});
   } catch (err) {
+    console.error('Error deleting file in uploadController:', err);
     next(
       err instanceof CustomError
         ? err
