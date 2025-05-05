@@ -86,6 +86,7 @@ const fetchAllRecipes = async (
 ): Promise<Recipe[]> => {
   const offset = page && limit ? (page - 1) * limit : 0;
 
+  console.log('base url', uploadPath);
   // Use BASE_QUERY
   const sql = limit ? `${BASE_QUERY} LIMIT ? OFFSET ?` : BASE_QUERY;
 
@@ -392,7 +393,7 @@ const deleteRecipe = async (
 
     if (recipe.filename) {
       try {
-        const url = process.env.UPLOAD_URL + '/upload/' + recipe.filename;
+        const url = process.env.UPLOAD_SERVER + '/upload/' + recipe.filename;
         console.log('url in deleting recipe file', url);
         const deleteResult = await fetchData<MessageResponse>(
           url, // use the filename without base URL

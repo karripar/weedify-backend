@@ -364,6 +364,7 @@ const putProfilePic = async (
   if (existingProfilePic?.filename && existingProfilePic.user_id === user_id) {
     try {
       const absolutePath = existingProfilePic.filename.split('/').pop();
+      console.log('absolutePath', absolutePath);
       const options = {
         method: 'DELETE',
         headers: {

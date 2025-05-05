@@ -6,7 +6,7 @@ import { TokenContent } from 'hybrid-types/DBTypes';
 import randomstring from 'randomstring';
 import { param } from 'express-validator';
 import { uploadFile, deleteProfileFile, deleteFile } from '../controllers/uploadController';
-
+import { PROFILE_UPLOAD_DIR, UPLOAD_DIR } from '../../utils/paths';
 /**
  * @apiDefine FileUploadGroup File Upload
  * File upload routes
@@ -31,7 +31,7 @@ import { uploadFile, deleteProfileFile, deleteFile } from '../controllers/upload
  */
 
 const storage = multer.diskStorage({
-  destination: './uploads',
+  destination: UPLOAD_DIR,
   filename: (req, file, cb) => {
     const userId = (req as Request).res?.locals.user.user_id;
     const extension = file.originalname.split('.').pop();
@@ -43,7 +43,7 @@ const storage = multer.diskStorage({
 })
 
 const profilePicStorage = multer.diskStorage({
-  destination: './uploads/profile',
+  destination: PROFILE_UPLOAD_DIR,
   filename: (req, file, cb) => {
     const userId = (req as Request).res?.locals.user.user_id;
     const extension = file.originalname.split('.').pop();
@@ -230,9 +230,7 @@ router.delete(
    * @apiGroup FileUploadGroup
    * @apiVersion  1.0.0
    * @apiDescription Delete a profile file
-   * @apiPermission token
-   *
-   * @apiUse token
+   * @apiPermission none
    *
    * @apiParam {String} filename Filename of the profile file to delete
    *
@@ -267,7 +265,6 @@ router.delete(
    * }
    */
   '/upload/profile/:filename',
-  authenticate,
   param('filename').isString(),
   deleteProfileFile
 )
