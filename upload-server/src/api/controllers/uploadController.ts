@@ -4,6 +4,7 @@ import fs from "fs";
 import { MessageResponse } from "hybrid-types/MessageTypes";
 import { UPLOAD_DIR, PROFILE_UPLOAD_DIR } from "../../utils/paths";
 import path from "path";
+import { TokenContent } from "hybrid-types/DBTypes";
 
 type UploadResponse = MessageResponse & {
   data: {
@@ -56,7 +57,7 @@ const uploadFile = async (
 
 const deleteFile = async (
   req: Request<{filename: string}>,
-  res: Response<MessageResponse>,
+  res: Response<MessageResponse, {user: TokenContent}>,
   next: NextFunction,
 ) => {
   try {
