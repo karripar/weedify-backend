@@ -26,8 +26,6 @@ CREATE TABLE Users (
     FOREIGN KEY (user_level_id) REFERENCES UserLevels(user_level_id)
 );
 
-
-
 -- Create table ResetTokens
 CREATE TABLE ResetTokens (
     token_id INT PRIMARY KEY UNIQUE AUTO_INCREMENT,
