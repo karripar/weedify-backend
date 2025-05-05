@@ -2,8 +2,11 @@ import ffmpeg from 'fluent-ffmpeg';
 import path from 'path';
 import { UPLOAD_DIR } from './paths';
 
-ffmpeg.setFfmpegPath('c:/ffmpeg/bin/ffmpeg.exe');
-ffmpeg.setFfprobePath('c:/ffmpeg/bin/ffprobe.exe');
+const ffmpegPath = process.env.FFMPEG_PATH || '/usr/bin/ffmpeg';
+const ffprobePath = process.env.FFPROBE_PATH || '/usr/bin/ffprobe';
+
+ffmpeg.setFfmpegPath(ffmpegPath);
+ffmpeg.setFfprobePath(ffprobePath);
 
 const makeVideoThumbail = (
   videoPath: string
