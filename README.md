@@ -61,9 +61,9 @@ TO:
 ### Apidoc-documentation (All available API endpoints):
 
 **Detailed route definitions and specifications are found below for the three servers**<br>
-**[Auth-apidoc]()**<br>
-**[Content-apidoc]()**<br>
-**[Upload-apidoc]()**<br>
+**[Auth-apidoc](https://users.metropolia.fi/~karripar/weedify/apidoc/auth/)**<br>
+**[Content-apidoc](https://users.metropolia.fi/~karripar/weedify/apidoc/content/)**<br>
+**[Upload-apidoc](https://users.metropolia.fi/~karripar/weedify/apidoc/upload/)**<br>
 
 ### Related Repositories
 
