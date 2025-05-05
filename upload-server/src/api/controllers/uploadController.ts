@@ -95,7 +95,8 @@ const deleteFile = async (
         fs.unlinkSync(filePath);
       }
     })
-  } catch {
+  } catch (err) {
+    console.error('Error deleting files for recipe', err);
     throw new CustomError('An error occurred', 500);
   }
 
