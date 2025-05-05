@@ -229,6 +229,7 @@ const postRecipe = async (
     Object.keys(totalNutrition).forEach((key) => {
       totalNutrition[key] = totalNutrition[key] / portionsCount;
     });
+    console.log('Total Nutrition in recipepost:', totalNutrition);
 
     // Store nutrition information for the recipe
     await connection.execute<ResultSetHeader>(

@@ -1,4 +1,4 @@
-﻿# Weedify
+# Weedify
 
 ---
 
@@ -9,7 +9,7 @@ discriminate no matter what diet the user prefers.
 
 ## Installation
 - Clone the repository in your desired directory in the terminal by running `git clone https://github.com/karripar/weedify-backend.git`<br>
-- Make sure you have `Node.js` set up and run `npm install` or `npm i` in all three directories (auth/content/upload)<br>
+- Make sure you have `Node.js` set up and run `npm install` or `npm i`<br>
 - Each of the three directories have a `.env.sample` file in them. Rename the file to `.env` or copy the content to a file with the same name.
 - Fill the missing database credentials with your own
 - Source the `weedify.sql` script found in the project root in your MariaDB terminal.
@@ -116,8 +116,8 @@ TO:
 
 ## Tutorials used and references
 
-**[Nodemailer](https://mailtrap.io/blog/sending-emails-with-nodemailer/)**: For resetting users password.<br>
-**[Fineli API](https://fineli.fi/fineli/en/avoin-data?)**: Open source food database and nutritional values provided by Terveyden ja Hyvinvoinnin Laitos (THL).<br>
+**[Nodemailer](https://mailtrap.io/blog/sending-emails-with-nodemailer/)**: For resetting users password.
+**[Fineli API](https://fineli.fi/fineli/en/avoin-data?)**: Open source food database and nutritional values provided by Terveyden ja Hyvinvoinnin Laitos (THL). 
 **[Fineli API Docs](https://fineli.fi/fineli/v2/api-docs)**: Fineli API documentation
 
 ---
