@@ -31,7 +31,7 @@ interface FineliSearchResponse {
 // Search ingredients from Fineli API
 export const searchFineliIngredients = async (
   searchTerm: string,
-  lang = 'fi',
+  lang = 'en',
 ): Promise<FineliSearchResponse> => {
   try {
     // Check cache first
