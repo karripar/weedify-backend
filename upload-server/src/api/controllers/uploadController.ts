@@ -66,6 +66,9 @@ const deleteFile = async (
       throw new CustomError('No filename provided', 400);
     }
 
+
+    console.log('res.locals.user in deleteFile', res.locals.user);
+
     // Check if the user is an admin
     if (res.locals.user.level_name !== 'Admin') {
       const fileUserId = filename.split('_').pop()?.split('.')[0];
