@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import {corsSettings} from './utils/settings';
 import {notFound, errorHandler} from './middlewares';
 import api from './api';
+import path from 'path';
 
 const app = express();
 app.use(express.json());
@@ -26,8 +27,8 @@ app.use(
   })
 );
 
-app.use('/uploads', express.static('uploads'));
-app.use('/uploads/profile', express.static('uploads/profile'));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads/profile', express.static(path.join(__dirname, '../uploads/profile')));
 
 app.use('/api/v1', api);
 

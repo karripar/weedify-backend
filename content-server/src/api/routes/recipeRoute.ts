@@ -10,7 +10,7 @@ import {
   updateRecipePost,
   fetchRecipesFromFollowedUsersGet,
 } from '../controllers/recipeController';
-import {authenticate, validationErrors} from '../../middlewares';
+import {authenticate, validationErrors, recipePostRateLimit} from '../../middlewares';
 import {body, param} from 'express-validator';
 
 const recipeRouter = express.Router();
@@ -206,6 +206,7 @@ recipeRouter
      *
      */
     authenticate,
+    recipePostRateLimit,
     body('title')
       .notEmpty()
       .isString()

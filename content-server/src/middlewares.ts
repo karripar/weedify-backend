@@ -4,6 +4,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt from 'jsonwebtoken';
 import { TokenContent } from "hybrid-types/DBTypes";
 import { validationResult } from "express-validator";
+import rateLimit from "express-rate-limit";
 
 // Middleware to handle 404 errors
 const notFound = (req: Request, res: Response, next: NextFunction) => {
@@ -63,5 +64,20 @@ const authenticate = async (req: Request, res: Response, next: NextFunction) => 
   }
 }
 
+const recipePostRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // Limit each IP to 20 requests per windowMs
+  message: {
+    message: 'Too many requests, try again later.',
+    status: 429,
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req, res) => {
+    return res.locals.user.user_id || req.ip;
+  }
+});
 
-export {notFound, errorHandler, validationErrors, authenticate, isDecimalWithTwoPlaces};
+
+
+export {notFound, errorHandler, validationErrors, authenticate, isDecimalWithTwoPlaces, recipePostRateLimit};

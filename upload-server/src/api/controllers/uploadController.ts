@@ -2,9 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import CustomError from "../../classes/CustomError";
 import fs from "fs";
 import { MessageResponse } from "hybrid-types/MessageTypes";
-
-const UPLOAD_DIR = './uploads';
-const PROFILE_DIR = './uploads/profile';
+import { UPLOAD_DIR, PROFILE_UPLOAD_DIR } from "../../utils/paths";
+import path from "path";
 
 type UploadResponse = MessageResponse & {
   data: {
@@ -77,7 +76,7 @@ const deleteFile = async (
   // Get the base filename
   const baseFileName = filename.split('.')[0];
 
-  const filePath = `${UPLOAD_DIR}/${filename}`;
+  const filePath = path.join(UPLOAD_DIR, filename);
 
   if (!fs.existsSync(filePath)) {
     throw new CustomError('File not found', 404);
@@ -90,17 +89,26 @@ const deleteFile = async (
     });
 
     filesToDelete.forEach((file) => {
-      const filePathToDelete = `${UPLOAD_DIR}/${file}`;
+      const filePathToDelete = path.join(UPLOAD_DIR, file);
       if (fs.existsSync(filePathToDelete)) {
-        fs.unlinkSync(filePath);
+        try {
+          fs.unlinkSync(filePathToDelete);
+          console.log(`Deleted recipe file: ${filePathToDelete}`);
+        } catch (err) {
+          console.error(`Failed to delete recipe file: ${filePathToDelete}`, err);
+        }
+      } else {
+        console.warn(`Recipe file not found for deletion: ${filePathToDelete}`);
       }
-    })
-  } catch {
+    });
+  } catch (err) {
+    console.error('Error deleting files for recipe', err);
     throw new CustomError('An error occurred', 500);
   }
 
   res.json({message: 'File and related files deleted'});
   } catch (err) {
+    console.error('Error deleting file in uploadController:', err);
     next(
       err instanceof CustomError
         ? err
@@ -129,7 +137,7 @@ const deleteProfileFile = async (
       throw new CustomError('Unauthorized', 401);
     }
 
-    const filePath = `${PROFILE_DIR}/${filename}`;
+    const filePath = path.join(PROFILE_UPLOAD_DIR, filename);
     if (!fs.existsSync(filePath)) {
       throw new CustomError('File not found', 404);
     }
