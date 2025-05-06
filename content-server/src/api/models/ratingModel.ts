@@ -58,13 +58,24 @@ const postRating = async (
     const recipe = await fetchRecipeById(recipe_id);
     const recipeOwnerId = recipe.user_id;
 
-    // post a notification to the recipe owner
+    // Fetch the correct notification_type_id for 'Rating'
+    const [notificationTypeRows] = await promisePool.execute<RowDataPacket[]>(
+      'SELECT notification_type_id FROM NotificationTypes WHERE type_name = ?',
+      ['Rating'],
+    );
+
+    if (notificationTypeRows.length === 0) {
+      throw new CustomError('Notification type "Rating" not found', 500);
+    }
+
+    const notificationTypeId = notificationTypeRows[0].notification_type_id;
+
+    // Use the correct ID when posting the notification
     await postNotification(
       recipeOwnerId,
       `${recipeOwner.username} rated your recipe (${recipe.title})`,
-      4,
+      notificationTypeId,
     );
-
     if (result[0].affectedRows === 0) {
       throw new CustomError(ERROR_MESSAGES.RATING.NOT_CREATED, 500);
     }
@@ -87,7 +98,7 @@ const deleteRating = async (
         ? 'DELETE FROM Ratings WHERE rating_id = ?'
         : 'DELETE FROM Ratings WHERE rating_id = ? AND user_id = ?';
     const params = user_level === 'Admin' ? [rating_id] : [rating_id, user_id];
-    console.log('rating params', params)
+    console.log('rating params', params);
     const [result] = await promisePool.execute<ResultSetHeader>(sql, params);
     if (!result.affectedRows) {
       throw new CustomError(ERROR_MESSAGES.RATING.NOT_DELETED, 500);
