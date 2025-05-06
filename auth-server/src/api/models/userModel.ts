@@ -150,7 +150,7 @@ const deleteUser = async (
       };
 
       try {
-        const url = `${process.env.UPLOAD_SERVER}/upload/${file}`;
+        const url = `${process.env.UPLOAD_SERVER}/upload/${file.filename}`;
         console.log('Delete recipe image url', url);
         const response = await fetchData<MessageResponse>(url, options);
         console.log('response', response);

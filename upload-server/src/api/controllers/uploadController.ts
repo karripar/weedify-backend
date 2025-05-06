@@ -4,6 +4,7 @@ import fs from "fs";
 import { MessageResponse } from "hybrid-types/MessageTypes";
 import { UPLOAD_DIR, PROFILE_UPLOAD_DIR } from "../../utils/paths";
 import path from "path";
+import { TokenContent } from "hybrid-types/DBTypes";
 
 type UploadResponse = MessageResponse & {
   data: {
@@ -56,7 +57,7 @@ const uploadFile = async (
 
 const deleteFile = async (
   req: Request<{filename: string}>,
-  res: Response<MessageResponse>,
+  res: Response<MessageResponse, {user: TokenContent}>,
   next: NextFunction,
 ) => {
   try {
@@ -64,6 +65,9 @@ const deleteFile = async (
     if (!filename) {
       throw new CustomError('No filename provided', 400);
     }
+
+
+    console.log('res.locals.user in deleteFile', res.locals.user);
 
     // Check if the user is an admin
     if (res.locals.user.level_name !== 'Admin') {

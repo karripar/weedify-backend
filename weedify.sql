@@ -220,17 +220,20 @@ INSERT INTO DifficultyLevels (level_name) VALUES ('Easy'), ('Medium'), ('Hard');
 
 INSERT INTO UserLevels (level_name) VALUES ('Admin'), ('User'), ('Influencer');
 
-INSERT INTO DietTypes (diet_type_name) VALUES ('Vegetarian'), ('Vegan'), ('Gluten-Free'), ('Dairy-Free'), ('Nut-Free'), ('Halal'), ('Kosher'), ('Paleo'), ('Keto'), ('Low-Carb'), ('Mediterranean'), ('Lactose-Free'), ('Shellfish-Free'), ('Soy-Free'), ('Egg-Free'), ('Fish-Free');
+INSERT INTO DietTypes (diet_type_name) VALUES ('Vegetarian'), ('Vegan'), ('Gluten-Free'), ('Dairy-Free'), ('Nut-Free'), ('Halal'), ('Kosher'), ('Paleo'), ('Keto'), ('Low-Carb'), ('Mediterranean');
 
-
+/*
 INSERT INTO Users (username, password, email, user_level_id) VALUES ('user', 'password', 'user@testi.com', 2), ('testi', 'password', 'testi@testi.com', 2);
 
 INSERT INTO ProfilePicture (user_id, filename, media_type, filesize) VALUES (1, 'profile.jpg', 'image/jpeg', 12345), (2, 'profile.jpg', 'image/jpeg', 12345);
 
+
 INSERT INTO RecipePosts (user_id, title, instructions, difficulty_level_id, cooking_time, filename, media_type, filesize, portions) VALUES (1, 'Kasvisruoka', 'Ohjeet kasvisruokaan', 1, 30, 'recipe.jpg', 'image/jpeg', 12345, 5), (2, 'Liha-annos', 'Ohjeet liha-annokseen', 2, 45, 'recipe.jpg', 'image/jpeg', 12345, 4);
+*/
 
 INSERT INTO Ingredients (ingredient_name) VALUES ('Peruna'), ('Porkkana'), ('Sipuli'), ('Kaalit'), ('Pasta'), ('Riisi'), ('Kala'), ('Liha'), ('Maito'), ('Juusto'), ('Kasvikset'), ('Hedelmät');
 
+/*
 INSERT INTO RecipeIngredients (recipe_id, ingredient_id, amount, unit) VALUES (1, 1, 2, 'kpl'), (1, 2, 3, 'kpl'), (2, 1, 3, 'kpl'), (2, 2, 4, 'kpl'), (2, 3, 1, 'kpl'), (2, 4, 5, 'kpl'), (2, 5, 2, 'kpl'), (2, 6, 1, 'kpl'), (2, 7, 1, 'kpl'), (2, 8, 1, 'kpl'), (2, 9, 1, 'kpl'), (2, 10, 1, 'kpl'), (2, 11, 1, 'kpl');
 
 
@@ -241,9 +244,11 @@ INSERT INTO Likes (user_id, recipe_id) VALUES (1, 1), (2, 1);
 INSERT INTO Follows (follower_id, followed_id) VALUES (1, 2);
 
 INSERT INTO Favorites (user_id, recipe_id) VALUES (1, 1), (2, 1);
+*/
 
 INSERT INTO NotificationTypes (type_name) VALUES ('Like'), ('Comment'), ('Follow'), ('Rating');
 
+/*
 INSERT INTO Notifications (user_id, notification_text, notification_type_id) VALUES (1, 'Testi-ilmoitus', 1), (2, 'Testi-ilmoitus2', 2);
 
 INSERT INTO Notifications (user_id, notification_text, notification_type_id) VALUES (1, 'Testi-ilmoitus', 1), (2, 'Testi-ilmoitus2', 2);
@@ -252,10 +257,10 @@ INSERT INTO Ratings (user_id, recipe_id, rating, review) VALUES (1, 1, 5, 'Erino
 
 
 INSERT INTO RecipeDietTypes (recipe_id, diet_type_id) VALUES (1, 1), (2, 2);
+*/
+INSERT INTO DietaryRestrictions (restriction_name) VALUES ('Vegetarian'), ('Vegan'), ('Gluten-Free'), ('Dairy-Free'), ('Nut-Free'), ('Halal'), ('Kosher'), ('Paleo'), ('Keto'), ('Low-Carb'), ('Mediterranean'), ('Lactose-Free'),('Shellfish-Free'), ('Soy-Free'), ('Egg-Free'), ('Fish-Free'), ('Corn-Free'), ('Nightshade-Free'), ('FODMAP-Friendly'), ('Low-FODMAP');
 
-INSERT INTO DietaryRestrictions (restriction_name) VALUES ('Vegetarian'), ('Vegan'), ('Gluten-Free'), ('Dairy-Free'), ('Nut-Free'), ('Halal'), ('Kosher'), ('Paleo'), ('Keto'), ('Low-Carb'), ('Mediterranean'), ('Lactose-Free'),('Shellfish-Free'), ('Soy-Free'), ('Egg-Free'), ('Fish-Free');
-
-INSERT INTO UserDietaryRestrictions (user_id, dietary_restriction_id) VALUES (1, 1), (2, 2);
+-- INSERT INTO UserDietaryRestrictions (user_id, dietary_restriction_id) VALUES (1, 1), (2, 2);
 
 -- Update Ingredients table to include nutritional data and Fineli reference
 ALTER TABLE Ingredients
