@@ -245,6 +245,7 @@ INSERT INTO Follows (follower_id, followed_id) VALUES (1, 2);
 
 INSERT INTO Favorites (user_id, recipe_id) VALUES (1, 1), (2, 1);
 */
+
 INSERT INTO NotificationTypes (type_name) VALUES ('Like'), ('Comment'), ('Follow'), ('Rating');
 
 /*
